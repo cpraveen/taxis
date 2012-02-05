@@ -103,6 +103,29 @@ void Grid::compute_cell_area ()
 void Grid::compute_face_normal_and_area ()
 {
 
+   // Check orientation of interior faces
+   for(unsigned int i=0; i<n_face; ++i)
+   {
+      unsigned int v0 = face[i].vertex[0];
+      unsigned int v1 = face[i].vertex[1];
+      Vector dr = vertex[v1] - vertex[v0];
+      
+      Vector normal;
+      normal.x = +dr.y;
+      normal.y = -dr.x;
+      normal.z =  0.0;
+            
+      // Check orintation of boundary face
+      unsigned int cl = face[i].lcell;
+      Vector dcf = face[i].centroid - cell[cl].centroid;
+      double d = dcf * normal;
+      if(d < 0.0)
+      {
+         face[i].vertex[0] = v1;
+         face[i].vertex[1] = v0;
+      }
+   }
+   
    // interior faces
    for(unsigned int i=0; i<n_face; ++i)
    {
@@ -134,6 +157,17 @@ void Grid::compute_face_normal_and_area ()
       bface[i].normal.z =  0.0;
 
       bface[i].area = bface[i].normal.norm();
+      
+      // Check orintation of boundary face
+      unsigned int cl = bface[i].lcell;
+      Vector dcf = bface[i].centroid - cell[cl].centroid;
+      double d = dcf * bface[i].normal;
+      if(d < 0.0)
+      {
+         bface[i].vertex[0] = v1;
+         bface[i].vertex[1] = v0;
+         bface[i].normal *= -1.0;
+      }
    }
 
    // Gradient of P1 basis function on each triangle
