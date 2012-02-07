@@ -13,7 +13,7 @@ class Cell
       unsigned int vertex[3];
       int          face[3];
       double       area;
-      std::vector<Vector> normal;
+      std::vector<Vector> normal; // Inward normal
 };
 
 class Grid

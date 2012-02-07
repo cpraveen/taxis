@@ -28,6 +28,9 @@ class BoundaryCondition
       void apply (const Vector         &vertex,
                   const Face           &face,
                   std::vector<PrimVar> &state);
+      void apply (const Vector &vertex,
+                  const Face   &face,
+                  PrimVar      &state);
       void apply_slip (const Face           &face,
                        std::vector<PrimVar> &state);
       void apply_noslip (const Vector         &vertex,
@@ -36,6 +39,8 @@ class BoundaryCondition
                          PrimVar      &state);
       void apply_pressure (const Vector         &vertex,
                            std::vector<PrimVar> &state);
+      void apply_pressure (const Vector &vertex,
+                           PrimVar      &state);
       void apply_inlet (const Vector         &vertex,
                         std::vector<PrimVar> &state);
       void apply_outlet (std::vector<PrimVar> &state);
@@ -220,8 +225,8 @@ void BoundaryCondition::apply_noslip(const Vector         &vertex,
    else
    {
       double T = temperature.Eval(point);
-      state[0].pressure = material->gas_const * state[0].density * T;
-      state[1].pressure = state[0].pressure;
+      state[0].density = state[0].pressure/(material->gas_const * T);
+      state[1].density = state[1].pressure/(material->gas_const * T);
    }
 }
 
@@ -237,6 +242,11 @@ void BoundaryCondition::apply_noslip(const Vector &vertex,
    state.velocity.x = xvelocity.Eval(point);
    state.velocity.y = yvelocity.Eval(point);
    state.velocity.z = zvelocity.Eval(point);
+   if(!adiabatic)
+   {
+      double T = temperature.Eval(point);
+      state.density = state.pressure/(material->gas_const * T);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -250,6 +260,18 @@ void BoundaryCondition::apply_pressure (const Vector         &vertex,
 
    state[0].pressure  = pressure.Eval(point);
    state[1] = state[0];
+}
+
+//------------------------------------------------------------------------------
+// Reset pressure value. Other states remain same
+//------------------------------------------------------------------------------
+inline
+void BoundaryCondition::apply_pressure (const Vector &vertex,
+                                        PrimVar      &state)
+{
+   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   
+   state.pressure  = pressure.Eval(point);
 }
 
 //------------------------------------------------------------------------------
@@ -327,6 +349,47 @@ void BoundaryCondition::apply(const Vector         &vertex,
 
       case BC::farfield:
          apply_farfield (vertex, state);
+         break;
+
+      default:
+         std::cout << "BoundaryCondition::apply" << std::endl;
+         std::cout << "   Unknown boundary condition: " << name << std::endl;
+         abort ();
+   }
+}
+
+//------------------------------------------------------------------------------
+// Apply boundary condition based on type
+//------------------------------------------------------------------------------
+inline
+void BoundaryCondition::apply(const Vector  &vertex,
+                              const Face    &face,
+                              PrimVar       &state)
+{
+   switch(type)
+   {
+      case BC::slip:
+         //apply_slip (face, state);
+         break;
+
+      case BC::noslip:
+         apply_noslip (vertex, state);
+         break;
+
+      case BC::pressure:
+         apply_pressure (vertex, state);
+         break;
+
+      case BC::inlet:
+         //apply_inlet (vertex, state);
+         break;
+
+      case BC::outlet:
+         //apply_outlet (state);
+         break;
+
+      case BC::farfield:
+         //apply_farfield (vertex, state);
          break;
 
       default:

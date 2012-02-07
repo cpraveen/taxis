@@ -90,6 +90,65 @@ void FiniteVolume::compute_gradients ()
       Vector& normal1 = grid.cell[i].normal[1];
       Vector& normal2 = grid.cell[i].normal[2];
 
+      // x velocity
+      dU_cell[i] = normal0 * primitive[v0].velocity.x +
+                   normal1 * primitive[v1].velocity.x +
+                   normal2 * primitive[v2].velocity.x;
+
+      // y velocity
+      dV_cell[i] = normal0 * primitive[v0].velocity.y +
+                   normal1 * primitive[v1].velocity.y +
+                   normal2 * primitive[v2].velocity.y;
+
+      // z velocity
+      dW_cell[i] = normal0 * primitive[v0].velocity.z +
+                   normal1 * primitive[v1].velocity.z +
+                   normal2 * primitive[v2].velocity.z;
+
+      // Temperature gradient
+      dT_cell[i] = normal0 * param.material.temperature(primitive[v0]) +
+                   normal1 * param.material.temperature(primitive[v1]) +
+                   normal2 * param.material.temperature(primitive[v2]);
+
+   }
+
+   for(unsigned int i=0; i<grid.bface.size(); ++i)
+   {
+      vector<PrimVar> state(2);
+      int face_type = grid.bface[i].type;
+      BoundaryCondition& bc = param.boundary_condition[face_type];
+
+      unsigned int v0 = grid.bface[i].vertex[0];
+      unsigned int v1 = grid.bface[i].vertex[1];
+      unsigned int cl = grid.bface[i].lcell;
+
+      state[0] = primitive[v0];
+      state[1] = primitive[v1];
+
+      bc.apply(grid.vertex[v0], grid.bface[i], state[0]);
+      bc.apply(grid.vertex[v1], grid.bface[i], state[1]);
+
+      dU_cell[cl] += grid.bface[i].normal * 
+                     (state[0].velocity.x + state[1].velocity.x
+                     - primitive[v0].velocity.x - primitive[v1].velocity.x)/2.0;
+      dV_cell[cl] += grid.bface[i].normal * 
+                     (state[0].velocity.y + state[1].velocity.y
+                     - primitive[v0].velocity.y - primitive[v1].velocity.y)/2.0;
+      dW_cell[cl] += grid.bface[i].normal * 
+                     (state[0].velocity.z + state[1].velocity.z
+                     - primitive[v0].velocity.z - primitive[v1].velocity.z)/2.0;
+   }
+
+   for(unsigned int i=0; i<grid.n_cell; ++i)
+   {
+      unsigned int v0 = grid.cell[i].vertex[0];
+      unsigned int v1 = grid.cell[i].vertex[1];
+      unsigned int v2 = grid.cell[i].vertex[2];
+
+      Vector& normal0 = grid.cell[i].normal[0];
+      Vector& normal1 = grid.cell[i].normal[1];
+      Vector& normal2 = grid.cell[i].normal[2];
+
       // density
       Vector dR_cell = normal0 * primitive[v0].density +
                        normal1 * primitive[v1].density +
@@ -99,25 +158,16 @@ void FiniteVolume::compute_gradients ()
       dR[v2] += dR_cell;
 
       // x velocity
-      dU_cell[i] = normal0 * primitive[v0].velocity.x +
-                   normal1 * primitive[v1].velocity.x +
-                   normal2 * primitive[v2].velocity.x;
       dU[v0] += dU_cell[i];
       dU[v1] += dU_cell[i];
       dU[v2] += dU_cell[i];
 
       // y velocity
-      dV_cell[i] = normal0 * primitive[v0].velocity.y +
-                   normal1 * primitive[v1].velocity.y +
-                   normal2 * primitive[v2].velocity.y;
       dV[v0] += dV_cell[i];
       dV[v1] += dV_cell[i];
       dV[v2] += dV_cell[i];
 
       // z velocity
-      dW_cell[i] = normal0 * primitive[v0].velocity.z +
-                   normal1 * primitive[v1].velocity.z +
-                   normal2 * primitive[v2].velocity.z;
       dW[v0] += dW_cell[i];
       dW[v1] += dW_cell[i];
       dW[v2] += dW_cell[i];
@@ -129,12 +179,6 @@ void FiniteVolume::compute_gradients ()
       dP[v0] += dP_cell;
       dP[v1] += dP_cell;
       dP[v2] += dP_cell;
-
-      // Temperature gradient
-      dT_cell[i] = normal0 * param.material.temperature(primitive[v0]) +
-                   normal1 * param.material.temperature(primitive[v1]) +
-                   normal2 * param.material.temperature(primitive[v2]);
-
    }
 
    // vertex gradients
@@ -373,6 +417,7 @@ void FiniteVolume::update_solution (const unsigned int r)
    { 
    }
 
+   /*
    for(unsigned int i=0; i<grid.bface.size(); ++i)
    {
       int face_type = grid.bface[i].type;
@@ -385,6 +430,7 @@ void FiniteVolume::update_solution (const unsigned int r)
          bc.apply_noslip (grid.vertex[v1], primitive[v1]);
       }
    }
+   */
 }
 
 //------------------------------------------------------------------------------
