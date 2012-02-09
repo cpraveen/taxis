@@ -76,9 +76,10 @@ class Material
                          const Vector&  normal2, Flux& flux2
                          ) const;
       double viscosity (const double T) const;
-      double temperature (const PrimVar& state) const;
       double total_energy (const PrimVar& state) const;
       double sound_speed (const PrimVar& state) const;
+      double Density (const PrimVar& state) const;
+      double Mach (const PrimVar& state) const;
 
 };
 
@@ -89,11 +90,12 @@ inline
 ConVar Material::prim2con(const PrimVar& prim_var)
 {
    ConVar con_var;
+   double density = Density (prim_var);
 
-   con_var.density  = prim_var.density;
-   con_var.momentum = prim_var.velocity * prim_var.density;
+   con_var.density  = density;
+   con_var.momentum = prim_var.velocity * density;
    con_var.energy   = prim_var.pressure/(gamma - 1.0) +
-                        0.5 * prim_var.velocity.square() * prim_var.density;
+                        0.5 * prim_var.velocity.square() * density;
 
    return con_var;
 }
@@ -106,10 +108,10 @@ PrimVar Material::con2prim (const ConVar& con_var)
 {
    PrimVar prim_var;
 
-   prim_var.density  = con_var.density;
    prim_var.velocity = con_var.momentum / con_var.density;
    prim_var.pressure = (gamma - 1.0) * 
         ( con_var.energy - 0.5 * con_var.momentum.square() / con_var.density );
+   prim_var.temperature = prim_var.pressure / (gas_const * con_var.density);
 
    return prim_var;
 }
@@ -135,22 +137,14 @@ double Material::viscosity (const double T) const
 }
 
 //------------------------------------------------------------------------------
-//  Compute temperature given primitive state
-//------------------------------------------------------------------------------
-inline
-double Material::temperature (const PrimVar& state) const
-{
-   return state.pressure / (gas_const * state.density);
-}
-
-//------------------------------------------------------------------------------
 // Total energy per unit volume
 //------------------------------------------------------------------------------
 inline
 double Material::total_energy (const PrimVar& state) const
 {
+   double density = Density (state);
    return state.pressure / (gamma - 1.0) + 
-          0.5 * state.density * state.velocity.square();
+          0.5 * density * state.velocity.square();
 }
 
 //------------------------------------------------------------------------------
@@ -159,7 +153,26 @@ double Material::total_energy (const PrimVar& state) const
 inline
 double Material::sound_speed (const PrimVar& state) const
 {
-   return sqrt(gamma * state.pressure / state.density);
+   return sqrt(gamma * gas_const * state.temperature);
+}
+
+//------------------------------------------------------------------------------
+// Density
+//------------------------------------------------------------------------------
+inline
+double Material::Density (const PrimVar& state) const
+{
+   return state.pressure / (gas_const * state.temperature);
+}
+
+//------------------------------------------------------------------------------
+// Mach number
+//------------------------------------------------------------------------------
+inline
+double Material::Mach (const PrimVar& state) const
+{
+   double sonic = sound_speed (state);
+   return state.velocity.norm() / sonic;
 }
 
 #endif

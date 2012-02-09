@@ -9,7 +9,7 @@
 class PrimVar
 {
    public:
-      double density, pressure;
+      double temperature, pressure;
       Vector velocity;
 
       PrimVar  operator+  (const PrimVar& prim_var) const;
@@ -30,9 +30,9 @@ PrimVar PrimVar::operator+ (const PrimVar& prim_var) const
 {
    PrimVar result;
 
-   result.density  = density  + prim_var.density;
-   result.velocity = velocity + prim_var.velocity;
-   result.pressure = pressure + prim_var.pressure;
+   result.temperature = temperature  + prim_var.temperature;
+   result.velocity    = velocity + prim_var.velocity;
+   result.pressure    = pressure + prim_var.pressure;
 
    return result;
 }
@@ -45,9 +45,9 @@ PrimVar PrimVar::operator- (const PrimVar& prim_var) const
 {
    PrimVar result;
 
-   result.density  = density  - prim_var.density;
-   result.velocity = velocity - prim_var.velocity;
-   result.pressure = pressure - prim_var.pressure;
+   result.temperature = temperature  - prim_var.temperature;
+   result.velocity    = velocity - prim_var.velocity;
+   result.pressure    = pressure - prim_var.pressure;
 
    return result;
 }
@@ -60,9 +60,9 @@ PrimVar PrimVar::operator* (const double& scalar) const
 {
    PrimVar result;
 
-   result.density  = density  * scalar;
-   result.velocity = velocity * scalar; 
-   result.pressure = pressure * scalar;
+   result.temperature = temperature * scalar;
+   result.velocity    = velocity    * scalar; 
+   result.pressure    = pressure    * scalar;
 
    return result;
 }
@@ -76,9 +76,9 @@ PrimVar PrimVar::operator/ (const double& scalar) const
    double rscalar = 1.0/scalar;
    PrimVar result;
 
-   result.density  = density  * rscalar;
-   result.velocity = velocity * rscalar; 
-   result.pressure = pressure * rscalar;
+   result.temperature = temperature * rscalar;
+   result.velocity    = velocity    * rscalar; 
+   result.pressure    = pressure    * rscalar;
 
    return result;
 }
@@ -93,11 +93,11 @@ PrimVar PrimVar::operator* (const PrimVar& prim_var) const
 {
    PrimVar result;
 
-   result.density    = density    * prim_var.density;
-   result.velocity.x = velocity.x * prim_var.velocity.x;
-   result.velocity.y = velocity.y * prim_var.velocity.y;
-   result.velocity.z = velocity.z * prim_var.velocity.z;
-   result.pressure   = pressure   * prim_var.pressure;
+   result.temperature = temperature * prim_var.temperature;
+   result.velocity.x  = velocity.x  * prim_var.velocity.x;
+   result.velocity.y  = velocity.y  * prim_var.velocity.y;
+   result.velocity.z  = velocity.z  * prim_var.velocity.z;
+   result.pressure    = pressure    * prim_var.pressure;
 
    return result;
 }
@@ -108,9 +108,9 @@ PrimVar PrimVar::operator* (const PrimVar& prim_var) const
 inline
 PrimVar& PrimVar::operator*= (const double& scalar)
 {
-   density  *= scalar;
-   velocity *= scalar; 
-   pressure *= scalar;
+   temperature *= scalar;
+   velocity    *= scalar; 
+   pressure    *= scalar;
 
    return *this;
 }
@@ -121,9 +121,9 @@ PrimVar& PrimVar::operator*= (const double& scalar)
 inline
 PrimVar& PrimVar::operator+= (const PrimVar& prim_var)
 {
-   density  += prim_var.density;
-   velocity += prim_var.velocity;
-   pressure += prim_var.pressure;
+   temperature += prim_var.temperature;
+   velocity    += prim_var.velocity;
+   pressure    += prim_var.pressure;
 
    return *this;
 }

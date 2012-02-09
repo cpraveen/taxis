@@ -218,9 +218,9 @@ void Parameter::read_initial_condition (Reader &fin)
 
    fin.begin_section ("initial_condition");
 
-   fin.entry ("density");
+   fin.entry ("temperature");
    fin.getline (input);
-   initial_condition.add ("density", input);
+   initial_condition.add ("temperature", input);
 
    fin.entry ("xvelocity");
    fin.getline (input);
@@ -339,7 +339,7 @@ void Parameter::read_output (Reader &fin)
    while (!fin.eos())
    {
       fin >> input;
-      assert (input=="mach" || input=="temperature");
+      assert (input=="mach" || input=="density");
       write_variables.push_back (input);
    }
 

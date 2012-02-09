@@ -33,6 +33,8 @@ class BoundaryCondition
                   PrimVar      &state);
       void apply_slip (const Face           &face,
                        std::vector<PrimVar> &state);
+      void apply_slip (const Face &face,
+                       PrimVar    &state);
       void apply_noslip (const Vector         &vertex,
                          std::vector<PrimVar> &state);
       void apply_noslip (const Vector &vertex,
@@ -43,6 +45,8 @@ class BoundaryCondition
                            PrimVar      &state);
       void apply_inlet (const Vector         &vertex,
                         std::vector<PrimVar> &state);
+      void apply_inlet (const Vector &vertex,
+                        PrimVar      &state);
       void apply_outlet (std::vector<PrimVar> &state);
       void apply_farfield (const Vector         &vertex,
                            std::vector<PrimVar> &state);
@@ -52,7 +56,6 @@ class BoundaryCondition
 
    private:
       Material*      material;
-      FParser        density;
       FParser        xvelocity;
       FParser        yvelocity;
       FParser        zvelocity;
@@ -133,17 +136,17 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
          type = BC::inlet;
       else
          type = BC::farfield;
-      bool has_density   = false;
-      bool has_xvelocity = false;
-      bool has_yvelocity = false;
-      bool has_zvelocity = false;
-      bool has_pressure  = false;
+      bool has_temperature = false;
+      bool has_xvelocity   = false;
+      bool has_yvelocity   = false;
+      bool has_zvelocity   = false;
+      bool has_pressure    = false;
       for(unsigned int i=0; i<variable.size(); ++i)
       {
-         if(variable[i] == "density")
+         if(variable[i] == "temperature")
          {
-            has_density = true;
-            density.Parse (function[i], "x,y,z");
+            has_temperature = true;
+            temperature.Parse (function[i], "x,y,z");
          }
          else if(variable[i] == "xvelocity")
          {
@@ -166,7 +169,7 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
             pressure.Parse (function[i], "x,y,z");
          }
       }
-      assert (has_density && has_xvelocity && has_yvelocity && has_zvelocity &&
+      assert (has_temperature && has_xvelocity && has_yvelocity && has_zvelocity &&
               has_pressure);
    }
    // At outflow nothing is specified
@@ -203,6 +206,14 @@ void BoundaryCondition::apply_slip(const Face           &face,
    state[1] = state[0];
 }
 
+inline
+void BoundaryCondition::apply_slip(const Face &face,
+                                   PrimVar    &state)
+{
+   Vector unit_normal = face.normal / face.area;
+   state.velocity -= unit_normal * (state.velocity * unit_normal);
+}
+
 //------------------------------------------------------------------------------
 // Velocity is specified
 // If temperature is specified, then pressure is computed using the temperature
@@ -211,22 +222,21 @@ inline
 void BoundaryCondition::apply_noslip(const Vector         &vertex,
                                      std::vector<PrimVar> &state)
 {
-   state[1].density  = state[0].density;
-
    double point[3]  = {vertex.x, vertex.y, vertex.z};
    state[0].velocity.x = xvelocity.Eval(point);
    state[0].velocity.y = yvelocity.Eval(point);
    state[0].velocity.z = zvelocity.Eval(point);
 
    state[1].velocity = state[0].velocity;
+   state[1].pressure = state[0].pressure;
 
    if(adiabatic)
-      state[1].pressure = state[0].pressure;
+      state[1].temperature  = state[0].temperature;
    else
    {
       double T = temperature.Eval(point);
-      state[0].density = state[0].pressure/(material->gas_const * T);
-      state[1].density = state[1].pressure/(material->gas_const * T);
+      state[0].temperature = T;
+      state[1].temperature = T;
    }
 }
 
@@ -244,8 +254,7 @@ void BoundaryCondition::apply_noslip(const Vector &vertex,
    state.velocity.z = zvelocity.Eval(point);
    if(!adiabatic)
    {
-      double T = temperature.Eval(point);
-      state.density = state.pressure/(material->gas_const * T);
+      state.temperature = temperature.Eval(point);
    }
 }
 
@@ -284,13 +293,25 @@ void BoundaryCondition::apply_inlet (const Vector         &vertex,
                                      std::vector<PrimVar> &state)
 {
    double point[3]  = {vertex.x, vertex.y, vertex.z};
-   state[0].density    = density.Eval(point);
+   state[0].temperature= temperature.Eval(point);
    state[0].velocity.x = xvelocity.Eval(point);
    state[0].velocity.y = yvelocity.Eval(point);
    state[0].velocity.z = zvelocity.Eval(point);
    state[0].pressure   = pressure.Eval(point);
 
    state[1] = state[0];
+}
+
+inline
+void BoundaryCondition::apply_inlet (const Vector &vertex,
+                                     PrimVar      &state)
+{
+   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   state.temperature= temperature.Eval(point);
+   state.velocity.x = xvelocity.Eval(point);
+   state.velocity.y = yvelocity.Eval(point);
+   state.velocity.z = zvelocity.Eval(point);
+   state.pressure   = pressure.Eval(point);
 }
 
 //------------------------------------------------------------------------------
@@ -310,7 +331,7 @@ void BoundaryCondition::apply_farfield (const Vector         &vertex,
                                         std::vector<PrimVar> &state)
 {
    double point[3]     = {vertex.x, vertex.y, vertex.z};
-   state[1].density    = density.Eval(point);
+   state[1].temperature= temperature.Eval(point);
    state[1].velocity.x = xvelocity.Eval(point);
    state[1].velocity.y = yvelocity.Eval(point);
    state[1].velocity.z = zvelocity.Eval(point);
@@ -369,7 +390,7 @@ void BoundaryCondition::apply(const Vector  &vertex,
    switch(type)
    {
       case BC::slip:
-         //apply_slip (face, state);
+         apply_slip (face, state);
          break;
 
       case BC::noslip:
@@ -381,11 +402,11 @@ void BoundaryCondition::apply(const Vector  &vertex,
          break;
 
       case BC::inlet:
-         //apply_inlet (vertex, state);
+         apply_inlet (vertex, state);
          break;
 
       case BC::outlet:
-         //apply_outlet (state);
+         // Nothing to be done
          break;
 
       case BC::farfield:

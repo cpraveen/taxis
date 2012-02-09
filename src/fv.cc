@@ -27,16 +27,17 @@ void FiniteVolume::initialize ()
    dt.resize (grid.n_vertex);
 
    // we need gradient for second order scheme
-   dR.resize (grid.n_vertex);
+   dT.resize (grid.n_vertex);
    dU.resize (grid.n_vertex);
    dV.resize (grid.n_vertex);
    dW.resize (grid.n_vertex);
    dP.resize (grid.n_vertex);
 
+   dT_cell.resize (grid.n_cell);
    dU_cell.resize (grid.n_cell);
    dV_cell.resize (grid.n_cell);
    dW_cell.resize (grid.n_cell);
-   dT_cell.resize (grid.n_cell);
+   dP_cell.resize (grid.n_cell);
 
    // If restart option specified, read previous solution from file
    if(restart)
@@ -46,7 +47,7 @@ void FiniteVolume::initialize ()
       fi.open ("restart.dat");
       assert (fi.is_open());
       for(unsigned int i=0; i<grid.n_vertex; ++i)
-         fi >> primitive[i].density
+         fi >> primitive[i].temperature
             >> primitive[i].velocity.x
             >> primitive[i].velocity.y
             >> primitive[i].velocity.z
@@ -59,7 +60,7 @@ void FiniteVolume::initialize ()
       for(unsigned int i=0; i<grid.n_vertex; ++i)
       {
          primitive[i] = param.initial_condition.value (grid.vertex[i]);
-         assert (primitive[i].density  > 0.0);
+         assert (primitive[i].temperature  > 0.0);
          assert (primitive[i].pressure > 0.0);
       }
       cout << " Done\n";
@@ -73,7 +74,7 @@ void FiniteVolume::compute_gradients ()
 {
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
-      dR[i] = 0.0;
+      dT[i] = 0.0;
       dU[i] = 0.0;
       dV[i] = 0.0;
       dW[i] = 0.0;
@@ -90,6 +91,11 @@ void FiniteVolume::compute_gradients ()
       Vector& normal1 = grid.cell[i].normal[1];
       Vector& normal2 = grid.cell[i].normal[2];
 
+      // Temperature gradient
+      dT_cell[i] = normal0 * primitive[v0].temperature +
+                   normal1 * primitive[v1].temperature +
+                   normal2 * primitive[v2].temperature;
+
       // x velocity
       dU_cell[i] = normal0 * primitive[v0].velocity.x +
                    normal1 * primitive[v1].velocity.x +
@@ -105,10 +111,10 @@ void FiniteVolume::compute_gradients ()
                    normal1 * primitive[v1].velocity.z +
                    normal2 * primitive[v2].velocity.z;
 
-      // Temperature gradient
-      dT_cell[i] = normal0 * param.material.temperature(primitive[v0]) +
-                   normal1 * param.material.temperature(primitive[v1]) +
-                   normal2 * param.material.temperature(primitive[v2]);
+      // Pressure gradient
+      dP_cell[i] = normal0 * primitive[v0].pressure +
+                   normal1 * primitive[v1].pressure +
+                   normal2 * primitive[v2].pressure;
 
    }
 
@@ -128,6 +134,9 @@ void FiniteVolume::compute_gradients ()
       bc.apply(grid.vertex[v0], grid.bface[i], state[0]);
       bc.apply(grid.vertex[v1], grid.bface[i], state[1]);
 
+      dT_cell[cl] += grid.bface[i].normal * 
+                     (state[0].temperature + state[1].temperature
+                     - primitive[v0].temperature - primitive[v1].temperature)/2.0;
       dU_cell[cl] += grid.bface[i].normal * 
                      (state[0].velocity.x + state[1].velocity.x
                      - primitive[v0].velocity.x - primitive[v1].velocity.x)/2.0;
@@ -137,6 +146,9 @@ void FiniteVolume::compute_gradients ()
       dW_cell[cl] += grid.bface[i].normal * 
                      (state[0].velocity.z + state[1].velocity.z
                      - primitive[v0].velocity.z - primitive[v1].velocity.z)/2.0;
+      dP_cell[cl] += grid.bface[i].normal * 
+                     (state[0].pressure + state[1].pressure
+                     - primitive[v0].pressure - primitive[v1].pressure)/2.0;
    }
 
    for(unsigned int i=0; i<grid.n_cell; ++i)
@@ -145,17 +157,9 @@ void FiniteVolume::compute_gradients ()
       unsigned int v1 = grid.cell[i].vertex[1];
       unsigned int v2 = grid.cell[i].vertex[2];
 
-      Vector& normal0 = grid.cell[i].normal[0];
-      Vector& normal1 = grid.cell[i].normal[1];
-      Vector& normal2 = grid.cell[i].normal[2];
-
-      // density
-      Vector dR_cell = normal0 * primitive[v0].density +
-                       normal1 * primitive[v1].density +
-                       normal2 * primitive[v2].density;
-      dR[v0] += dR_cell;
-      dR[v1] += dR_cell;
-      dR[v2] += dR_cell;
+      dT[v0] += dT_cell[i];
+      dT[v1] += dT_cell[i];
+      dT[v2] += dT_cell[i];
 
       // x velocity
       dU[v0] += dU_cell[i];
@@ -173,18 +177,15 @@ void FiniteVolume::compute_gradients ()
       dW[v2] += dW_cell[i];
 
       // pressure
-      Vector dP_cell = normal0 * primitive[v0].pressure +
-                       normal1 * primitive[v1].pressure +
-                       normal2 * primitive[v2].pressure;
-      dP[v0] += dP_cell;
-      dP[v1] += dP_cell;
-      dP[v2] += dP_cell;
+      dP[v0] += dP_cell[i];
+      dP[v1] += dP_cell[i];
+      dP[v2] += dP_cell[i];
    }
 
    // vertex gradients
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
-      dR[i] /= 6.0 * grid.mcarea[i];
+      dT[i] /= 6.0 * grid.mcarea[i];
       dU[i] /= 6.0 * grid.mcarea[i];
       dV[i] /= 6.0 * grid.mcarea[i];
       dW[i] /= 6.0 * grid.mcarea[i];
@@ -194,10 +195,11 @@ void FiniteVolume::compute_gradients ()
    // cell gradients
    for(unsigned int i=0; i<grid.n_cell; ++i)
    {
+      dT_cell[i] /= 2.0 * grid.cell[i].area;
       dU_cell[i] /= 2.0 * grid.cell[i].area;
       dV_cell[i] /= 2.0 * grid.cell[i].area;
       dW_cell[i] /= 2.0 * grid.cell[i].area;
-      dT_cell[i] /= 2.0 * grid.cell[i].area;
+      dP_cell[i] /= 2.0 * grid.cell[i].area;
    }
 }
 
@@ -586,13 +588,13 @@ void FiniteVolume::compute_bounds () const
    PrimVar prim_min;
    PrimVar prim_max;
 
-   prim_min.density    =  1.0e20;
+   prim_min.temperature=  1.0e20;
    prim_min.velocity.x =  1.0e20;
    prim_min.velocity.y =  1.0e20;
    prim_min.velocity.z =  1.0e20;
    prim_min.pressure   =  1.0e20;
 
-   prim_max.density    = -1.0e20;
+   prim_max.temperature= -1.0e20;
    prim_max.velocity.x = -1.0e20;
    prim_max.velocity.y = -1.0e20;
    prim_max.velocity.z = -1.0e20;
@@ -600,22 +602,22 @@ void FiniteVolume::compute_bounds () const
 
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
-      prim_min.density    = min(prim_min.density,    primitive[i].density);
-      prim_min.velocity.x = min(prim_min.velocity.x, primitive[i].velocity.x);
-      prim_min.velocity.y = min(prim_min.velocity.y, primitive[i].velocity.y);
-      prim_min.velocity.z = min(prim_min.velocity.z, primitive[i].velocity.z);
-      prim_min.pressure   = min(prim_min.pressure  , primitive[i].pressure  );
+      prim_min.temperature= min(prim_min.temperature, primitive[i].temperature);
+      prim_min.velocity.x = min(prim_min.velocity.x , primitive[i].velocity.x);
+      prim_min.velocity.y = min(prim_min.velocity.y , primitive[i].velocity.y);
+      prim_min.velocity.z = min(prim_min.velocity.z , primitive[i].velocity.z);
+      prim_min.pressure   = min(prim_min.pressure   , primitive[i].pressure  );
 
-      prim_max.density    = max(prim_max.density,    primitive[i].density);
-      prim_max.velocity.x = max(prim_max.velocity.x, primitive[i].velocity.x);
-      prim_max.velocity.y = max(prim_max.velocity.y, primitive[i].velocity.y);
-      prim_max.velocity.z = max(prim_max.velocity.z, primitive[i].velocity.z);
-      prim_max.pressure   = max(prim_max.pressure  , primitive[i].pressure  );
+      prim_max.temperature= max(prim_max.temperature, primitive[i].temperature);
+      prim_max.velocity.x = max(prim_max.velocity.x , primitive[i].velocity.x);
+      prim_max.velocity.y = max(prim_max.velocity.y , primitive[i].velocity.y);
+      prim_max.velocity.z = max(prim_max.velocity.z , primitive[i].velocity.z);
+      prim_max.pressure   = max(prim_max.pressure   , primitive[i].pressure  );
    }
 
-   cout << "\t\t Density  :" 
-        << setw(15) << prim_min.density 
-        << setw(15) << prim_max.density << endl;
+   cout << "\t\t Temperature  :" 
+        << setw(15) << prim_min.temperature 
+        << setw(15) << prim_max.temperature << endl;
    cout << "\t\t xVelocity:"
         << setw(15) << prim_min.velocity.x 
         << setw(15) << prim_max.velocity.x << endl;

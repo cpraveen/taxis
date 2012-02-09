@@ -17,7 +17,7 @@ class InitialCondition
       PrimVar value (const Vector& p);
 
    private:
-      FParser density;
+      FParser temperature;
       FParser xvelocity;
       FParser yvelocity;
       FParser zvelocity;
@@ -30,8 +30,8 @@ class InitialCondition
 inline
 void InitialCondition::add (std::string variable, std::string fun)
 {
-   if(variable == "density")
-      density.Parse (fun, "x,y,z");
+   if(variable == "temperature")
+      temperature.Parse (fun, "x,y,z");
    else if(variable == "xvelocity")
       xvelocity.Parse (fun, "x,y,z");
    else if(variable == "yvelocity")
@@ -57,7 +57,7 @@ PrimVar InitialCondition::value (const Vector& p)
 
    double vals[3] = {p.x, p.y, p.z};
 
-   result.density    = density.Eval (vals);
+   result.temperature= temperature.Eval (vals);
    result.velocity.x = xvelocity.Eval (vals);
    result.velocity.y = yvelocity.Eval (vals);
    result.velocity.z = zvelocity.Eval (vals);

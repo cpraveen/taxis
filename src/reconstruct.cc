@@ -39,7 +39,7 @@ void FiniteVolume::reconstruct_second
 
    // left state
    PrimVar dpriml;
-   dpriml.density    = dR[cl] * dr;
+   dpriml.temperature= dT[cl] * dr;
    dpriml.velocity.x = dU[cl] * dr;
    dpriml.velocity.y = dV[cl] * dr;
    dpriml.velocity.z = dW[cl] * dr;
@@ -49,7 +49,7 @@ void FiniteVolume::reconstruct_second
 
    // right state
    PrimVar dprimr;
-   dprimr.density    = dR[cr] * dr;
+   dprimr.temperature= dT[cr] * dr;
    dprimr.velocity.x = dU[cr] * dr;
    dprimr.velocity.y = dV[cr] * dr;
    dprimr.velocity.z = dW[cr] * dr;

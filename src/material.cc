@@ -9,9 +9,9 @@ using namespace std;
 // Set conserved variable to zero
 void PrimVar::zero ()
 {
-   density  = 0.0;
-   velocity = 0.0;
-   pressure = 0.0;
+   temperature = 0.0;
+   velocity    = 0.0;
+   pressure    = 0.0;
 }
 
 //------------------------------------------------------------------------------
@@ -69,12 +69,13 @@ void Material::euler_flux (const PrimVar& prim,
                            Flux&          flux) const
 {
    // Enthalpy 
-   double h  = gamma * prim.pressure / (prim.density * (gamma-1.0)) + 
+   double h  = gamma * gas_const * prim.temperature / (gamma-1.0) + 
                0.5 * prim.velocity.square();
    // Normal velocity
    double vn = prim.velocity * normal;
+   double density = Density (prim);
 
-   flux.mass_flux = prim.density * vn;
+   flux.mass_flux = density * vn;
    flux.momentum_flux = normal * prim.pressure + 
                         prim.velocity * flux.mass_flux;
    flux.energy_flux = h * flux.mass_flux;
@@ -94,8 +95,7 @@ void Material::viscous_flux (const bool     adiabatic,
                              Flux&          flux
                              ) const
 {
-   double T = temperature (state);
-   double mu = viscosity (T);
+   double mu = viscosity (state.temperature);
    double k = mu * Cp / prandtl;
 
    // Heat flux
@@ -135,8 +135,7 @@ void Material::viscous_flux (const PrimVar& state,
                              const Vector&  normal2, Flux& flux2
                              ) const
 {
-   double T = temperature (state);
-   double mu = viscosity (T);
+   double mu = viscosity (state.temperature);
    double k = mu * Cp / prandtl;
 
    // Heat flux

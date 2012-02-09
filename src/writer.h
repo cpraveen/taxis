@@ -14,7 +14,7 @@ class Writer
          grid (&grid),
          has_primitive (false),
          write_mach (false),
-         write_temperature (false)
+         write_density (false)
          {};
       Writer (const Grid&     grid,
               const Material& material) 
@@ -23,7 +23,7 @@ class Writer
          material (&material),
          has_primitive (false),
          write_mach (false),
-         write_temperature (false)
+         write_density (false)
          {};
       void attach_data (std::vector<PrimVar>& data);
       void attach_variables (const std::vector<std::string>& variables);
@@ -41,7 +41,7 @@ class Writer
       bool has_primitive;
 
       bool write_mach;
-      bool write_temperature;
+      bool write_density;
 
 };
 

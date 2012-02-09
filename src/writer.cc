@@ -30,8 +30,8 @@ void Writer::attach_variables (const vector<string>& variables)
    for(unsigned int i=0; i<variables.size(); ++i)
       if(variables[i]=="mach")
          write_mach = true;
-      else if(variables[i]=="temperature")
-         write_temperature = true;
+      else if(variables[i]=="density")
+         write_density = true;
       else
       {
          cout << "Writer: unknown variable " << variables[i] << endl;
@@ -85,10 +85,10 @@ void Writer::output_vtk (string filename)
    // If vertex primitive data is available, write to file
    if (has_primitive)
    {
-      vtk << "SCALARS density float 1" << endl;
+      vtk << "SCALARS temperature float 1" << endl;
       vtk << "LOOKUP_TABLE default" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
-         vtk << (*vertex_primitive)[i].density << endl;
+         vtk << (*vertex_primitive)[i].temperature << endl;
 
       vtk << "SCALARS pressure float 1" << endl;
       vtk << "LOOKUP_TABLE default" << endl;
@@ -111,24 +111,20 @@ void Writer::output_vtk (string filename)
       vtk << "LOOKUP_TABLE default" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
       {
-         double sonic_square = material->gamma *
-                              (*vertex_primitive)[i].pressure /
-                              (*vertex_primitive)[i].density;
-         double mach = sqrt ( (*vertex_primitive)[i].velocity.square() /
-                              sonic_square );
+         double mach = material->Mach ( (*vertex_primitive)[i] );
          vtk << mach << endl;
       }
    }
 
-   // Write temperature number at cells
-   if(write_temperature)
+   // Write density number at cells
+   if(write_density)
    {
-      vtk << "SCALARS temperature float 1" << endl;
+      vtk << "SCALARS density float 1" << endl;
       vtk << "LOOKUP_TABLE default" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
       {
-         double temperature = material->temperature ((*vertex_primitive)[i]);
-         vtk << temperature << endl;
+         double density = material->Density ((*vertex_primitive)[i]);
+         vtk << density << endl;
       }
    }
 
@@ -150,11 +146,11 @@ void Writer::output_restart ()
 
    for(unsigned int i=0; i<grid->n_vertex; ++i)
       fo << scientific
-         << (*vertex_primitive)[i].density << "  "
-         << (*vertex_primitive)[i].velocity.x << "  "
-         << (*vertex_primitive)[i].velocity.y << "  "
-         << (*vertex_primitive)[i].velocity.z << "  "
-         << (*vertex_primitive)[i].pressure   << endl;
+         << (*vertex_primitive)[i].temperature << "  "
+         << (*vertex_primitive)[i].velocity.x  << "  "
+         << (*vertex_primitive)[i].velocity.y  << "  "
+         << (*vertex_primitive)[i].velocity.z  << "  "
+         << (*vertex_primitive)[i].pressure    << endl;
 
    fo.close ();
 }

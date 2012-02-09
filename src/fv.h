@@ -38,8 +38,8 @@ class FiniteVolume
       std::vector<PrimVar> primitive;
       std::vector<ConVar>  conserved_old;
       std::vector<Flux>    residual;
-      std::vector<Vector>  dR, dU, dV, dW, dP;
-      std::vector<Vector>  dU_cell, dV_cell, dW_cell, dT_cell;
+      std::vector<Vector>  dT, dU, dV, dW, dP;
+      std::vector<Vector>  dT_cell, dU_cell, dV_cell, dW_cell, dP_cell;
       Flux                 residual_norm;
       double               residual_norm_total;
       double               residual_norm_total0;
