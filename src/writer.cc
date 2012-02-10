@@ -32,11 +32,27 @@ void Writer::attach_variables (const vector<string>& variables)
          write_mach = true;
       else if(variables[i]=="density")
          write_density = true;
+      else if(variables[i]=="vorticity")
+         write_vorticity = true;
       else
       {
          cout << "Writer: unknown variable " << variables[i] << endl;
          abort ();
       }
+}
+
+//------------------------------------------------------------------------------
+// Add gradient values; currently only velocity gradients added
+//------------------------------------------------------------------------------
+void Writer::attach_gradient (std::vector<Vector>& dU_,
+                              std::vector<Vector>& dV_,
+                              std::vector<Vector>& dW_)
+{
+   assert (!has_gradient);
+   dU = &dU_;
+   dV = &dV_;
+   dW = &dW_;
+   has_gradient = true;
 }
 
 //------------------------------------------------------------------------------
@@ -70,17 +86,8 @@ void Writer::output_vtk (string filename)
       vtk << 5 << endl;
 
    // Write vertex data
-   if(vertex_data.size() > 0 || has_primitive) 
+   if(has_primitive) 
       vtk << "POINT_DATA  " << grid->n_vertex << endl;
-
-   // Write vertex data to file
-   for(unsigned int d=0; d<vertex_data.size(); ++d)
-   {
-      vtk << "SCALARS  " << vertex_data_name[d] << "  float 1" << endl;
-      vtk << "LOOKUP_TABLE default" << endl;
-      for(unsigned int i=0; i<grid->n_vertex; ++i)
-         vtk << (*vertex_data[d])[i] << endl;
-   }
 
    // If vertex primitive data is available, write to file
    if (has_primitive)
@@ -104,7 +111,7 @@ void Writer::output_vtk (string filename)
    }
 
 
-   // Write mach number at cells
+   // Write mach number
    if(write_mach)
    {
       vtk << "SCALARS mach float 1" << endl;
@@ -116,7 +123,7 @@ void Writer::output_vtk (string filename)
       }
    }
 
-   // Write density number at cells
+   // Write density
    if(write_density)
    {
       vtk << "SCALARS density float 1" << endl;
@@ -125,6 +132,21 @@ void Writer::output_vtk (string filename)
       {
          double density = material->Density ((*vertex_primitive)[i]);
          vtk << density << endl;
+      }
+   }
+
+   // write vorticity
+   if(write_vorticity)
+   {
+      // Check if gradient information is available
+      assert(has_gradient);
+
+      vtk << "SCALARS vorticity float 1" << endl;
+      vtk << "LOOKUP_TABLE default" << endl;
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+      {
+         double vorticity = (*dV)[i].x - (*dU)[i].y;
+         vtk << vorticity << endl;
       }
    }
 

@@ -549,6 +549,7 @@ void FiniteVolume::output (const unsigned int iter)
 {
    Writer writer (grid, param.material);
    writer.attach_data (primitive);
+   writer.attach_gradient (dU, dV, dW);
    if(param.write_variables.size() > 0)
       writer.attach_variables (param.write_variables);
 

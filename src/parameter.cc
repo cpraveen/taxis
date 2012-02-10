@@ -339,7 +339,7 @@ void Parameter::read_output (Reader &fin)
    while (!fin.eos())
    {
       fin >> input;
-      assert (input=="mach" || input=="density");
+      assert (input=="mach" || input=="density" || input=="vorticity");
       write_variables.push_back (input);
    }
 
