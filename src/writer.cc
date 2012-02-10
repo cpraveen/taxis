@@ -154,6 +154,94 @@ void Writer::output_vtk (string filename)
 }
 
 //------------------------------------------------------------------------------
+// Write data to tecplot file
+//------------------------------------------------------------------------------
+void Writer::output_tec (double time, string filename)
+{
+   ofstream tec;
+   tec.open (filename.c_str());
+   
+   tec << "TITLE = \"TAXIS\"" << endl;
+   tec << "VARIABLES = \"X\" \"Y\" \"T\" \"U\" \"V\" \"P\"";
+   if(write_mach)
+      tec << " \"Mach\"";
+   if(write_density)
+      tec << " \"Density\"";
+   if(write_vorticity)
+      tec << " \"Vorticity\"";
+   tec << endl;
+   
+   tec << "ZONE STRANDID=1, SOLUTIONTIME=" << time 
+       << ", DATAPACKING=BLOCK, NODES=" << grid->n_vertex 
+       << ", ELEMENTS=" << grid->n_cell << ", ZONETYPE=FETRIANGLE" << endl;
+   
+   
+   for(unsigned int i=0; i<grid->n_vertex; ++i)
+      tec << grid->vertex[i].x << endl;
+   
+   for(unsigned int i=0; i<grid->n_vertex; ++i)
+      tec << grid->vertex[i].y << endl;      
+   
+   // If vertex primitive data is available, write to file
+   if (has_primitive)
+   {
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].temperature << endl;
+      
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].velocity.x << endl;
+      
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].velocity.y << endl;
+      
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].pressure << endl;
+   }
+   
+   
+   // Write mach number
+   if(write_mach)
+   {
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+      {
+         double mach = material->Mach ( (*vertex_primitive)[i] );
+         tec << mach << endl;
+      }
+   }
+   
+   // Write density
+   if(write_density)
+   {
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+      {
+         double density = material->Density ((*vertex_primitive)[i]);
+         tec << density << endl;
+      }
+   }
+   
+   // write vorticity
+   if(write_vorticity)
+   {
+      // Check if gradient information is available
+      assert(has_gradient);
+      
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+      {
+         double vorticity = (*dV)[i].x - (*dU)[i].y;
+         tec << vorticity << endl;
+      }
+   }
+   
+   // Triangles
+   for(unsigned int i=0; i<grid->n_cell; ++i)
+      tec << 1+grid->cell[i].vertex[0] << " "
+          << 1+grid->cell[i].vertex[1] << " "
+          << 1+grid->cell[i].vertex[2] << endl;
+   
+   tec.close ();
+}
+
+//------------------------------------------------------------------------------
 // Write solution for restarting
 //------------------------------------------------------------------------------
 void Writer::output_restart ()

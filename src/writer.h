@@ -35,6 +35,7 @@ class Writer
                             std::vector<Vector>& dW);
       void attach_variables (const std::vector<std::string>& variables);
       void output_vtk (std::string filename);
+      void output_tec (double time, std::string filename);
       void output_restart ();
 
    private:

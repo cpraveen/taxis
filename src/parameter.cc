@@ -328,7 +328,7 @@ void Parameter::read_output (Reader &fin)
 
    fin.entry ("format");
    fin >> write_format;
-   assert (write_format == "vtk");
+   assert (write_format == "vtk" || write_format == "tec");
 
    fin.entry ("frequency");
    fin >> write_frequency;

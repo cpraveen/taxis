@@ -553,22 +553,30 @@ void FiniteVolume::output (const unsigned int iter)
    if(param.write_variables.size() > 0)
       writer.attach_variables (param.write_variables);
 
+   string ext;
+   if(param.write_format == "vtk")
+      ext = ".vtk";
+   else if(param.write_format == "tec")
+      ext = ".plt";
+
    static int counter = 0;
    string filename = "sol";
    if(param.time_mode == "unsteady")
    {
       stringstream ss;
       ss << counter;
-      filename += "-" + ss.str() + ".vtk";
+      filename += "-" + ss.str() + ext;
       ++counter;
    }
    else
    {
-      filename += ".vtk";
+      filename += ext;
    }
 
    if(param.write_format == "vtk")
       writer.output_vtk (filename);
+   else if(param.write_format == "tec")
+      writer.output_tec (elapsed_time, filename);
 }
 
 //------------------------------------------------------------------------------
