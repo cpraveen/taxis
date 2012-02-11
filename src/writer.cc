@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cassert>
 #include <cstdlib>
+#include <sstream>
 #include "writer.h"
 
 using namespace std;
@@ -53,6 +54,37 @@ void Writer::attach_gradient (std::vector<Vector>& dU_,
    dV = &dV_;
    dW = &dW_;
    has_gradient = true;
+}
+
+//------------------------------------------------------------------------------
+// Call output function for saving solution to file
+//------------------------------------------------------------------------------
+void Writer::output (string format, int counter, double elapsed_time)
+{
+   string filename = "sol";
+   if     (counter <= 9)    filename = "sol000";
+   else if(counter <= 99)   filename = "sol00";
+   else if(counter <= 999)  filename = "sol0";
+   else if(counter <= 9999) filename = "sol";
+   else
+   {
+      cout << "Writer::output: counter is too large !!!\n";
+      exit(0);
+   }
+   stringstream ss;
+   ss << counter;
+   filename += ss.str();
+
+   if(format == "vtk")
+   {
+      filename += ".vtk";
+      output_vtk (filename);
+   }
+   else if(format == "tec")
+   {
+      filename += ".plt";
+      output_tec (elapsed_time, filename);
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -158,11 +190,40 @@ void Writer::output_vtk (string filename)
 //------------------------------------------------------------------------------
 void Writer::output_tec (double time, string filename)
 {
+   // Save grid only the first time this function is called
+   static bool write_grid = true;
+   if(write_grid)
+   {
+      ofstream tec;
+      tec.open ("grid.plt");
+   
+      tec << "FILETYPE = GRID" << endl;
+      tec << "VARIABLES = \"X\" \"Y\"" << endl;
+   
+      tec << "ZONE  DATAPACKING=BLOCK, NODES=" << grid->n_vertex 
+         << ", ELEMENTS=" << grid->n_cell << ", ZONETYPE=FETRIANGLE" << endl;
+   
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << grid->vertex[i].x << endl;
+   
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << grid->vertex[i].y << endl;      
+
+      // Triangles
+      for(unsigned int i=0; i<grid->n_cell; ++i)
+         tec << 1+grid->cell[i].vertex[0] << " "
+            << 1+grid->cell[i].vertex[1] << " "
+            << 1+grid->cell[i].vertex[2] << endl;
+   
+      write_grid = false;
+   }
+
+   // Save solution into different file
    ofstream tec;
    tec.open (filename.c_str());
    
-   tec << "TITLE = \"TAXIS\"" << endl;
-   tec << "VARIABLES = \"X\" \"Y\" \"T\" \"U\" \"V\" \"P\"";
+   tec << "FILETYPE = SOLUTION" << endl;
+   tec << "VARIABLES = \"T\" \"U\" \"V\" \"P\"";
    if(write_mach)
       tec << " \"Mach\"";
    if(write_density)
@@ -174,13 +235,6 @@ void Writer::output_tec (double time, string filename)
    tec << "ZONE STRANDID=1, SOLUTIONTIME=" << time 
        << ", DATAPACKING=BLOCK, NODES=" << grid->n_vertex 
        << ", ELEMENTS=" << grid->n_cell << ", ZONETYPE=FETRIANGLE" << endl;
-   
-   
-   for(unsigned int i=0; i<grid->n_vertex; ++i)
-      tec << grid->vertex[i].x << endl;
-   
-   for(unsigned int i=0; i<grid->n_vertex; ++i)
-      tec << grid->vertex[i].y << endl;      
    
    // If vertex primitive data is available, write to file
    if (has_primitive)
@@ -231,12 +285,6 @@ void Writer::output_tec (double time, string filename)
          tec << vorticity << endl;
       }
    }
-   
-   // Triangles
-   for(unsigned int i=0; i<grid->n_cell; ++i)
-      tec << 1+grid->cell[i].vertex[0] << " "
-          << 1+grid->cell[i].vertex[1] << " "
-          << 1+grid->cell[i].vertex[2] << endl;
    
    tec.close ();
 }

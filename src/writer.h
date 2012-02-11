@@ -34,6 +34,7 @@ class Writer
                             std::vector<Vector>& dV,
                             std::vector<Vector>& dW);
       void attach_variables (const std::vector<std::string>& variables);
+      void output (std::string format, int counter, double elapsed_time);
       void output_vtk (std::string filename);
       void output_tec (double time, std::string filename);
       void output_restart ();

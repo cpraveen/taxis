@@ -3,7 +3,6 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <sstream>
 #include <ctime>
 #include "parameter.h"
 #include "fv.h"
@@ -547,36 +546,16 @@ void FiniteVolume::log_messages (const unsigned int iter)
 //------------------------------------------------------------------------------
 void FiniteVolume::output (const unsigned int iter)
 {
+   static int counter = 0;
+
    Writer writer (grid, param.material);
    writer.attach_data (primitive);
    writer.attach_gradient (dU, dV, dW);
    if(param.write_variables.size() > 0)
       writer.attach_variables (param.write_variables);
 
-   string ext;
-   if(param.write_format == "vtk")
-      ext = ".vtk";
-   else if(param.write_format == "tec")
-      ext = ".plt";
-
-   static int counter = 0;
-   string filename = "sol";
-   if(param.time_mode == "unsteady")
-   {
-      stringstream ss;
-      ss << counter;
-      filename += "-" + ss.str() + ext;
-      ++counter;
-   }
-   else
-   {
-      filename += ext;
-   }
-
-   if(param.write_format == "vtk")
-      writer.output_vtk (filename);
-   else if(param.write_format == "tec")
-      writer.output_tec (elapsed_time, filename);
+   writer.output (param.write_format, counter, elapsed_time);
+   if(param.time_mode == "unsteady") ++counter;
 }
 
 //------------------------------------------------------------------------------
@@ -650,6 +629,8 @@ void FiniteVolume::solve ()
    unsigned int iter = 0;
    elapsed_time = 0.0;
    residual_norm_total = 1.0e20;
+
+   if(param.time_mode == "unsteady") output (0);
 
    while (residual_norm_total > param.min_residue &&
           iter < param.max_iter && 
