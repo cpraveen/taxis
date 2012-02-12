@@ -20,7 +20,9 @@ void Grid::compute_cell_centroid ()
       v0 = cell[i].vertex[0];
       v1 = cell[i].vertex[1];
       v2 = cell[i].vertex[2];
-      cell[i].centroid = ( vertex[v0] + vertex[v1] + vertex[v2] ) / 3.0;
+      cell[i].centroid = ( vertex[v0].coord + 
+                           vertex[v1].coord + 
+                           vertex[v2].coord ) / 3.0;
    }   
 }
 
@@ -33,14 +35,14 @@ void Grid::compute_face_centroid ()
    { 
       unsigned int v0 = face[i].vertex[0];
       unsigned int v1 = face[i].vertex[1];
-      face[i].centroid = ( vertex[v0] + vertex[v1] ) / 2.0;
+      face[i].centroid = ( vertex[v0].coord + vertex[v1].coord ) / 2.0;
    }   
 
    for(unsigned int i=0; i<bface.size(); ++i)
    { 
       unsigned int v0 = bface[i].vertex[0];
       unsigned int v1 = bface[i].vertex[1];
-      bface[i].centroid = ( vertex[v0] + vertex[v1] ) / 2.0;
+      bface[i].centroid = ( vertex[v0].coord + vertex[v1].coord ) / 2.0;
    }   
 }
 //------------------------------------------------------------------------------
@@ -64,7 +66,9 @@ void Grid::compute_cell_area ()
       unsigned int v1 = cell[i].vertex[1];
       unsigned int v2 = cell[i].vertex[2];
 
-      Vector area = (vertex[v1] - vertex[v0]) ^ (vertex[v2] - vertex[v0]);
+      // compute area as vector cross product
+      Vector area = (vertex[v1].coord - vertex[v0].coord) ^ 
+                    (vertex[v2].coord - vertex[v0].coord);
       cell[i].area = 0.5 * area.z;
 
       assert ( cell[i].area > 0.0 );
@@ -108,7 +112,7 @@ void Grid::compute_face_normal_and_area ()
    {
       unsigned int v0 = face[i].vertex[0];
       unsigned int v1 = face[i].vertex[1];
-      Vector dr = vertex[v1] - vertex[v0];
+      Vector dr = vertex[v1].coord - vertex[v0].coord;
       
       Vector normal;
       normal.x = +dr.y;
@@ -150,7 +154,7 @@ void Grid::compute_face_normal_and_area ()
    {
       unsigned int v0 = bface[i].vertex[0];
       unsigned int v1 = bface[i].vertex[1];
-      Vector dr = vertex[v1] - vertex[v0];
+      Vector dr = vertex[v1].coord - vertex[v0].coord;
 
       bface[i].normal.x =  dr.y;
       bface[i].normal.y = -dr.x;
@@ -181,13 +185,13 @@ void Grid::compute_face_normal_and_area ()
       unsigned int v1 = cell[i].vertex[1];
       unsigned int v2 = cell[i].vertex[2];
 
-      dr01.x =  (vertex[v0].y - vertex[v1].y);
-      dr12.x =  (vertex[v1].y - vertex[v2].y);
-      dr20.x =  (vertex[v2].y - vertex[v0].y);
+      dr01.x =  (vertex[v0].coord.y - vertex[v1].coord.y);
+      dr12.x =  (vertex[v1].coord.y - vertex[v2].coord.y);
+      dr20.x =  (vertex[v2].coord.y - vertex[v0].coord.y);
 
-      dr01.y = -(vertex[v0].x - vertex[v1].x);
-      dr12.y = -(vertex[v1].x - vertex[v2].x);
-      dr20.y = -(vertex[v2].x - vertex[v0].x);
+      dr01.y = -(vertex[v0].coord.x - vertex[v1].coord.x);
+      dr12.y = -(vertex[v1].coord.x - vertex[v2].coord.x);
+      dr20.y = -(vertex[v2].coord.x - vertex[v0].coord.x);
 
       dr01.z =  0.0;
       dr12.z =  0.0;
@@ -385,6 +389,30 @@ void Grid::find_cell_neighbour( const unsigned int& face_no,
 }   
 
 //------------------------------------------------------------------------------
+// Find points connected to a point
+//------------------------------------------------------------------------------
+void Grid::find_nbr_vertex()
+{
+   cout << "Finding vertices around a vertex ...\n";
+   for(unsigned int i=0; i<n_face; ++i)
+   {
+      unsigned int v0 = face[i].vertex[0];
+      unsigned int v1 = face[i].vertex[1];
+      vertex[v0].nbr_vertex.push_back (v1);
+      vertex[v1].nbr_vertex.push_back (v0);
+      vertex[v0].face.push_back (i);
+      vertex[v1].face.push_back (i);
+   }
+}
+
+//------------------------------------------------------------------------------
+// Renumber vertices using Cuthill-McKee method
+//------------------------------------------------------------------------------
+void Grid::renumber ()
+{
+}
+
+//------------------------------------------------------------------------------
 // Preprocess the grid
 //------------------------------------------------------------------------------
 void Grid::preproc ()
@@ -395,4 +423,5 @@ void Grid::preproc ()
    compute_face_centroid ();
    compute_cell_area ();
    compute_face_normal_and_area ();
+   find_nbr_vertex ();
 }

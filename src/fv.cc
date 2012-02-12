@@ -58,7 +58,7 @@ void FiniteVolume::initialize ()
       cout << "Setting initial condition to input values ...";
       for(unsigned int i=0; i<grid.n_vertex; ++i)
       {
-         primitive[i] = param.initial_condition.value (grid.vertex[i]);
+         primitive[i] = param.initial_condition.value (grid.vertex[i].coord);
          assert (primitive[i].temperature  > 0.0);
          assert (primitive[i].pressure > 0.0);
       }
@@ -130,8 +130,8 @@ void FiniteVolume::compute_gradients ()
       state[0] = primitive[v0];
       state[1] = primitive[v1];
 
-      bc.apply(grid.vertex[v0], grid.bface[i], state[0]);
-      bc.apply(grid.vertex[v1], grid.bface[i], state[1]);
+      bc.apply(grid.vertex[v0].coord, grid.bface[i], state[0]);
+      bc.apply(grid.vertex[v1].coord, grid.bface[i], state[1]);
 
       dT_cell[cl] += grid.bface[i].normal * 
                      (state[0].temperature + state[1].temperature
@@ -241,14 +241,14 @@ void FiniteVolume::compute_residual ()
       unsigned int cl = grid.bface[i].vertex[0];
       state[0] = primitive[cl];
       state[1] = primitive[cl];
-      bc.apply (grid.vertex[cl], grid.bface[i], state);
+      bc.apply (grid.vertex[cl].coord, grid.bface[i], state);
       param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
       residual[cl] += flux * 0.5;
 
       unsigned int cr = grid.bface[i].vertex[1];
       state[0] = primitive[cr];
       state[1] = primitive[cr];
-      bc.apply (grid.vertex[cr], grid.bface[i], state);
+      bc.apply (grid.vertex[cr].coord, grid.bface[i], state);
       param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
       residual[cr] += flux * 0.5;
    }
@@ -296,7 +296,7 @@ void FiniteVolume::compute_residual ()
 
          state[0] = primitive[v0];
          state[1] = primitive[v0];
-         bc.apply (grid.vertex[v0], grid.bface[i], state);
+         bc.apply (grid.vertex[v0].coord, grid.bface[i], state);
          param.material.viscous_flux (bc.adiabatic,
                                       state[0], 
                                       dU_cell[cl], 
@@ -306,7 +306,7 @@ void FiniteVolume::compute_residual ()
                                       normal, flux0);
          state[0] = primitive[v1];
          state[1] = primitive[v1];
-         bc.apply (grid.vertex[v1], grid.bface[i], state);
+         bc.apply (grid.vertex[v1].coord, grid.bface[i], state);
          param.material.viscous_flux (bc.adiabatic,
                                       state[0], 
                                       dU_cell[cl], 
@@ -416,6 +416,15 @@ void FiniteVolume::update_solution (const unsigned int r)
    }
    else if(param.time_scheme == "lusgs")
    { 
+
+     // Forward Sweep and backward sweep
+      lusgs();
+
+      for (unsigned int i=0; i<grid.n_vertex; ++i)
+      {
+         conserved = conserved_old[i] + residual[i];
+         primitive[i] = param.material.con2prim (conserved);
+      }
    }
 
    /*

@@ -34,7 +34,7 @@ void FiniteVolume::reconstruct_second
    unsigned int cl = grid.face[f].vertex[0];
    unsigned int cr = grid.face[f].vertex[1];
 
-   Vector  dr    = grid.vertex[cr] - grid.vertex[cl];
+   Vector  dr    = grid.vertex[cr].coord - grid.vertex[cl].coord;
    PrimVar dprim = primitive[cr] - primitive[cl];
 
    // left state

@@ -36,9 +36,9 @@ void Grid::read_gmsh (const string grid_file)
 
    for(i=0; i<n_vertex; ++i)
       file >> count
-           >> vertex[i].x
-           >> vertex[i].y
-           >> vertex[i].z;
+           >> vertex[i].coord.x
+           >> vertex[i].coord.y
+           >> vertex[i].coord.z;
 
    file >> line;
    file >> line;

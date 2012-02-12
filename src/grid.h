@@ -16,6 +16,13 @@ class Cell
       std::vector<Vector> normal; // Inward normal
 };
 
+struct Vertex
+{
+   Vector coord;
+   std::vector<unsigned int> nbr_vertex;
+   std::vector<unsigned int> face;
+};
+
 class Grid
 {
    public:
@@ -29,7 +36,7 @@ class Grid
       double max_cell_area;
       double min_mcarea;
       double max_mcarea;
-      std::vector<Vector> vertex;
+      std::vector<Vertex> vertex;
       std::vector<Cell>   cell;
       std::vector<Face>   face;
       std::vector<Face>   bface;
@@ -56,7 +63,8 @@ class Grid
       void vertex_weight_check () ;
       void find_cell_faces ();
       void info ();
-      void renumber_cell();
+      void renumber();
+      void find_nbr_vertex ();
 
       std::vector< std::vector<unsigned int> > node_face;
 

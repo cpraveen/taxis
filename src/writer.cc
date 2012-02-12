@@ -102,9 +102,9 @@ void Writer::output_vtk (string filename)
    vtk << "POINTS  " << grid->n_vertex << "  float" << endl;
 
    for(unsigned int i=0; i<grid->n_vertex; ++i)
-      vtk << grid->vertex[i].x << " " 
-          << grid->vertex[i].y << " " 
-          << grid->vertex[i].z << endl;
+      vtk << grid->vertex[i].coord.x << " " 
+          << grid->vertex[i].coord.y << " " 
+          << grid->vertex[i].coord.z << endl;
 
    vtk << "CELLS  " << grid->n_cell << " " << 4 * grid->n_cell << endl;
    for(unsigned int i=0; i<grid->n_cell; ++i)
@@ -204,16 +204,16 @@ void Writer::output_tec (double time, string filename)
          << ", ELEMENTS=" << grid->n_cell << ", ZONETYPE=FETRIANGLE" << endl;
    
       for(unsigned int i=0; i<grid->n_vertex; ++i)
-         tec << grid->vertex[i].x << endl;
+         tec << grid->vertex[i].coord.x << endl;
    
       for(unsigned int i=0; i<grid->n_vertex; ++i)
-         tec << grid->vertex[i].y << endl;      
+         tec << grid->vertex[i].coord.y << endl;      
 
       // Triangles
       for(unsigned int i=0; i<grid->n_cell; ++i)
          tec << 1+grid->cell[i].vertex[0] << " "
-            << 1+grid->cell[i].vertex[1] << " "
-            << 1+grid->cell[i].vertex[2] << endl;
+             << 1+grid->cell[i].vertex[1] << " "
+             << 1+grid->cell[i].vertex[2] << endl;
    
       write_grid = false;
    }
