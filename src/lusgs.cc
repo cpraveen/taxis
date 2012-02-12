@@ -18,8 +18,10 @@ void FiniteVolume::lusgs ()
    const double omega = 1.5;
    
    // Forward sweep
-   for (int i=0; i<grid.n_vertex; ++i)
-   {   
+   for (int v=0; v<grid.n_vertex; ++v)
+   {
+      int i = grid.old_num[v];
+
       // initially summation over all faces initialized to zero.
       summation_face.zero ();
       
@@ -43,7 +45,7 @@ void FiniteVolume::lusgs ()
          } 
 
 
-         if (neighbour_cell < i)
+         if (grid.new_num[neighbour_cell] < v)
          {               
             face_normal = grid.face[f].normal;
 	         if (grid.face[f].vertex[1] == i)
@@ -85,8 +87,10 @@ void FiniteVolume::lusgs ()
    }
    
    // Backward Sweep
-   for(int i=grid.n_vertex-1; i>=0; --i)
-   {  
+   for(int v=grid.n_vertex-1; v>=0; --v)
+   {
+      int i = grid.old_num[v];
+
       // initially summation over all faces initialized to zero.
       summation_face.zero ();
 
@@ -96,7 +100,7 @@ void FiniteVolume::lusgs ()
          f = grid.vertex[i].face[j];
          neighbour_cell = grid.vertex[i].nbr_vertex[j];
 
-         if (neighbour_cell > i)
+         if (grid.new_num[neighbour_cell] > v)
          {	                
             face_normal = grid.face[f].normal;
             if (grid.face[f].vertex[1] == i)
