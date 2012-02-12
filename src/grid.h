@@ -42,6 +42,8 @@ class Grid
       std::vector<Face>   bface;
       std::vector<double> mcarea;
       std::vector<double> dcarea;
+      std::vector<unsigned int> old_num;
+      std::vector<unsigned int> new_num;
 
       void read (const Parameter& param);
       void find_cell_neighbour(const unsigned int& face_no,

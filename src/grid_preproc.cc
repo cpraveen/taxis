@@ -406,11 +406,72 @@ void Grid::find_nbr_vertex()
 }
 
 //------------------------------------------------------------------------------
-// Renumber vertices using Cuthill-McKee method
+// Renumbering according to cuthill-mckee algorithm
 //------------------------------------------------------------------------------
-void Grid::renumber ()
-{
-}
+void Grid::renumber()
+{  
+   unsigned int i, j, current_cell, old_cell, k;
+   int neighbour =-1;
+   // new_num vector says directly the value of renumbering tag for a old cell number
+   // old_num vector says what is the value of old cell number for a given renumbering tag
+   // renumbering cell vector is a dummy vector to reshuffle all old cell according to new numbering 
+   new_num.resize(n_vertex,0);
+   old_num.resize(n_vertex,0);
+   
+   // Write initial cell numbering to file
+   if(debug)
+   {
+      ofstream out("number_old.dat");
+      
+      for(i=0; i<n_vertex; ++i)
+      { 
+         out << i << " " << i << endl;
+         for(j=0; j<vertex[i].nbr_vertex.size(); ++j)
+         {    
+            neighbour = vertex[i].nbr_vertex[j];
+            out << i << " " << neighbour << endl;
+         }
+      }
+      out.close();
+   }
+   
+   k=1; // k is the renumbering tag according to the algorithm
+   for(i=0; i<n_vertex; ++i)
+   { 
+      j = 0;
+      current_cell = old_num[i] ;
+      while(j < vertex[current_cell].nbr_vertex.size())
+      {     
+         neighbour = vertex[current_cell].nbr_vertex[j];
+         old_cell = neighbour;
+         if (new_num[old_cell] == 0 && old_cell != 0)
+         {
+            old_num[k] = old_cell;
+            new_num[old_cell] = k;
+            ++k;
+         }
+         ++j;
+      }
+   }
+   
+   // Save new cell numbering to file
+   if(debug)
+   {
+      ofstream out("number_new.dat");
+      for(i=0; i<n_vertex; ++i)
+      {
+         current_cell = old_num[i];
+         out << i << " " << i << endl;
+         for(j=0; j<vertex[current_cell].nbr_vertex.size(); ++j)
+         {    
+            neighbour = vertex[current_cell].nbr_vertex[j];
+            out << i << " " << new_num[neighbour] << endl;
+         }
+         
+      }
+      out.close();
+   }
+}   
 
 //------------------------------------------------------------------------------
 // Preprocess the grid
@@ -424,4 +485,5 @@ void Grid::preproc ()
    compute_cell_area ();
    compute_face_normal_and_area ();
    find_nbr_vertex ();
+   renumber ();
 }
