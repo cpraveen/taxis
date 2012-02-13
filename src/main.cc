@@ -1,14 +1,17 @@
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
+#include <string>
+#include <map>
 #include "fv.h"
+
+using namespace std;
 
 bool debug;
 bool restart;
 bool preprocess;
 bool bounds;
-
-using namespace std;
+map<string,double> constants;
 
 void process_command_line (int argc, char* argv[], int& ifile);
 

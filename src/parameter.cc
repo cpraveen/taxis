@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <map>
 #include <cassert>
@@ -6,6 +7,7 @@
 #include "parameter.h"
 
 using namespace std;
+extern map<string,double> constants;
 
 //------------------------------------------------------------------------------
 // Read parameters from file
@@ -15,6 +17,7 @@ void Parameter::read ()
    cout << "Reading input file " << file << endl;
    Reader fin(file);
 
+   read_constants (fin);
    read_grid (fin);
    read_numeric (fin);
    read_material (fin);
@@ -22,6 +25,28 @@ void Parameter::read ()
    read_boundary (fin);
    read_integrals (fin);
    read_output (fin);
+}
+
+//------------------------------------------------------------------------------
+// Read constants section
+//------------------------------------------------------------------------------
+void Parameter::read_constants (Reader &fin)
+{
+   cout << "  Reading constants section\n";
+
+   string input;
+   double value;
+
+   fin.begin_section ("constants");
+
+   while (!fin.eos())
+   {
+      fin >> input;
+      fin >> value;
+      cout << setw(16) << input << setw(16) << value << endl;
+      constants.insert ( pair<string,double>(input, value) );
+   }
+
 }
 
 //------------------------------------------------------------------------------

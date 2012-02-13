@@ -65,6 +65,7 @@ class Parameter
       void read ();
 
    private:
+      void read_constants (Reader&);
       void read_grid (Reader&);
       void read_numeric (Reader&);
       void read_material (Reader&);

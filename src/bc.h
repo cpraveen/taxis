@@ -100,21 +100,21 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
          if(variable[i] == "xvelocity")
          {
             has_xvelocity = true;
-            xvelocity.Parse (function[i], "x,y,z");
+            xvelocity.FParse (function[i]);
          }
          else if(variable[i] == "yvelocity")
          {
             has_yvelocity = true;
-            yvelocity.Parse (function[i], "x,y,z");
+            yvelocity.FParse (function[i]);
          }
          else if(variable[i] == "zvelocity")
          {
             has_zvelocity = true;
-            zvelocity.Parse (function[i], "x,y,z");
+            zvelocity.FParse (function[i]);
          }
          else if(variable[i] == "temperature")
          {
-            temperature.Parse (function[i], "x,y,z");
+            temperature.FParse (function[i]);
             adiabatic = false;
          }
       }
@@ -126,7 +126,7 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
       assert (variable.size() == 1);
       type = BC::pressure;
       assert (variable[0] == "pressure");
-      pressure.Parse (function[0], "x,y,z");
+      pressure.FParse (function[0]);
    }
    // All values are specified
    else if(bc_type == "inlet" || bc_type == "farfield")
@@ -146,27 +146,27 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
          if(variable[i] == "temperature")
          {
             has_temperature = true;
-            temperature.Parse (function[i], "x,y,z");
+            temperature.FParse (function[i]);
          }
          else if(variable[i] == "xvelocity")
          {
             has_xvelocity = true;
-            xvelocity.Parse (function[i], "x,y,z");
+            xvelocity.FParse (function[i]);
          }
          else if(variable[i] == "yvelocity")
          {
             has_yvelocity = true;
-            yvelocity.Parse (function[i], "x,y,z");
+            yvelocity.FParse (function[i]);
          }
          else if(variable[i] == "zvelocity")
          {
             has_zvelocity = true;
-            zvelocity.Parse (function[i], "x,y,z");
+            zvelocity.FParse (function[i]);
          }
          else if(variable[i] == "pressure")
          {
             has_pressure = true;
-            pressure.Parse (function[i], "x,y,z");
+            pressure.FParse (function[i]);
          }
       }
       assert (has_temperature && has_xvelocity && has_yvelocity && has_zvelocity &&

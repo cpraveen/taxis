@@ -46,9 +46,6 @@ class Grid
       std::vector<unsigned int> new_num;
 
       void read (const Parameter& param);
-      void find_cell_neighbour(const unsigned int& face_no,
-                               const unsigned int& cell_no,
-                               int&                neighbour_cell_no);
 
 
    private:

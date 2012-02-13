@@ -371,24 +371,6 @@ void Grid::find_cell_faces ()
 }
 
 //------------------------------------------------------------------------------
-// Find cell on other side of given face f
-//------------------------------------------------------------------------------
-void Grid::find_cell_neighbour( const unsigned int& face_no, 
-                                const unsigned int& cell_no, 
-                                int&                neighbour_cell_no)
-{
-   if (face[face_no].lcell == cell_no)
-      neighbour_cell_no = face[face_no].rcell;
-   else if (face[face_no].rcell == cell_no)
-      neighbour_cell_no = face[face_no].lcell;
-   else
-   {
-      cout << "find_cell_neighbour: Fatal error !!!\n";
-      abort ();
-   }
-}   
-
-//------------------------------------------------------------------------------
 // Find points connected to a point
 //------------------------------------------------------------------------------
 void Grid::find_nbr_vertex()

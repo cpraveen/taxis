@@ -31,15 +31,15 @@ inline
 void InitialCondition::add (std::string variable, std::string fun)
 {
    if(variable == "temperature")
-      temperature.Parse (fun, "x,y,z");
+      temperature.FParse (fun);
    else if(variable == "xvelocity")
-      xvelocity.Parse (fun, "x,y,z");
+      xvelocity.FParse (fun);
    else if(variable == "yvelocity")
-      yvelocity.Parse (fun, "x,y,z");
+      yvelocity.FParse (fun);
    else if(variable == "zvelocity")
-      zvelocity.Parse (fun, "x,y,z");
+      zvelocity.FParse (fun);
    else if(variable == "pressure")
-      pressure.Parse (fun, "x,y,z");
+      pressure.FParse (fun);
    else
    {
       std::cout << "InitialCondition::add: Unknown variable " << variable << std::endl;
