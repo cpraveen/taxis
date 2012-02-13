@@ -695,5 +695,10 @@ void FiniteVolume::run ()
    solve ();
 
    time_t end_time = time(NULL);
-   cout << "Time taken for computation = " << difftime(end_time, start_time)/3600.0 << " hours\n";
+   double time_hours  = difftime(end_time, start_time)/3600.0;
+   double time_minutes= difftime(end_time, start_time)/60.0;
+   if(time_hours < 1.0)
+      cout << "Time taken for computation = " << time_minutes << " minutes\n";
+   else
+      cout << "Time taken for computation = " << time_hours << " hours\n";
 }

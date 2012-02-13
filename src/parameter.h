@@ -17,7 +17,9 @@ static const double a_rk[] = {0.0, 3.0/4.0, 1.0/3.0};
 static const double b_rk[] = {1.0, 1.0/4.0, 2.0/3.0};
 
 static const double ALBADA11 = 2.0/3.0;
-static const double ALBADA12 = 1.0/3.0;
+static const double ALBADA12 = 1.0 - ALBADA11;
+static const double ALBADA21 = 4.0/3.0;
+static const double ALBADA22 = 1.0 - ALBADA21;
 
 enum GridType {gmsh};
 enum CellType {median};

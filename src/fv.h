@@ -56,6 +56,7 @@ class FiniteVolume
                                std::vector<PrimVar>&    state) const;
       void reconstruct_limited (const unsigned int&      f,
                                 std::vector<PrimVar>&    state) const;
+      PrimVar limited_slope (const PrimVar& ul, const PrimVar& ur) const;
 
       void initialize ();
       void interpolate_vertex ();
