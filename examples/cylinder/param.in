@@ -26,13 +26,20 @@ material
    flux        roe
 }
 
+constants
+{
+   H    0.2
+   T    50.0
+   p    50.0
+}
+
 initial_condition
 {
-   temperature   50.0
-   xvelocity     H:=0.2; (1-(y/H)^2)
+   temperature   T
+   xvelocity     (1-(y/H)^2)
    yvelocity     0.0
    zvelocity     0.0
-   pressure      50.0
+   pressure      p
 }
 
 boundary
@@ -40,11 +47,11 @@ boundary
    1000001
    {
       type           farfield
-      temperature    50.0
-      xvelocity      H:=0.2; (1-(y/H)^2)
+      temperature    T
+      xvelocity      (1-(y/H)^2)
       yvelocity      0.0
       zvelocity      0.0
-      pressure       50.0
+      pressure       p
    }
 
    1000002
@@ -59,13 +66,17 @@ boundary
    1000003 // outlet
    {
       type       pressure
-      pressure   50.0
+      pressure   p
    }
 
 }
 
 integrals
 {
+   force
+   {
+      cylinder   1000002
+   }
 }
 
 output
