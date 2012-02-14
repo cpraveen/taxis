@@ -17,36 +17,14 @@ void Parameter::read ()
    cout << "Reading input file " << file << endl;
    Reader fin(file);
 
-   read_constants (fin);
    read_grid (fin);
    read_numeric (fin);
    read_material (fin);
+   read_constants (fin);
    read_initial_condition (fin);
    read_boundary (fin);
    read_integrals (fin);
    read_output (fin);
-}
-
-//------------------------------------------------------------------------------
-// Read constants section
-//------------------------------------------------------------------------------
-void Parameter::read_constants (Reader &fin)
-{
-   cout << "  Reading constants section\n";
-
-   string input;
-   double value;
-
-   fin.begin_section ("constants");
-
-   while (!fin.eos())
-   {
-      fin >> input;
-      fin >> value;
-      cout << setw(16) << input << setw(16) << value << endl;
-      constants.insert ( pair<string,double>(input, value) );
-   }
-
 }
 
 //------------------------------------------------------------------------------
@@ -230,6 +208,28 @@ void Parameter::read_material (Reader &fin)
    fin.end_section ();
 
    material.initialize ();
+}
+
+//------------------------------------------------------------------------------
+// Read constants section
+//------------------------------------------------------------------------------
+void Parameter::read_constants (Reader &fin)
+{
+   cout << "  Reading constants section\n";
+
+   string input;
+   double value;
+
+   fin.begin_section ("constants");
+
+   while (!fin.eos())
+   {
+      fin >> input;
+      fin >> value;
+      cout << setw(16) << input << setw(16) << value << endl;
+      constants.insert ( pair<string,double>(input, value) );
+   }
+
 }
 
 //------------------------------------------------------------------------------
