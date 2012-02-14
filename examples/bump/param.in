@@ -26,14 +26,20 @@ material
    flux        roe
 }
 
-// Freestream mach = 0.6
+constants
+{
+   T    1.98412698412698412696
+   p    1.98412698412698412696
+   u    1.0
+}
+
 initial_condition
 {
-   temperature  1.98412698412698412696
-   xvelocity    1.0
+   temperature  T
+   xvelocity    u
    yvelocity    0.0
    zvelocity    0.0
-   pressure     1.98412698412698412696
+   pressure     p
 }
 
 boundary
@@ -42,11 +48,11 @@ boundary
    100002
    {
       type         farfield
-      temperature  1.98412698412698412696
-      xvelocity    1.0
+      temperature  T
+      xvelocity    u
       yvelocity    0.0
       zvelocity    0.0
-      pressure     1.98412698412698412696
+      pressure     p
    }
 
    100003
@@ -66,11 +72,11 @@ integrals
 
 output
 {
-   format    vtk
-   frequency 1000
+   format     vtk
+   frequency  1000
    variables
    {
       mach
    }
-   restart true
+   restart    true
 }
