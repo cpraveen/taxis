@@ -222,7 +222,7 @@ inline
 void BoundaryCondition::apply_noslip(const Vector         &vertex,
                                      std::vector<PrimVar> &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
    state[0].velocity.x = xvelocity.Eval(point);
    state[0].velocity.y = yvelocity.Eval(point);
    state[0].velocity.z = zvelocity.Eval(point);
@@ -248,7 +248,7 @@ inline
 void BoundaryCondition::apply_noslip(const Vector &vertex,
                                      PrimVar      &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
    state.velocity.x = xvelocity.Eval(point);
    state.velocity.y = yvelocity.Eval(point);
    state.velocity.z = zvelocity.Eval(point);
@@ -265,7 +265,7 @@ inline
 void BoundaryCondition::apply_pressure (const Vector         &vertex,
                                         std::vector<PrimVar> &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
 
    state[0].pressure  = pressure.Eval(point);
    state[1] = state[0];
@@ -278,7 +278,7 @@ inline
 void BoundaryCondition::apply_pressure (const Vector &vertex,
                                         PrimVar      &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
    
    state.pressure  = pressure.Eval(point);
 }
@@ -292,7 +292,7 @@ inline
 void BoundaryCondition::apply_inlet (const Vector         &vertex,
                                      std::vector<PrimVar> &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
    state[0].temperature= temperature.Eval(point);
    state[0].velocity.x = xvelocity.Eval(point);
    state[0].velocity.y = yvelocity.Eval(point);
@@ -306,7 +306,7 @@ inline
 void BoundaryCondition::apply_inlet (const Vector &vertex,
                                      PrimVar      &state)
 {
-   double point[3]  = {vertex.x, vertex.y, vertex.z};
+   double point[2]  = {vertex.x, vertex.y};
    state.temperature= temperature.Eval(point);
    state.velocity.x = xvelocity.Eval(point);
    state.velocity.y = yvelocity.Eval(point);
@@ -330,7 +330,7 @@ inline
 void BoundaryCondition::apply_farfield (const Vector         &vertex,
                                         std::vector<PrimVar> &state)
 {
-   double point[3]     = {vertex.x, vertex.y, vertex.z};
+   double point[2]     = {vertex.x, vertex.y};
    state[1].temperature= temperature.Eval(point);
    state[1].velocity.x = xvelocity.Eval(point);
    state[1].velocity.y = yvelocity.Eval(point);

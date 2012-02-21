@@ -108,19 +108,8 @@ void Parameter::read_numeric (Reader &fin)
       reconstruct_scheme = Parameter::first;
    else if(input == "second")
       reconstruct_scheme = Parameter::second;
-   else if(input == "secondF")
-      reconstruct_scheme = Parameter::secondF;
    else if(input == "limited")
       reconstruct_scheme = Parameter::limited;
-   else if(input == "limitedF")
-      reconstruct_scheme = Parameter::limitedF;
-   else if(input == "jameson")
-   {
-      reconstruct_scheme = Parameter::jameson;
-      fin >> lim_power;
-      assert (lim_power >= 1.0);
-      assert (lim_power <= 3.0);
-   }
    else
    {
       cout << "read_numeric: unknown reconstruction scheme " << input << endl;

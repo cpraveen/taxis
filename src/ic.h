@@ -55,7 +55,7 @@ PrimVar InitialCondition::value (const Vector& p)
 {
    PrimVar result;
 
-   double vals[3] = {p.x, p.y, p.z};
+   double vals[2] = {p.x, p.y};
 
    result.temperature= temperature.Eval (vals);
    result.velocity.x = xvelocity.Eval (vals);

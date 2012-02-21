@@ -39,11 +39,10 @@ class Parameter
 
       enum ReconstructScheme 
       { 
-         first, second, secondF, limited, limitedF, jameson
+         first, second, limited,
       };
 
       ReconstructScheme reconstruct_scheme;
-      double lim_power;
 
       Material material;
 
