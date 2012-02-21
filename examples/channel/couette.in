@@ -8,8 +8,8 @@ grid
 numeric
 {
    time_mode    steady
-   time_scheme  rk3
-   cfl          0.4
+   time_scheme  lusgs
+   cfl          1e6
    max_iter     50000
    final_time   1e20
    min_residue  1.0e-6
@@ -26,13 +26,20 @@ material
    flux        roe
 }
 
+constants
+{
+   T    350.0
+   U    100.0
+   p    1e5
+}
+
 initial_condition
 {
-   temperature 350.0
-   xvelocity   100*y
-   yvelocity   0.0
-   zvelocity   0.0
-   pressure    1.0e5
+   temperature  T
+   xvelocity    U*y
+   yvelocity    0.0
+   zvelocity    0.0
+   pressure     p
 }
 
 boundary
@@ -40,35 +47,35 @@ boundary
    100001 // inlet boundary
    {
       type        farfield
-      temperature 350.0
-      xvelocity   100*y
+      temperature T
+      xvelocity   U*y
       yvelocity   0.0
       zvelocity   0.0
-      pressure    1.0e5
+      pressure    p
    }
 
    100002 // outlet boundary
    {
-      type       pressure
-      pressure   1.0e5
+      type         pressure
+      pressure     p
    }
 
    100003 // bottom
    {
-      type        noslip
-      xvelocity   0.0
-      yvelocity   0.0
-      zvelocity   0.0
-      temperature 350.0
+      type         noslip
+      xvelocity    0.0
+      yvelocity    0.0
+      zvelocity    0.0
+      temperature  T
    }
 
    100004 // top
    {
-      type        noslip
-      xvelocity   100.0
-      yvelocity   0.0
-      zvelocity   0.0
-      temperature 350.0
+      type         noslip
+      xvelocity    U
+      yvelocity    0.0
+      zvelocity    0.0
+      temperature  T
    }
 }
 
