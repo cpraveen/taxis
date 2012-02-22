@@ -84,6 +84,7 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
    {
       assert (variable.size() == 0);
       type = BC::slip;
+      adiabatic = true;
    }
    // noslip bc: velocity is specified. If temperature is also specified
    // then it is also used. In this case, adiabatic bc is not used
