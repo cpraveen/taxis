@@ -427,20 +427,17 @@ void FiniteVolume::update_solution (const unsigned int r)
       }
    }
 
-   /*
-   for(unsigned int i=0; i<grid.bface.size(); ++i)
-   {
-      int face_type = grid.bface[i].type;
-      BoundaryCondition& bc = param.boundary_condition[face_type];
-      if(bc.type == BC::noslip)
+   // Apply strong bc
+   if (param.bc_scheme == Parameter::strong)
+      for(unsigned int i=0; i<grid.bface.size(); ++i)
       {
+         int face_type = grid.bface[i].type;
+         BoundaryCondition& bc = param.boundary_condition[face_type];
          unsigned int v0 = grid.bface[i].vertex[0];
          unsigned int v1 = grid.bface[i].vertex[1];
-         bc.apply_noslip (grid.vertex[v0], primitive[v0]);
-         bc.apply_noslip (grid.vertex[v1], primitive[v1]);
+         bc.apply (grid.vertex[v0].coord, grid.bface[i], primitive[v0]);
+         bc.apply (grid.vertex[v1].coord, grid.bface[i], primitive[v1]);
       }
-   }
-   */
 }
 
 //------------------------------------------------------------------------------

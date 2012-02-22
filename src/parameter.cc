@@ -116,6 +116,18 @@ void Parameter::read_numeric (Reader &fin)
       abort ();
    }
 
+   fin.entry ("bc_scheme");
+   fin >> input;
+   if(input == "strong")
+      bc_scheme = Parameter::strong;
+   else if(input == "weak")
+      bc_scheme = Parameter::weak;
+   else
+   {
+      cout << "read_numeric: unknown bc scheme " << input << endl;
+      abort ();
+   }
+
    fin.end_section ();
 
    // Some parameter checks

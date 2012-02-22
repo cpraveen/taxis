@@ -10,10 +10,11 @@ numeric
    time_mode    steady
    time_scheme  lusgs
    cfl          1e6
-   max_iter     50000
+   max_iter     5000
    final_time   1e20
-   min_residue  1.0e-6
+   min_residue  1.0e-10
    reconstruct  second
+   bc_scheme    weak
 }
 
 material
@@ -36,7 +37,7 @@ constants
 initial_condition
 {
    temperature  T
-   xvelocity    U*y
+   xvelocity    0.0
    yvelocity    0.0
    zvelocity    0.0
    pressure     p

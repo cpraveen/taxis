@@ -42,7 +42,13 @@ class Parameter
          first, second, limited,
       };
 
+      enum BCScheme
+      {
+         strong, weak
+      };
+
       ReconstructScheme reconstruct_scheme;
+      BCScheme          bc_scheme;
 
       Material material;
 
