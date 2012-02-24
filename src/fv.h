@@ -73,7 +73,7 @@ class FiniteVolume
       void output_restart ();
       void lusgs ();
       void create_force_face_list ();
-      void compute_forces (const unsigned int iter);
+      void compute_forces (unsigned int iter);
       
 };
 

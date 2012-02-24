@@ -77,9 +77,10 @@ void FiniteVolume::create_force_face_list ()
 // Compute forces
 // TODO: Currently computes only pressure forces
 //------------------------------------------------------------------------------
-void FiniteVolume::compute_forces (const unsigned int iter)
+void FiniteVolume::compute_forces (unsigned int iter)
 {
    force_file << setw(6) << iter << " " << scientific << setw(15);
+   force_file << elapsed_time << setw(15);
 
    for(unsigned int i=0; i<force.size(); ++i)
    {
@@ -94,9 +95,8 @@ void FiniteVolume::compute_forces (const unsigned int iter)
          force[i].value += grid.bface[face_no].normal * pressure;
       }
 
-      force_file << force[i].value.x << " " 
-                 << force[i].value.y << " " 
-                 << force[i].value.z << " ";
+      force_file << force[i].value.x << "  " 
+                 << force[i].value.y;
    }
 
    force_file << endl;
