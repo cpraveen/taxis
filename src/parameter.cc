@@ -244,25 +244,35 @@ void Parameter::read_initial_condition (Reader &fin)
 
    fin.begin_section ("initial_condition");
 
-   fin.entry ("temperature");
-   fin.getline (input);
-   initial_condition.add ("temperature", input);
+   fin >> input;
 
-   fin.entry ("xvelocity");
-   fin.getline (input);
-   initial_condition.add ("xvelocity", input);
+   if(input == "library")
+   {
+      fin >> input;
+      initial_condition.add (input);
+   }
+   else
+   {
+      assert (input == "temperature");
+      fin.getline (input);
+      initial_condition.add ("temperature", input);
 
-   fin.entry ("yvelocity");
-   fin.getline (input);
-   initial_condition.add ("yvelocity", input);
+      fin.entry ("xvelocity");
+      fin.getline (input);
+      initial_condition.add ("xvelocity", input);
 
-   fin.entry ("zvelocity");
-   fin.getline (input);
-   initial_condition.add ("zvelocity", input);
+      fin.entry ("yvelocity");
+      fin.getline (input);
+      initial_condition.add ("yvelocity", input);
 
-   fin.entry ("pressure");
-   fin.getline (input);
-   initial_condition.add ("pressure", input);
+      fin.entry ("zvelocity");
+      fin.getline (input);
+      initial_condition.add ("zvelocity", input);
+
+      fin.entry ("pressure");
+      fin.getline (input);
+      initial_condition.add ("pressure", input);
+   }
 
    fin.end_section ();
 }
