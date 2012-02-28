@@ -530,7 +530,8 @@ void FiniteVolume::log_messages (const unsigned int iter)
                 << scientific
                 << setprecision (4) 
                 << dt_global << "  " 
-                << elapsed_time 
+                << elapsed_time << "  "
+                << residual_norm_total
                 << endl;
 
       // Screen output
@@ -636,7 +637,11 @@ void FiniteVolume::solve ()
    elapsed_time = 0.0;
    residual_norm_total = 1.0e20;
 
-   if(param.time_mode == "unsteady") output (0);
+   if(param.time_mode == "unsteady")
+   {
+      compute_gradients ();
+      output (0);
+   }
 
    while (residual_norm_total > param.min_residue &&
           iter < param.max_iter && 
