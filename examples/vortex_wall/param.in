@@ -29,8 +29,8 @@ material
 
 constants
 {
-   T      1.42857142857143
-   p      1.42857142857143
+   T      2.85714285714286
+   p      2.85714285714286
 }
 
 initial_condition
@@ -68,8 +68,8 @@ integrals
 
 output
 {
-   format    vtk
-   frequency 1000
+   format    tec
+   frequency 100
    variables
    {
       mach  density vorticity

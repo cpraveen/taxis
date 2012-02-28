@@ -9,4 +9,10 @@ utheta=1.0;
 rc=1.0;
 
 mu = (rho * utheta * rc)/Re
-T = utheta^2/mach/(gamma * R)
+T = utheta^2/mach^2/(gamma * R)
+
+% grid stretching
+ymin=0; ymax=15;
+ny=128
+r = 1.015
+dy = (ymax-ymin)*(r-1)/(r^ny - 1)

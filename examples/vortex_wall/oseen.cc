@@ -1,3 +1,4 @@
+/* Oseen vortex: see http://en.wikipedia.org/wiki/Lamb–Oseen_vortex */
 #include <cmath>
 
 using namespace std;
@@ -5,7 +6,7 @@ using namespace std;
 extern "C" 
 void INITIAL_CONDITION(double x, double y, double& T, double& vx, double& vy, double& vz, double& p)
 {
-   double alpha = 1.25;
+   double alpha = 1.25643;
    double xc1 = -2.0;
    double xc2 = +2.0;
    double yc  = 7.5;
@@ -19,8 +20,8 @@ void INITIAL_CONDITION(double x, double y, double& T, double& vx, double& vy, do
    double theta1 = atan2( y-yc, x - xc1);
    double theta2 = atan2( y-yc, xc2 - x);
 
-   T =  1.42857142857143;
-   p =  1.42857142857143;
+   T =  2.85714285714286;
+   p =  2.85714285714286;
    vx=  vt1 * sin(theta1) - vt2 * sin(theta2);
    vy= -vt1 * cos(theta1) - vt2 * cos(theta2);
    vz=  0.0;

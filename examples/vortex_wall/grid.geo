@@ -3,9 +3,9 @@ xmax = +15;
 ymin = 0;
 ymax = 15;
 
-nx = 100;
-ny = 100;
-r  = 1.02;
+nx = 128;
+ny = 128;
+r  = 1.015;
 
 Point(1) = {xmin, ymin, 0};
 Point(2) = {xmax, ymin, 0};
