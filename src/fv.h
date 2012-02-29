@@ -20,18 +20,24 @@ class FiniteVolume
 
          if(param.force_data.size() > 0)
             force_file.open ("force.dat");
+
+         if(param.has_global == true)
+            global_file.open ("global.dat");
       };
       ~FiniteVolume () 
       {
          res_file.close ();
          if(param.force_data.size() > 0)
             force_file.close ();
+         if(global_file.is_open())
+            global_file.close ();
       };
       void run ();
 
    private:
       std::ofstream res_file;
       std::ofstream force_file;
+      std::ofstream global_file;
       Parameter param;
       Grid      grid;
 
@@ -74,6 +80,7 @@ class FiniteVolume
       void lusgs ();
       void create_force_face_list ();
       void compute_forces (unsigned int iter);
+      void compute_global (unsigned int iter);
       
 };
 

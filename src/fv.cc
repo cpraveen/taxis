@@ -629,6 +629,29 @@ void FiniteVolume::compute_bounds () const
 }
 
 //------------------------------------------------------------------------------
+// Compute some quantities like global KE
+//------------------------------------------------------------------------------
+void FiniteVolume::compute_global (unsigned int iter)
+{
+   if (!param.has_global) return;
+
+   global_file << iter << "  " << elapsed_time;
+   if(param.global_KE)
+   {
+      double global_KE = 0;
+      for(unsigned int i=0; i<grid.n_vertex; ++i)
+         global_KE += 0.5 * 
+                      param.material.Density (primitive[i]) * 
+                      primitive[i].velocity.square() *
+                      grid.dcarea[i];
+      global_file << "  " << global_KE;
+   }
+
+   global_file << endl;
+
+}
+
+//------------------------------------------------------------------------------
 // Perform time marching iterations
 //------------------------------------------------------------------------------
 void FiniteVolume::solve ()
@@ -636,6 +659,7 @@ void FiniteVolume::solve ()
    unsigned int iter = 0;
    elapsed_time = 0.0;
    residual_norm_total = 1.0e20;
+   unsigned int last_output_iter = 0;
 
    if(param.time_mode == "unsteady")
    {
@@ -663,11 +687,17 @@ void FiniteVolume::solve ()
       log_messages (iter);
 
       compute_forces (iter);
-      if(iter % param.write_frequency == 0) output (iter);
+      compute_global (iter);
+      if(iter % param.write_frequency == 0) 
+      {
+         output (iter);
+         last_output_iter = iter;
+      }
    }
 
    // Save final solution
-   output (iter);
+   if(iter != last_output_iter)
+      output (iter);
 
    if(param.write_restart) output_restart ();
 }

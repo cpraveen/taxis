@@ -68,11 +68,14 @@ integrals
 
 output
 {
-   format    tec
-   frequency 100
+   format     tec
+   frequency  100
    variables
    {
-      mach  density vorticity
+      mach
+      density
+      vorticity
    }
-   restart   false
+   restart    false
+   global_KE  true
 }

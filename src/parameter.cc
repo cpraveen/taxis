@@ -391,5 +391,22 @@ void Parameter::read_output (Reader &fin)
       abort ();
    }
 
+   has_global = false;
+
+   fin.entry ("global_KE");
+   fin >> input;
+   if(input=="false")
+      global_KE = false;
+   else if(input=="true")
+   {
+      global_KE = true;
+      has_global= true;
+   }
+   else
+   {
+      cout << "   Unknown input: " << input << endl;
+      abort ();
+   }
+
    fin.end_section ();
 }
