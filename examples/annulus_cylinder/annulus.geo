@@ -1,13 +1,13 @@
 r1 = 0.05;
 r2 = 0.1;
-n1 = 200; // no. of points on inner cylinder
+n1 = 400; // no. of points on inner cylinder
 cellSize=2*Pi*r1/n1;
 Printf("cellSize on inner/outer cylinders = %e\n", cellSize);
 
 r = 0.01;
 xc= 0.0;
 yc= 0.075;
-nc=100; // no. of points on small cylinder
+nc=200; // no. of points on small cylinder
 h2=2*Pi*r/nc;
 Printf("cellSize on small stationary cylinder = %e\n", h2);
 
