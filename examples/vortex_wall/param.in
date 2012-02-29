@@ -9,6 +9,7 @@ numeric
 {
    time_mode    unsteady
    time_scheme  rk3
+   time_step    0.0
    cfl          0.8
    max_iter     500000
    final_time   1.0e20

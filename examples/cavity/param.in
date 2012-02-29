@@ -9,11 +9,13 @@ numeric
 {
    time_mode    steady
    time_scheme  rk3
+   time_step    0.0
    cfl          0.8
    max_iter     100000
    final_time   1.0e20
    min_residue  1.0e-6
    reconstruct  second
+   bc_scheme    weak
 }
 
 material
@@ -71,11 +73,13 @@ integrals
 
 output
 {
-   format    vtk
-   frequency 1000
+   format     vtk
+   frequency  1000
    variables
    {
-      mach density
+      mach 
+      density
    }
-   restart true
+   restart    true
+   global_KE  false
 }
