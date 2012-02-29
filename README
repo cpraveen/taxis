@@ -1,0 +1,9 @@
+Set the following in your .bashrc file
+
+export TAXIS_HOME = <path to taxis>
+
+e.g.,
+
+export TAXIS_HOME = /home/praveen/taxis
+
+Set the compiler in src/makefile.in and type "make" inside src directory to compile the code.
