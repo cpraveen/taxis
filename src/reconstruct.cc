@@ -2,8 +2,7 @@
 #include "fv.h"
 
 #define EPSILON  1.0e-14
-#define limit_albada(a,b)  (a*b <= 0.0) ? 0.0 : \
-                              ((a*a + EPSILON)*b + (b*b + EPSILON)*a)/(a*a + b*b + 2.0*EPSILON)
+#define limit_albada(a,b)  max(0.0, (2*a*b + EPSILON)/(a*a + b*b + EPSILON))
 
 using namespace std;
 
@@ -41,23 +40,23 @@ void FiniteVolume::reconstruct_second
 
    // left state
    PrimVar dpriml;
-   dpriml.temperature= dT[cl] * dr;
-   dpriml.velocity.x = dU[cl] * dr;
-   dpriml.velocity.y = dV[cl] * dr;
-   dpriml.velocity.z = dW[cl] * dr;
-   dpriml.pressure   = dP[cl] * dr;
+   dpriml.temperature= 2.0 * (dT[cl] * dr) - dprim.temperature;
+   dpriml.velocity.x = 2.0 * (dU[cl] * dr) - dprim.velocity.x;
+   dpriml.velocity.y = 2.0 * (dV[cl] * dr) - dprim.velocity.y;
+   dpriml.velocity.z = 2.0 * (dW[cl] * dr) - dprim.velocity.z;
+   dpriml.pressure   = 2.0 * (dP[cl] * dr) - dprim.pressure;
 
-   state[0] = primitive[cl] + (dpriml * ALBADA11 + dprim * ALBADA12) * 0.5;
+   state[0] = primitive[cl] + (dpriml * (1.0-KKK) + dprim * (1.0+KKK)) * 0.25;
 
    // right state
    PrimVar dprimr;
-   dprimr.temperature= dT[cr] * dr;
-   dprimr.velocity.x = dU[cr] * dr;
-   dprimr.velocity.y = dV[cr] * dr;
-   dprimr.velocity.z = dW[cr] * dr;
-   dprimr.pressure   = dP[cr] * dr;
+   dprimr.temperature= 2.0 * (dT[cr] * dr) - dprim.temperature;
+   dprimr.velocity.x = 2.0 * (dU[cr] * dr) - dprim.velocity.x;
+   dprimr.velocity.y = 2.0 * (dV[cr] * dr) - dprim.velocity.y;
+   dprimr.velocity.z = 2.0 * (dW[cr] * dr) - dprim.velocity.z;
+   dprimr.pressure   = 2.0 * (dP[cr] * dr) - dprim.pressure;
 
-   state[1] = primitive[cr] - (dprimr * ALBADA11 + dprim * ALBADA12) * 0.5;
+   state[1] = primitive[cr] - (dprimr * (1.0-KKK) + dprim * (1.0+KKK)) * 0.25;
 }
 
 //------------------------------------------------------------------------------
@@ -77,27 +76,25 @@ void FiniteVolume::reconstruct_limited
 
    // left state
    PrimVar dpriml;
-   dpriml.temperature= dT[cl] * dr;
-   dpriml.velocity.x = dU[cl] * dr;
-   dpriml.velocity.y = dV[cl] * dr;
-   dpriml.velocity.z = dW[cl] * dr;
-   dpriml.pressure   = dP[cl] * dr;
-   dpriml = dpriml * ALBADA21 + dprim * ALBADA22;
-   PrimVar si = limited_slope (dpriml, dprim);
+   dpriml.temperature= 2.0 * (dT[cl] * dr) - dprim.temperature;
+   dpriml.velocity.x = 2.0 * (dU[cl] * dr) - dprim.velocity.x;
+   dpriml.velocity.y = 2.0 * (dV[cl] * dr) - dprim.velocity.y;
+   dpriml.velocity.z = 2.0 * (dW[cl] * dr) - dprim.velocity.z;
+   dpriml.pressure   = 2.0 * (dP[cl] * dr) - dprim.pressure;
 
-   state[0] = primitive[cl] + si * 0.5;
+   PrimVar si = limited_slope(dpriml, dprim);
+   state[0] = primitive[cl] + si;
 
    // right state
    PrimVar dprimr;
-   dprimr.temperature= dT[cr] * dr;
-   dprimr.velocity.x = dU[cr] * dr;
-   dprimr.velocity.y = dV[cr] * dr;
-   dprimr.velocity.z = dW[cr] * dr;
-   dprimr.pressure   = dP[cr] * dr;
-   dprimr = dprimr * ALBADA21 + dprim * ALBADA22;
-   PrimVar sj = limited_slope (dprimr, dprim);
+   dprimr.temperature= 2.0 * (dT[cr] * dr) - dprim.temperature;
+   dprimr.velocity.x = 2.0 * (dU[cr] * dr) - dprim.velocity.x;
+   dprimr.velocity.y = 2.0 * (dV[cr] * dr) - dprim.velocity.y;
+   dprimr.velocity.z = 2.0 * (dW[cr] * dr) - dprim.velocity.z;
+   dprimr.pressure   = 2.0 * (dP[cr] * dr) - dprim.pressure;
 
-   state[1] = primitive[cr] - sj * 0.5;
+   PrimVar sj = limited_slope(dprimr, dprim);
+   state[1] = primitive[cr] - sj;
 }
 
 //------------------------------------------------------------------------------
@@ -105,13 +102,33 @@ void FiniteVolume::reconstruct_limited
 //------------------------------------------------------------------------------
 PrimVar FiniteVolume::limited_slope (const PrimVar& ul, const PrimVar& ur) const
 {
-   PrimVar result;
+   PrimVar s, result;
 
-   result.temperature = limit_albada (ul.temperature, ur.temperature);
-   result.velocity.x  = limit_albada (ul.velocity.x , ur.velocity.x);
-   result.velocity.y  = limit_albada (ul.velocity.y , ur.velocity.y);
-   result.velocity.z  = limit_albada (ul.velocity.z , ur.velocity.z);
-   result.pressure    = limit_albada (ul.pressure   , ur.pressure);
+   s.temperature = limit_albada (ul.temperature, ur.temperature);
+   s.velocity.x  = limit_albada (ul.velocity.x , ur.velocity.x);
+   s.velocity.y  = limit_albada (ul.velocity.y , ur.velocity.y);
+   s.velocity.z  = limit_albada (ul.velocity.z , ur.velocity.z);
+   s.pressure    = limit_albada (ul.pressure   , ur.pressure);
+
+   result.temperature = 0.25 * s.temperature *
+                        ( (1.0-KKK*s.temperature)*ul.temperature + 
+                          (1.0+KKK*s.temperature)*ur.temperature );
+
+   result.velocity.x = 0.25 * s.velocity.x *
+                        ( (1.0-KKK*s.velocity.x)*ul.velocity.x + 
+                          (1.0+KKK*s.velocity.x)*ur.velocity.x );
+
+   result.velocity.y = 0.25 * s.velocity.y *
+                        ( (1.0-KKK*s.velocity.y)*ul.velocity.y + 
+                          (1.0+KKK*s.velocity.y)*ur.velocity.y );
+
+   result.velocity.z = 0.25 * s.velocity.z *
+                        ( (1.0-KKK*s.velocity.z)*ul.velocity.z + 
+                          (1.0+KKK*s.velocity.z)*ur.velocity.z );
+
+   result.pressure = 0.25 * s.pressure *
+                        ( (1.0-KKK*s.pressure)*ul.pressure + 
+                          (1.0+KKK*s.pressure)*ur.pressure );
 
    return result;
 }
