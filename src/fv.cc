@@ -326,6 +326,14 @@ void FiniteVolume::compute_residual ()
 //------------------------------------------------------------------------------
 void FiniteVolume::compute_dt ()
 {
+   if (param.time_step > 0.0)
+   {
+      dt_global = param.time_step;
+      for(unsigned int i=0; i<grid.n_vertex; ++i)
+         dt[i] = dt_global;
+      return;
+   }
+
    for(unsigned int i=0; i<grid.n_vertex; ++i)
       dt[i] = 0.0;
 

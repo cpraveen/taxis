@@ -86,6 +86,10 @@ void Parameter::read_numeric (Reader &fin)
    if(time_scheme=="rk3")   n_rks = 3;
    if(time_scheme=="lusgs") n_rks = 1; 
 
+   fin.entry ("time_step");
+   fin >> time_step;
+   assert (time_step >= 0.0);
+
    fin.entry ("cfl");
    fin >> cfl;
    assert (cfl > 0.0);
@@ -132,7 +136,23 @@ void Parameter::read_numeric (Reader &fin)
 
    // Some parameter checks
    if(time_scheme == "lusgs")
+   {
       assert (time_mode != "unsteady");
+      assert (time_step == 0.0);
+      assert (cfl > 0.0);
+   }
+
+   if(time_step == 0.0 && cfl == 0.0)
+   {
+      cout << "Either time_step or cfl must be non-zero\n";
+      abort();
+   }
+   if(time_step > 0.0 && cfl > 0.0)
+   {
+      cout << "You have specified both time_step and cfl\n";
+      cout << "Specify only one of them, other being zero\n";
+      abort();
+   }
 }
 
 //------------------------------------------------------------------------------

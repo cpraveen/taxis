@@ -24,4 +24,3 @@ clean:
 
 allclean:
 	make clean
-	rm -f *.vtk
