@@ -87,6 +87,7 @@ void Material::euler_flux (const PrimVar& prim,
 //------------------------------------------------------------------------------
 void Material::viscous_flux (const bool     adiabatic,
                              const PrimVar& state, 
+                             const PrimVar& state_avg,
                              const Vector&  dU,
                              const Vector&  dV,
                              const Vector&  dW,
@@ -95,7 +96,8 @@ void Material::viscous_flux (const bool     adiabatic,
                              Flux&          flux
                              ) const
 {
-   double mu = viscosity (state.temperature);
+   // state_avg is used for material coefficients
+   double mu = viscosity (state_avg.temperature);
    double k = mu * Cp / prandtl;
 
    // Heat flux

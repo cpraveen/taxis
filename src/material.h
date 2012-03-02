@@ -60,6 +60,7 @@ class Material
                           Flux& flux) const;
       void viscous_flux (const bool     adiabatic,
                          const PrimVar& state, 
+                         const PrimVar& state_avg,
                          const Vector&  dU, 
                          const Vector&  dV, 
                          const Vector&  dW, 

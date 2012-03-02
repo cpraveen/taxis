@@ -288,27 +288,34 @@ void FiniteVolume::compute_residual ()
          int face_type = grid.bface[i].type;
          BoundaryCondition& bc = param.boundary_condition[face_type];
 
+         // cell adjacent to boundary face
+         // compute average state on this cell
          unsigned int cl = grid.bface[i].lcell;
+         unsigned int p0 = grid.cell[cl].vertex[0];
+         unsigned int p1 = grid.cell[cl].vertex[1];
+         unsigned int p2 = grid.cell[cl].vertex[2];
+         PrimVar prim_avg = (primitive[p0] + primitive[p1] + primitive[p2]) * (1.0/3.0);
+         
          unsigned int v0 = grid.bface[i].vertex[0];
          unsigned int v1 = grid.bface[i].vertex[1];
          Vector& normal = grid.bface[i].normal;
          Flux flux0, flux1;
 
          state[0] = primitive[v0];
-         state[1] = primitive[v0];
-         bc.apply (grid.vertex[v0].coord, grid.bface[i], state);
+         bc.apply (grid.vertex[v0].coord, grid.bface[i], state[0]);
          param.material.viscous_flux (bc.adiabatic,
-                                      state[0], 
+                                      state[0],
+                                      prim_avg,
                                       dU_cell[cl], 
                                       dV_cell[cl], 
                                       dW_cell[cl], 
                                       dT_cell[cl],
                                       normal, flux0);
-         state[0] = primitive[v1];
          state[1] = primitive[v1];
-         bc.apply (grid.vertex[v1].coord, grid.bface[i], state);
+         bc.apply (grid.vertex[v1].coord, grid.bface[i], state[1]);
          param.material.viscous_flux (bc.adiabatic,
-                                      state[0], 
+                                      state[1],
+                                      prim_avg,
                                       dU_cell[cl], 
                                       dV_cell[cl], 
                                       dW_cell[cl], 
