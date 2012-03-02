@@ -10,7 +10,7 @@ numeric
    time_mode    unsteady
    time_scheme  rk3
    time_step    0.0
-   cfl          0.1
+   cfl          0.9
    max_iter     50000
    final_time   4.0
    min_residue  1.0e-20
@@ -79,7 +79,8 @@ output
    variables
    {
       mach
+      density
    }
-   restart    true
+   restart    false
    global_KE  false
 }
