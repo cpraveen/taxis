@@ -1,26 +1,22 @@
-r1 = 0.1;
-n1 = 400; // no. of points on outer cylinder
-cellSize=2*Pi*r1/n1;
-Printf("cellSize on inner/outer cylinders = %e\n", cellSize);
-r = 0.04;
-xc= -0.02;
+r1 = 0.01;
+r = 0.5 * r1;
+epsilon = 0.45 ;
+differ = epsilon*(r1 - r );
+xc= -differ;
 yc= 0.0;
-nc=400; // no. of points on small cylinder
-h2=2*Pi*r/nc;
-Printf("cellSize on small stationary cylinder = %e\n", h2);
 n_p = 100;
 p = 0.05;
 // create inner 1/8 shell
-Point(1) = {0, 0, 0, cellSize};
-Point(2) = {-r1,0, 0, cellSize};
-Point(3) = {0, r1, 0, cellSize};
-Point(4) = {r1,0, 0, cellSize};
-Point(5) = {0, -r1, 0, cellSize};
-Point(10) = {xc, yc, 0, h2};
-Point(11) = {xc-r,yc, 0, h2};
-Point(12) = {xc, yc+r, 0, h2};
-Point(13) = {xc+r, yc, 0, h2};
-Point(14) = {xc, yc-r, 0, h2};
+Point(1) = {0, 0, 0};
+Point(2) = {-r1,0, 0};
+Point(3) = {0, r1, 0};
+Point(4) = {r1,0, 0};
+Point(5) = {0, -r1, 0};
+Point(10) = {xc, yc, 0};
+Point(11) = {xc-r,yc, 0};
+Point(12) = {xc, yc+r, 0};
+Point(13) = {xc+r, yc, 0};
+Point(14) = {xc, yc-r, 0};
 
 
 Circle(1) = {2, 1, 3};
@@ -65,7 +61,7 @@ Transfinite Line{27,25} = n_p Using Bump p ;
 Transfinite Line{9,1} = n_p;
 
 Physical Line(100001) = {1,2,3,4}; // outer cylinder
-Physical Line(100003) = {9, 10, 11, 12}; // small cylinder
+Physical Line(100002) = {9, 10, 11, 12}; // small cylinder
 Physical Surface(100000) = {1,2,3,4};
 
-Geometry.Normals = 100;
+//Geometry.Normals = 100;
