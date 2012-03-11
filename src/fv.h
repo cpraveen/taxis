@@ -63,6 +63,9 @@ class FiniteVolume
       void reconstruct_limited (const unsigned int&      f,
                                 std::vector<PrimVar>&    state) const;
       PrimVar limited_slope (const PrimVar& ul, const PrimVar& ur) const;
+      void reconstruct_minmod (const unsigned int&      f,
+                               std::vector<PrimVar>&    state) const;
+      PrimVar minmod_slope (const PrimVar& ul, const PrimVar& ur) const;
 
       void initialize ();
       void interpolate_vertex ();
@@ -74,8 +77,8 @@ class FiniteVolume
       void log_messages (const unsigned int iter);
       void update_solution (const unsigned int r);
       void solve ();
-      void compute_bounds () const;
-      void output (const unsigned int iter);
+      void compute_bounds (const unsigned int iter);
+      void output (const unsigned int iter, bool write_variables = true);
       void output_restart ();
       void lusgs ();
       void create_force_face_list ();

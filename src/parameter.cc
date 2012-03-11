@@ -114,6 +114,8 @@ void Parameter::read_numeric (Reader &fin)
       reconstruct_scheme = Parameter::second;
    else if(input == "limited")
       reconstruct_scheme = Parameter::limited;
+   else if(input == "minmod")
+      reconstruct_scheme = Parameter::minmod;
    else
    {
       cout << "read_numeric: unknown reconstruction scheme " << input << endl;
@@ -191,6 +193,16 @@ void Parameter::read_material (Reader &fin)
       assert (material.mu_ref > 0.0);
       assert (material.T_ref > 0.0);
       assert (material.T_0 > 0.0);
+   }
+   else if(input == "power")
+   {
+      material.mu_model = Material::mu_power;
+      fin >> material.mu_ref;
+      fin >> material.T_ref;
+      fin >> material.omega;
+      assert (material.mu_ref > 0.0);
+      assert (material.T_ref > 0.0);
+      assert (material.omega > 0.0);
    }
    else
    {

@@ -1,5 +1,6 @@
 #include <cmath>
 #include "fv.h"
+#include "limiter.h"
 
 #define EPSILON  1.0e-14
 #define limit_albada(a,b)  max(0.0, (2*a*b + EPSILON)/(a*a + b*b + EPSILON))
@@ -136,6 +137,60 @@ PrimVar FiniteVolume::limited_slope (const PrimVar& ul, const PrimVar& ur) const
 //------------------------------------------------------------------------------
 // Reconstruct left and right states
 //------------------------------------------------------------------------------
+void FiniteVolume::reconstruct_minmod
+(
+ const unsigned int& f,
+ vector<PrimVar>&    state
+ ) const
+{
+   unsigned int cl = grid.face[f].vertex[0];
+   unsigned int cr = grid.face[f].vertex[1];
+   
+   Vector  dr    = grid.vertex[cr].coord - grid.vertex[cl].coord;
+   PrimVar dprim = primitive[cr] - primitive[cl];
+   
+   // left state
+   PrimVar dpriml;
+   dpriml.temperature= 2.0 * (dT[cl] * dr) - dprim.temperature;
+   dpriml.velocity.x = 2.0 * (dU[cl] * dr) - dprim.velocity.x;
+   dpriml.velocity.y = 2.0 * (dV[cl] * dr) - dprim.velocity.y;
+   dpriml.velocity.z = 2.0 * (dW[cl] * dr) - dprim.velocity.z;
+   dpriml.pressure   = 2.0 * (dP[cl] * dr) - dprim.pressure;
+   
+   PrimVar si = minmod_slope(dpriml, dprim);
+   state[0] = primitive[cl] + si;
+   
+   // right state
+   PrimVar dprimr;
+   dprimr.temperature= 2.0 * (dT[cr] * dr) - dprim.temperature;
+   dprimr.velocity.x = 2.0 * (dU[cr] * dr) - dprim.velocity.x;
+   dprimr.velocity.y = 2.0 * (dV[cr] * dr) - dprim.velocity.y;
+   dprimr.velocity.z = 2.0 * (dW[cr] * dr) - dprim.velocity.z;
+   dprimr.pressure   = 2.0 * (dP[cr] * dr) - dprim.pressure;
+   
+   PrimVar sj = minmod_slope(dprimr, dprim);
+   state[1] = primitive[cr] - sj;
+}
+
+//------------------------------------------------------------------------------
+// Computed limited slope
+//------------------------------------------------------------------------------
+PrimVar FiniteVolume::minmod_slope (const PrimVar& ul, const PrimVar& ur) const
+{
+   PrimVar s;
+      
+   s.temperature = 0.5 * minmod (ul.temperature, ur.temperature);
+   s.velocity.x  = 0.5 * minmod (ul.velocity.x , ur.velocity.x);
+   s.velocity.y  = 0.5 * minmod (ul.velocity.y , ur.velocity.y);
+   s.velocity.z  = 0.5 * minmod (ul.velocity.z , ur.velocity.z);
+   s.pressure    = 0.5 * minmod (ul.pressure   , ur.pressure);
+   
+   return s;
+}
+
+//------------------------------------------------------------------------------
+// Reconstruct left and right states
+//------------------------------------------------------------------------------
 void FiniteVolume::reconstruct (const unsigned int& f,
                                 vector<PrimVar>&    state) const
 {
@@ -151,6 +206,10 @@ void FiniteVolume::reconstruct (const unsigned int& f,
 
       case Parameter::limited:
          reconstruct_limited (f, state);
+         break;
+         
+      case Parameter::minmod:
+         reconstruct_minmod (f, state);
          break;
 
       default:

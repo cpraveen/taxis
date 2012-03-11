@@ -25,12 +25,13 @@ class Material
       double prandtl;
       double Cp;
       double T_0, T_ref, mu_ref; // constants for sutherland law
+      double omega; // exponent in power law viscosity
       enum FlowModel {euler, ns};
       FlowModel model;
       enum FluxScheme { roe, kfvs };
       FluxScheme flux_scheme;
 
-      enum MuModel {mu_constant, mu_sutherland};
+      enum MuModel {mu_constant, mu_sutherland, mu_power};
       MuModel mu_model;
 
       void initialize ();
@@ -130,6 +131,9 @@ double Material::viscosity (const double T) const
 
       case mu_sutherland:
          return mu_ref * std::pow(T/T_ref, 1.5) * (T_ref + T_0) / (T + T_0);
+
+      case mu_power:
+         return mu_ref * std::pow(T/T_ref, omega);
 
       default:
          std::cout << "viscosity: unknown model " << mu_model << std::endl;

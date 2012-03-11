@@ -560,20 +560,20 @@ void FiniteVolume::log_messages (const unsigned int iter)
    }
 
    if(bounds)
-      compute_bounds ();
+      compute_bounds (iter);
 }
 
 //------------------------------------------------------------------------------
 // Save solution to file for visualization
 //------------------------------------------------------------------------------
-void FiniteVolume::output (const unsigned int iter)
+void FiniteVolume::output (const unsigned int iter, bool write_variables)
 {
    static int counter = 0;
 
    Writer writer (grid, param.material);
    writer.attach_data (primitive);
    writer.attach_gradient (dU, dV, dW);
-   if(param.write_variables.size() > 0)
+   if(param.write_variables.size() > 0 && write_variables == true)
       writer.attach_variables (param.write_variables);
 
    writer.output (param.write_format, counter, elapsed_time);
@@ -593,7 +593,7 @@ void FiniteVolume::output_restart ()
 //------------------------------------------------------------------------------
 // Find minimum and maximum values in the solution
 //------------------------------------------------------------------------------
-void FiniteVolume::compute_bounds () const
+void FiniteVolume::compute_bounds (const unsigned int iter)
 {
    PrimVar prim_min;
    PrimVar prim_max;
@@ -625,22 +625,28 @@ void FiniteVolume::compute_bounds () const
       prim_max.pressure   = max(prim_max.pressure   , primitive[i].pressure  );
    }
 
-   cout << "\t\t Temperature  :" 
+   cout << "\t\t Temperature :" 
         << setw(15) << prim_min.temperature 
         << setw(15) << prim_max.temperature << endl;
-   cout << "\t\t xVelocity:"
+   cout << "\t\t xVelocity   :"
         << setw(15) << prim_min.velocity.x 
         << setw(15) << prim_max.velocity.x << endl;
-   cout << "\t\t yVelocity:"
+   cout << "\t\t yVelocity   :"
         << setw(15) << prim_min.velocity.y 
         << setw(15) << prim_max.velocity.y << endl;
-   cout << "\t\t zVelocity:"
+   cout << "\t\t zVelocity   :"
         << setw(15) << prim_min.velocity.z 
         << setw(15) << prim_max.velocity.z << endl;
-   cout << "\t\t Pressure :"
+   cout << "\t\t Pressure    :"
         << setw(15) << prim_min.pressure 
         << setw(15) << prim_max.pressure << endl;
 
+   if (prim_min.temperature < 0.0 ||
+       prim_min.pressure    < 0.0)
+   {
+         output (iter, false);
+         abort ();
+   }
 }
 
 //------------------------------------------------------------------------------
