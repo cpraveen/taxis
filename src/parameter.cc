@@ -92,7 +92,7 @@ void Parameter::read_numeric (Reader &fin)
 
    fin.entry ("cfl");
    fin >> cfl;
-   assert (cfl > 0.0);
+   assert (cfl >= 0.0);
 
    fin.entry ("max_iter");
    fin >> max_iter;
