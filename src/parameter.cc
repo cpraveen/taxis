@@ -228,7 +228,9 @@ void Parameter::read_material (Reader &fin)
 
    fin.entry ("flux");
    fin >> input;
-   if(input == "roe")
+   if(input == "lxf")
+      material.flux_scheme = Material::lxf;
+   else if(input == "roe")
       material.flux_scheme = Material::roe;
    else if(input == "kfvs")
       material.flux_scheme = Material::kfvs;

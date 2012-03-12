@@ -35,6 +35,10 @@ void Material::num_flux (const PrimVar& left,
 {
    switch (flux_scheme)
    {
+      case lxf:
+         lxf_flux (left, right, normal, flux);
+         break;
+
       case roe:
          roe_flux (left, right, normal, flux);
          break;
