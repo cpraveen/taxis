@@ -263,6 +263,39 @@ void Grid::add_face (const Face& new_face)
 }
 
 //------------------------------------------------------------------------------
+// Find vertex opposite each face; for boundary faces only left vertex present
+//------------------------------------------------------------------------------
+void Grid::find_vertex_opposite_face ()
+{
+   for(unsigned int i=0; i<n_face; ++i)
+      {
+         int vl = -1;
+         int v0 = face[i].vertex[0];
+         int v1 = face[i].vertex[1];
+         int cl = face[i].lcell;
+         for(unsigned int j=0; j<3; ++j)
+            if(cell[cl].vertex[j] != v0 && cell[cl].vertex[j] != v1)
+               vl = cell[cl].vertex[j];
+         assert (vl != -1);
+         face[i].lvertex = vl;
+
+         // interior face: find right vertex also
+         if(face[i].type == -1)
+         {
+            int vr = -1;
+            int cr = face[i].rcell;
+            for(unsigned int j=0; j<3; ++j)
+               if(cell[cr].vertex[j] != v0 && cell[cr].vertex[j] != v1)
+                  vr = cell[cr].vertex[j];
+            assert (vr != -1);
+            face[i].rvertex = vr;
+         }
+         else
+            face[i].rvertex = -1;
+      }
+}
+
+//------------------------------------------------------------------------------
 // Create interior faces and connectivity data
 //------------------------------------------------------------------------------
 void Grid::make_faces ()
@@ -320,6 +353,8 @@ void Grid::make_faces ()
       if(face[i].type == -1) // Interior face, check right cell
          assert(face[i].rcell != -1);
    }
+
+   find_vertex_opposite_face ();
 
    // Copy boundary faces into bface
    for(i=0; i<n_face; ++i)

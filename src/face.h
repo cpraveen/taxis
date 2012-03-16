@@ -10,6 +10,7 @@ class Face
       Face (const Face&);
       unsigned int vertex[2];
       int          lcell, rcell;
+      int          lvertex, rvertex;
       Vector       normal;
       Vector       centroid;
       int          type;
@@ -26,6 +27,8 @@ Face::Face (const Face& face)
    vertex[1] = face.vertex[1];
    lcell     = face.lcell;
    rcell     = face.rcell;
+   lvertex   = face.lvertex;
+   rvertex   = face.rvertex;
    normal    = face.normal;
    centroid  = face.centroid;
    type      = face.type;

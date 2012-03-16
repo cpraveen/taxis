@@ -57,6 +57,7 @@ class Grid
       void compute_cell_area ();
       void compute_face_normal_and_area ();
       void add_face (const Face& new_face);
+      void find_vertex_opposite_face ();
       void make_faces ();
       void weight_average () ;
       void vertex_weight_check () ;
