@@ -89,10 +89,26 @@ void FiniteVolume::compute_forces (unsigned int iter)
       for(unsigned int j=0; j<force[i].face.size(); ++j)
       {
          unsigned int face_no = force[i].face[j];
+         Vector& normal  = grid.bface[face_no].normal;
+
+         // inviscid force
          unsigned int v0 = grid.bface[face_no].vertex[0];
          unsigned int v1 = grid.bface[face_no].vertex[1];
          double pressure = 0.5 * (primitive[v0].pressure + primitive[v1].pressure);
-         force[i].value += grid.bface[face_no].normal * pressure;
+         force[i].value += normal * pressure;
+
+         // viscous force
+         double T = (primitive[v0].temperature +
+                     primitive[v1].temperature)/2.0;
+         double mu = param.material.viscosity(T);
+         Vector gradU = (dU[v0] + dU[v1])/2.0;
+         Vector gradV = (dV[v0] + dV[v1])/2.0;
+         double div = gradU.x + gradV.y;
+         double sxx = 2.0 * mu * (gradU.x - (1.0/3.0) * div);
+         double syy = 2.0 * mu * (gradV.y - (1.0/3.0) * div);
+         double sxy = mu * (gradU.y + gradV.x);
+         force[i].value.x += -(sxx * normal.x + sxy * normal.y);
+         force[i].value.y += -(sxy * normal.x + syy * normal.y);
       }
 
       force_file << force[i].value.x << "  " 
