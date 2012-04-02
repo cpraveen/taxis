@@ -41,8 +41,6 @@ class BoundaryCondition
                          PrimVar      &state);
       void apply_pressure (const Vector         &vertex,
                            std::vector<PrimVar> &state);
-      void apply_pressure (const Vector &vertex,
-                           PrimVar      &state);
       void apply_inlet (const Vector         &vertex,
                         std::vector<PrimVar> &state);
       void apply_inlet (const Vector &vertex,
@@ -268,20 +266,7 @@ void BoundaryCondition::apply_pressure (const Vector         &vertex,
 {
    double point[2]  = {vertex.x, vertex.y};
 
-   state[0].pressure  = pressure.Eval(point);
-   state[1] = state[0];
-}
-
-//------------------------------------------------------------------------------
-// Reset pressure value. Other states remain same
-//------------------------------------------------------------------------------
-inline
-void BoundaryCondition::apply_pressure (const Vector &vertex,
-                                        PrimVar      &state)
-{
-   double point[2]  = {vertex.x, vertex.y};
-   
-   state.pressure  = pressure.Eval(point);
+   state[1].pressure  = pressure.Eval(point);
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +384,7 @@ void BoundaryCondition::apply(const Vector  &vertex,
          break;
 
       case BC::pressure:
-         apply_pressure (vertex, state);
+         // Nothing to be done
          break;
 
       case BC::inlet:
