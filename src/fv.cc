@@ -460,6 +460,23 @@ void FiniteVolume::update_solution (const unsigned int r)
 //------------------------------------------------------------------------------
 void FiniteVolume::compute_residual_norm (const unsigned int iter)
 {
+   // If using strong bc, set momentum residual to zero on noslip
+   // surfaces. Note that this affects lusgs also since the residual
+   // is used in lusgs update.
+   if (param.bc_scheme == Parameter::strong)
+      for(unsigned int i=0; i<grid.bface.size(); ++i)
+      {
+         int face_type = grid.bface[i].type;
+         BoundaryCondition& bc = param.boundary_condition[face_type];
+         if(bc.type == BC::noslip)
+         {
+            unsigned int v0 = grid.bface[i].vertex[0];
+            unsigned int v1 = grid.bface[i].vertex[1];
+            residual[v0].momentum_flux = 0;
+            residual[v1].momentum_flux = 0;
+         }
+      }
+
    residual_norm.mass_flux     = 0.0;
    residual_norm.momentum_flux = 0.0;
    residual_norm.energy_flux   = 0.0;
