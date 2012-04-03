@@ -1,12 +1,14 @@
+format compact
 gamma=1.4
-R=287
-mu=1.0e-0
+R=1
 L=1
 
-T = 300
-p = 86100
+u    = 1
+mach = 0.1
+Re   = 100
 
-mach = 0.3
-u = mach * sqrt(gamma * R * T)
-rho = p / (R * T)
-Re = rho * u * L / mu
+c = u / mach;
+T = c^2/(gamma * R)
+rho = 1;
+p = rho * R * T
+mu = rho * u * L / Re
