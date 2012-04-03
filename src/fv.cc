@@ -338,7 +338,10 @@ void FiniteVolume::compute_residual ()
    compute_gradients ();
 
    // Inviscid fluxes
-   compute_inviscid_residual ();
+   if(param.material.flux_scheme == Material::kep)
+      compute_inviscid_kep_residual ();
+   else
+      compute_inviscid_residual ();
 
    // Viscous fluxes
    if(param.material.model == Material::ns)
@@ -699,7 +702,12 @@ void FiniteVolume::compute_global (unsigned int iter)
                       param.material.Density (primitive[i]) * 
                       primitive[i].velocity.square() *
                       grid.dcarea[i];
-      global_file << "  " << global_KE;
+      double global_Enstrophy = 0;
+      for(unsigned int i=0; i<grid.n_cell; ++i)
+         global_Enstrophy += 0.5 * 
+                             pow( dV_cell[i].x - dU_cell[i].y, 2.0) * 
+                             grid.cell[i].area;
+      global_file << "  " << global_KE << "  " << global_Enstrophy;
    }
 
    global_file << endl;
