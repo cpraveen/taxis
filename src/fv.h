@@ -71,6 +71,8 @@ class FiniteVolume
       void interpolate_vertex ();
       void compute_gradients ();
       void store_conserved_old ();
+      void compute_inviscid_residual ();
+      void compute_viscous_residual ();
       void compute_residual ();
       void compute_dt ();
       void compute_residual_norm (const unsigned int iter);

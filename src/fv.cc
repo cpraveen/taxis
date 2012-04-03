@@ -203,17 +203,10 @@ void FiniteVolume::compute_gradients ()
 }
 
 //------------------------------------------------------------------------------
-// Compute residual for each cell
+// Compute inviscid residual for each cell
 //------------------------------------------------------------------------------
-void FiniteVolume::compute_residual ()
+void FiniteVolume::compute_inviscid_residual ()
 {
-
-   // Set residual vector to zero
-   for(unsigned int i=0; i<grid.n_vertex; ++i)
-      residual[i].zero ();
-
-   compute_gradients ();
-
    // Loop over interior faces and accumulate flux
    for(unsigned int i=0; i<grid.n_face; ++i)
    {
@@ -252,80 +245,104 @@ void FiniteVolume::compute_residual ()
       param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
       residual[cr] += flux * 0.5;
    }
+}
+
+//------------------------------------------------------------------------------
+// Compute residual for each cell
+//------------------------------------------------------------------------------
+void FiniteVolume::compute_viscous_residual ()
+{
+
+   for(unsigned int i=0; i<grid.n_cell; ++i)
+   {
+      unsigned int v0 = grid.cell[i].vertex[0];
+      unsigned int v1 = grid.cell[i].vertex[1];
+      unsigned int v2 = grid.cell[i].vertex[2];
+      PrimVar prim_avg = (primitive[v0] + primitive[v1] + primitive[v2]) * (1.0/3.0);
+      Flux flux0, flux1, flux2;
+      Vector& normal0 = grid.cell[i].normal[0];
+      Vector& normal1 = grid.cell[i].normal[1];
+      Vector& normal2 = grid.cell[i].normal[2];
+      param.material.viscous_flux (prim_avg, 
+                                   dU_cell[i], 
+                                   dV_cell[i], 
+                                   dW_cell[i], 
+                                   dT_cell[i],
+                                   normal0, flux0,
+                                   normal1, flux1,
+                                   normal2, flux2);
+
+      // negative sign because normal sign is opposite
+      residual[v0] -= flux0 / 2.0;
+      residual[v1] -= flux1 / 2.0;
+      residual[v2] -= flux2 / 2.0;
+   }
+
+   // Diffusive flux from boundary faces
+   for(unsigned int i=0; i<grid.bface.size(); ++i)
+   {
+      vector<PrimVar> state(2);
+      int face_type = grid.bface[i].type;
+      BoundaryCondition& bc = param.boundary_condition[face_type];
+
+      // cell adjacent to boundary face
+      // compute average state on this cell
+      unsigned int cl = grid.bface[i].lcell;
+      unsigned int p0 = grid.cell[cl].vertex[0];
+      unsigned int p1 = grid.cell[cl].vertex[1];
+      unsigned int p2 = grid.cell[cl].vertex[2];
+      PrimVar prim_avg = (primitive[p0] + primitive[p1] + primitive[p2]) * (1.0/3.0);
+         
+      unsigned int v0 = grid.bface[i].vertex[0];
+      unsigned int v1 = grid.bface[i].vertex[1];
+      Vector& normal = grid.bface[i].normal;
+      Flux flux0, flux1;
+
+      state[0] = primitive[v0];
+      bc.apply (grid.vertex[v0].coord, grid.bface[i], state[0]);
+      param.material.viscous_flux (bc.adiabatic,
+                                   state[0],
+                                   prim_avg,
+                                   dU_cell[cl], 
+                                   dV_cell[cl], 
+                                   dW_cell[cl], 
+                                   dT_cell[cl],
+                                   normal, flux0);
+      state[1] = primitive[v1];
+      bc.apply (grid.vertex[v1].coord, grid.bface[i], state[1]);
+      param.material.viscous_flux (bc.adiabatic,
+                                   state[1],
+                                   prim_avg,
+                                   dU_cell[cl], 
+                                   dV_cell[cl], 
+                                   dW_cell[cl], 
+                                   dT_cell[cl],
+                                   normal, flux1);
+
+      residual[v0] += flux0 / 2.0;
+      residual[v1] += flux1 / 2.0;
+   }
+}
+
+//------------------------------------------------------------------------------
+// Compute residual for each cell
+//------------------------------------------------------------------------------
+void FiniteVolume::compute_residual ()
+{
+
+   // Set residual vector to zero
+   for(unsigned int i=0; i<grid.n_vertex; ++i)
+      residual[i].zero ();
+
+   // Compute cell and vertex gradients
+   compute_gradients ();
+
+   // Inviscid fluxes
+   compute_inviscid_residual ();
 
    // Viscous fluxes
    if(param.material.model == Material::ns)
-   {
-      for(unsigned int i=0; i<grid.n_cell; ++i)
-      {
-         unsigned int v0 = grid.cell[i].vertex[0];
-         unsigned int v1 = grid.cell[i].vertex[1];
-         unsigned int v2 = grid.cell[i].vertex[2];
-         PrimVar prim_avg = (primitive[v0] + primitive[v1] + primitive[v2]) * (1.0/3.0);
-         Flux flux0, flux1, flux2;
-         Vector& normal0 = grid.cell[i].normal[0];
-         Vector& normal1 = grid.cell[i].normal[1];
-         Vector& normal2 = grid.cell[i].normal[2];
-         param.material.viscous_flux (prim_avg, 
-                                      dU_cell[i], 
-                                      dV_cell[i], 
-                                      dW_cell[i], 
-                                      dT_cell[i],
-                                      normal0, flux0,
-                                      normal1, flux1,
-                                      normal2, flux2);
-
-         // negative sign because normal sign is opposite
-         residual[v0] -= flux0 / 2.0;
-         residual[v1] -= flux1 / 2.0;
-         residual[v2] -= flux2 / 2.0;
-      }
-
-      // Diffusive flux from boundary faces
-      for(unsigned int i=0; i<grid.bface.size(); ++i)
-      {
-         vector<PrimVar> state(2);
-         int face_type = grid.bface[i].type;
-         BoundaryCondition& bc = param.boundary_condition[face_type];
-
-         // cell adjacent to boundary face
-         // compute average state on this cell
-         unsigned int cl = grid.bface[i].lcell;
-         unsigned int p0 = grid.cell[cl].vertex[0];
-         unsigned int p1 = grid.cell[cl].vertex[1];
-         unsigned int p2 = grid.cell[cl].vertex[2];
-         PrimVar prim_avg = (primitive[p0] + primitive[p1] + primitive[p2]) * (1.0/3.0);
-         
-         unsigned int v0 = grid.bface[i].vertex[0];
-         unsigned int v1 = grid.bface[i].vertex[1];
-         Vector& normal = grid.bface[i].normal;
-         Flux flux0, flux1;
-
-         state[0] = primitive[v0];
-         bc.apply (grid.vertex[v0].coord, grid.bface[i], state[0]);
-         param.material.viscous_flux (bc.adiabatic,
-                                      state[0],
-                                      prim_avg,
-                                      dU_cell[cl], 
-                                      dV_cell[cl], 
-                                      dW_cell[cl], 
-                                      dT_cell[cl],
-                                      normal, flux0);
-         state[1] = primitive[v1];
-         bc.apply (grid.vertex[v1].coord, grid.bface[i], state[1]);
-         param.material.viscous_flux (bc.adiabatic,
-                                      state[1],
-                                      prim_avg,
-                                      dU_cell[cl], 
-                                      dV_cell[cl], 
-                                      dW_cell[cl], 
-                                      dT_cell[cl],
-                                      normal, flux1);
-
-         residual[v0] += flux0 / 2.0;
-         residual[v1] += flux1 / 2.0;
-      }
-   }
+      compute_viscous_residual ();
 }
 
 //------------------------------------------------------------------------------
