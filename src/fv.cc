@@ -11,6 +11,8 @@
 extern bool restart;
 extern bool preprocess;
 extern bool bounds;
+extern bool convert_to_vtk;
+extern bool convert_to_tec;
 
 using namespace std;
 
@@ -63,6 +65,16 @@ void FiniteVolume::initialize ()
          assert (primitive[i].pressure > 0.0);
       }
       cout << " Done\n";
+   }
+
+   // Check if solution conversion was requested
+   // Then save solution and abort
+   if(convert_to_tec) param.write_format = "tec";
+   if(convert_to_vtk) param.write_format = "vtk";
+   if(convert_to_tec || convert_to_vtk)
+   {
+      compute_gradients ();
+      output (0);
    }
 }
 

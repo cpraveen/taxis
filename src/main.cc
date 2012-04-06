@@ -11,6 +11,8 @@ bool debug;
 bool restart;
 bool preprocess;
 bool bounds;
+bool convert_to_vtk;
+bool convert_to_tec;
 map<string,double> constants;
 
 void process_command_line (int argc, char* argv[], int& ifile);
