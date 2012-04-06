@@ -11,7 +11,7 @@ numeric
    time_scheme  lusgs
    time_step    0.0
    cfl          1e6
-   max_iter     50000
+   max_iter     5000
    final_time   1e20
    min_residue  1.0e-10
    reconstruct  second
@@ -21,8 +21,8 @@ numeric
 material
 {
    gamma       1.4
-   gas_const   287
-   viscosity   constant  1.12
+   gas_const   1.0
+   viscosity   constant  1.0e-2
    prandtl     0.72
    model       ns
    flux        roe
@@ -31,10 +31,10 @@ material
 constants
 {
    L     5.0
-   T     350.0
-   pin   1.05e5
-   pout  1.0e5
-   Uc    4.46428571428571e+02
+   T     7.142857142857143e+01
+   pin   7.142857142857143e+01
+   pout  7.102857142857142e+01
+   Uc    1.0
 }
 
 initial_condition
@@ -52,7 +52,7 @@ boundary
    {
       type         farfield
       temperature  T
-      xvelocity    Uc*y*(1 - y)
+      xvelocity    4*Uc*y*(1 - y)
       yvelocity    0.0
       zvelocity    0.0
       pressure     pin
@@ -81,7 +81,7 @@ integrals
 output
 {
    format      vtk
-   frequency   1000
+   frequency   5000
    variables
    {
       mach 

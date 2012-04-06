@@ -1,8 +1,8 @@
 L = 5.0;// channel length
 H = 1.0; // height
 
-n1 = 50;  // normal to BL
-n2 = 50;  // along plate
+n1 = 25;  // normal to BL
+n2 = 25;  // along plate
 p  = 1.1; // geometric progression
 
 // First cell height
@@ -23,7 +23,7 @@ Line Loop(1) = {1,2,3,4};
 Ruled Surface(1) = {1};
 Transfinite Surface(1) = {1,2,3,4};
 
-Transfinite Line{2,-4} = n1 Using Bump p;
+Transfinite Line{2,-4} = n1;
 Transfinite Line{1,-3} = n2;
 
 Physical Surface(100000) = {1};

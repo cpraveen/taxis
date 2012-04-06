@@ -11,7 +11,7 @@ numeric
    time_scheme  lusgs
    time_step    0.0
    cfl          1e6
-   max_iter     5000
+   max_iter     50000
    final_time   1e20
    min_residue  1.0e-10
    reconstruct  second
@@ -21,8 +21,8 @@ numeric
 material
 {
    gamma       1.4
-   gas_const   287
-   viscosity   constant  1.0
+   gas_const   1.0
+   viscosity   constant  1.0e-2
    prandtl     0.72
    model       ns
    flux        roe
@@ -30,9 +30,9 @@ material
 
 constants
 {
-   T    350.0
-   U    100.0
-   p    1e5
+   T    7.14285714285714e+01
+   p    7.14285714285714e+01
+   U    1.0
 }
 
 initial_condition
