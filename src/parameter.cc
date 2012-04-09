@@ -55,6 +55,8 @@ void Parameter::read_grid (Reader &fin)
    fin >> input;
    if(input=="median")
       cell_type = median;
+   else if(input=="voronoi")
+      cell_type = voronoi;
    else
    {
       cout << "   Unknown cell type " << input << endl;

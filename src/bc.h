@@ -11,7 +11,7 @@
 
 namespace BC
 {
-   enum BCType { none, slip, noslip, farfield, inlet, outlet, pressure };
+   enum BCType { none, slip, noslip, maxwell, farfield, inlet, outlet, pressure };
 }
 
 //------------------------------------------------------------------------------
@@ -39,6 +39,8 @@ class BoundaryCondition
                          std::vector<PrimVar> &state);
       void apply_noslip (const Vector &vertex,
                          PrimVar      &state);
+      void apply_maxwell (const Face           &face,
+                          std::vector<PrimVar> &state);
       void apply_pressure (const Vector         &vertex,
                            std::vector<PrimVar> &state);
       void apply_inlet (const Vector         &vertex,
@@ -118,6 +120,40 @@ BoundaryCondition::BoundaryCondition (Material                 &material,
          }
       }
       assert (has_xvelocity && has_yvelocity && has_zvelocity);
+   }
+   else if(bc_type == "maxwell")
+   {
+      assert (variable.size() == 4);
+      type = BC::maxwell;
+      adiabatic = false;
+      bool has_xvelocity   = false;
+      bool has_yvelocity   = false;
+      bool has_zvelocity   = false;
+      bool has_temperature = false;
+      for(unsigned int i=0; i<variable.size(); ++i)
+      {
+         if(variable[i] == "xvelocity")
+         {
+            has_xvelocity = true;
+            xvelocity.FParse (function[i]);
+         }
+         else if(variable[i] == "yvelocity")
+         {
+            has_yvelocity = true;
+            yvelocity.FParse (function[i]);
+         }
+         else if(variable[i] == "zvelocity")
+         {
+            has_zvelocity = true;
+            zvelocity.FParse (function[i]);
+         }
+         else if(variable[i] == "temperature")
+         {
+            has_temperature = true;
+            temperature.FParse (function[i]);
+         }
+      }
+      assert (has_xvelocity && has_yvelocity && has_zvelocity && has_temperature);
    }
    // In this case only pressure is specified
    else if(bc_type == "pressure")
@@ -258,6 +294,24 @@ void BoundaryCondition::apply_noslip(const Vector &vertex,
 }
 
 //------------------------------------------------------------------------------
+// state[1] = wall state
+//------------------------------------------------------------------------------
+inline
+void BoundaryCondition::apply_maxwell(const Face           &face,
+                                      std::vector<PrimVar> &state)
+{
+   double point[2]  = {face.centroid.x, face.centroid.y};
+   state[1].velocity.x = xvelocity.Eval(point);
+   state[1].velocity.y = yvelocity.Eval(point);
+   state[1].velocity.z = zvelocity.Eval(point);
+
+   state[1].temperature = temperature.Eval(point);
+
+   double rhow = 0;
+   state[1].pressure = rhow * material->gas_const * state[1].temperature;
+}
+
+//------------------------------------------------------------------------------
 // Reset pressure value. Other states remain same
 //------------------------------------------------------------------------------
 inline
@@ -342,6 +396,10 @@ void BoundaryCondition::apply(const Vector         &vertex,
          apply_noslip (vertex, state);
          break;
 
+      case BC::maxwell:
+         apply_maxwell (face, state);
+         break;
+
       case BC::pressure:
          apply_pressure (vertex, state);
          break;
@@ -376,6 +434,7 @@ void BoundaryCondition::apply(const Vector  &vertex,
    switch(type)
    {
       case BC::slip:
+      case BC::maxwell:
          apply_slip (face, state);
          break;
 

@@ -36,6 +36,10 @@ class Grid
       double max_cell_area;
       double min_mcarea;
       double max_mcarea;
+      double min_dcarea;
+      double max_dcarea;
+      double min_face_length;
+      double max_face_length;
       std::vector<Vertex> vertex;
       std::vector<Cell>   cell;
       std::vector<Face>   face;
@@ -63,8 +67,10 @@ class Grid
       void vertex_weight_check () ;
       void find_cell_faces ();
       void info ();
+      void remove_empty_faces ();
       void renumber();
       void find_nbr_vertex ();
+      void print_cells();
 
       std::vector< std::vector<unsigned int> > node_face;
 

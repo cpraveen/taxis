@@ -36,6 +36,27 @@ void Grid::read (const Parameter& param)
 //------------------------------------------------------------------------------
 void Grid::info ()
 {
+   min_mcarea =  1.0e20;
+   max_mcarea = -1.0e20;
+   min_dcarea =  1.0e20;
+   max_dcarea = -1.0e20;
+
+   for(unsigned int i=0; i<n_vertex; ++i)
+   {
+      min_mcarea = min ( min_mcarea, mcarea[i] );
+      max_mcarea = max ( max_mcarea, mcarea[i] );
+      min_dcarea = min ( min_dcarea, dcarea[i] );
+      max_dcarea = max ( max_dcarea, dcarea[i] );
+   }
+
+   min_face_length =  1.0e20;
+   max_face_length = -1.0e20;
+   for(unsigned int i=0; i<n_vertex; ++i)
+   {
+      min_face_length = min ( min_face_length, face[i].normal.norm() );
+      max_face_length = max ( max_face_length, face[i].normal.norm() );
+   }
+   
    cout << "Grid information:\n";
    cout << "  Number of vertices   = " << n_vertex << endl;
    cout << "  Number of cells      = " << n_cell << endl;
@@ -43,8 +64,12 @@ void Grid::info ()
    cout << "  Number of bdry faces = " << n_boundary_face << endl;
    cout << "  Minimum cell area    = " << min_cell_area << endl;
    cout << "  Maximum cell area    = " << max_cell_area << endl;
-   cout << "  Minimum dual area    = " << min_mcarea << endl;
-   cout << "  Maximum dual area    = " << max_mcarea << endl;
+   cout << "  Minimum median area  = " << min_mcarea << endl;
+   cout << "  Maximum median area  = " << max_mcarea << endl;
+   cout << "  Minimum dual area    = " << min_dcarea << endl;
+   cout << "  Maximum dual area    = " << max_dcarea << endl;
+   cout << "  Minimum face length  = " << min_face_length << endl;
+   cout << "  Maximum face length  = " << max_face_length << endl;
 }
 
 //------------------------------------------------------------------------------

@@ -14,16 +14,75 @@ using namespace std;
 //------------------------------------------------------------------------------
 void Grid::compute_cell_centroid ()
 {
-   for(unsigned int i=0; i<n_cell; ++i)
-   { 
-      unsigned int v0, v1, v2;
-      v0 = cell[i].vertex[0];
-      v1 = cell[i].vertex[1];
-      v2 = cell[i].vertex[2];
-      cell[i].centroid = ( vertex[v0].coord + 
-                           vertex[v1].coord + 
-                           vertex[v2].coord ) / 3.0;
-   }   
+   if(cell_type == median)
+      for(unsigned int i=0; i<n_cell; ++i)
+      { 
+         unsigned int v0, v1, v2;
+         v0 = cell[i].vertex[0];
+         v1 = cell[i].vertex[1];
+         v2 = cell[i].vertex[2];
+         cell[i].centroid = ( vertex[v0].coord + 
+                              vertex[v1].coord + 
+                              vertex[v2].coord ) / 3.0;
+      }   
+   else if(cell_type == voronoi)
+   {
+      for(unsigned int i=0; i<n_cell; ++i)
+      { 
+         unsigned int n1 = cell[i].vertex[0];
+         unsigned int n2 = cell[i].vertex[1];
+         unsigned int n3 = cell[i].vertex[2];
+
+         double x1 = vertex[n1].coord.x;
+         double y1 = vertex[n1].coord.y;
+         double x2 = vertex[n2].coord.x;
+         double y2 = vertex[n2].coord.y;
+         double x3 = vertex[n3].coord.x;
+         double y3 = vertex[n3].coord.y;
+
+         double l1  = pow(x2 - x3, 2) + pow(y2 - y3, 2);
+         double l2  = pow(x3 - x1, 2) + pow(y3 - y1, 2);
+         double l3  = pow(x1 - x2, 2) + pow(y1 - y2, 2);
+
+         double beta1 = max(0.0, l2 + l3 - l1);
+         double beta2 = max(0.0, l3 + l1 - l2);
+         double beta3 = max(0.0, l1 + l2 - l3);
+
+         // This fix is supposed to remove very small cv faces.
+         // I am not totally happy with this one.
+         if(beta1 < beta2/2.0 && beta1 < beta3/2.0) beta1=0.0;
+         if(beta2 < beta3/2.0 && beta2 < beta1/2.0) beta2=0.0;
+         if(beta3 < beta1/2.0 && beta3 < beta2/2.0) beta3=0.0;
+
+         double det = (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1);
+         double b1  = 0.5*( (x2 - x1)*(x2 + x1) + (y2 - y1)*(y2 + y1) );
+         double b2  = 0.5*( (x3 - x1)*(x3 + x1) + (y3 - y1)*(y3 + y1) );
+         double xc  = ( (y3-y1)*b1 - (y2-y1)*b2)/det;
+         double yc  = (-(x3-x1)*b1 + (x2-x1)*b2)/det;
+
+         if(beta1 == 0.0)
+         {
+            cell[i].centroid.x = 0.5*(x2 + x3);
+            cell[i].centroid.y = 0.5*(y2 + y3);
+         }
+         else if(beta2 == 0.0)
+         {
+            cell[i].centroid.x = 0.5*(x3 + x1);
+            cell[i].centroid.y = 0.5*(y3 + y1);
+         }
+         else if(beta3 == 0.0)
+         {
+            cell[i].centroid.x = 0.5*(x1 + x2);
+            cell[i].centroid.y = 0.5*(y1 + y2);
+         }
+         else
+         {
+            cell[i].centroid.x = xc;
+            cell[i].centroid.y = yc;
+         }
+
+      }
+   }
 }
 
 //------------------------------------------------------------------------------
@@ -58,7 +117,10 @@ void Grid::compute_cell_area ()
    max_cell_area = -1.0e20;
 
    for(unsigned int i=0; i<n_vertex; ++i)
+   {
       mcarea[i] = 0.0;
+      dcarea[i] = 0.0;
+   }
 
    for(unsigned int i=0; i<n_cell; ++i)
    {
@@ -86,17 +148,41 @@ void Grid::compute_cell_area ()
       dcarea = mcarea;
    else
    {
-      cout << "Unknown cell type\n";
-      abort ();
-   }
+      for(unsigned int i=0; i<n_cell; ++i)
+      {
+         unsigned int n0, n1, n2;
+         for(unsigned int j=0; j<3; ++j)
+         {
+            n0 = cell[i].vertex[j];
+            if(j==0)
+               n1 = cell[i].vertex[2];
+            else
+               n1 = cell[i].vertex[j-1];
+            if(j==2)
+               n2 = cell[i].vertex[0];
+            else
+               n2 = cell[i].vertex[j+1];
+            vector<Vector> point(5);
+            point[0] = vertex[n0].coord;
+            point[1] = ( vertex[n0].coord + vertex[n2].coord ) / 2.0;
+            point[2] = cell[i].centroid;
+            point[3] = ( vertex[n0].coord + vertex[n1].coord ) / 2.0;
+            point[4] = point[0];
 
-   min_mcarea =  1.0e20;
-   max_mcarea = -1.0e20;
-
-   for(unsigned int i=0; i<n_vertex; ++i)
-   {
-      min_mcarea = min ( min_mcarea, mcarea[i] );
-      max_mcarea = max ( max_mcarea, mcarea[i] );
+            double area = 0;
+            for(unsigned int k=0; k<4; ++k)
+               area += point[k].x * point[k+1].y - point[k+1].x * point[k].y;
+            if(area < 0.0)
+            {
+               cout << "Dual cell area is non-positive\n";
+               cout << "   Area     = " << area << "\n";
+               cout << "   Triangle = " << i << "\n";
+               abort ();
+            }
+            area *= 0.5;
+            dcarea[n0] += area;
+         }
+      }
    }
 
 }
@@ -408,6 +494,27 @@ void Grid::find_cell_faces ()
 //------------------------------------------------------------------------------
 // Find points connected to a point
 //------------------------------------------------------------------------------
+void Grid::remove_empty_faces()
+{
+   cout << "Removing faces with zero area ...\n";
+   vector<Face> tmp;
+   for(unsigned int i=0; i<n_face; ++i)
+   {
+      if(face[i].area > 0.0) tmp.push_back (face[i]);
+   }
+   cout << "   faces with zero area = " << face.size() - tmp.size() << "\n";
+
+   face.resize (0);
+   face.resize (tmp.size());
+   face = tmp;
+   tmp.resize(0);
+
+   n_face = face.size ();
+}
+
+//------------------------------------------------------------------------------
+// Find points connected to a point
+//------------------------------------------------------------------------------
 void Grid::find_nbr_vertex()
 {
    cout << "Finding vertices around a vertex ...\n";
@@ -491,6 +598,49 @@ void Grid::renumber()
 }   
 
 //------------------------------------------------------------------------------
+// Print triangles and dual cells into file
+// Can be visualized with gnuplot
+//------------------------------------------------------------------------------
+void Grid::print_cells ()
+{
+   cout << "Writing triangles into tri.dat ...\n";
+   cout << "Writing dual cells into dual.dat ...\n";
+
+   ofstream tri("tri.dat");
+   ofstream dual("dual.dat");
+
+   for(unsigned int i=0; i<n_cell; ++i)
+   {
+      unsigned int n0 = cell[i].vertex[0];
+      unsigned int n1 = cell[i].vertex[1];
+      unsigned int n2 = cell[i].vertex[2];
+      tri << vertex[n0].coord.x << "  " << vertex[n0].coord.y << "\n";
+      tri << vertex[n1].coord.x << "  " << vertex[n1].coord.y << "\n";
+      tri << vertex[n2].coord.x << "  " << vertex[n2].coord.y << "\n";
+      tri << vertex[n0].coord.x << "  " << vertex[n0].coord.y << "\n";
+      tri << "\n";
+
+      Vector p01 = (vertex[n0].coord + vertex[n1].coord)/2.0;
+      Vector p12 = (vertex[n1].coord + vertex[n2].coord)/2.0;
+      Vector p20 = (vertex[n2].coord + vertex[n0].coord)/2.0;
+
+      dual << p01.x << "  " << p01.y << "\n";
+      dual << cell[i].centroid.x << "  " << cell[i].centroid.y << "\n";
+      dual << "\n";
+
+      dual << p12.x << "  " << p12.y << "\n";
+      dual << cell[i].centroid.x << "  " << cell[i].centroid.y << "\n";
+      dual << "\n";
+
+      dual << p20.x << "  " << p20.y << "\n";
+      dual << cell[i].centroid.x << "  " << cell[i].centroid.y << "\n";
+      dual << "\n";
+   }
+   tri.close();
+   dual.close();
+}
+
+//------------------------------------------------------------------------------
 // Preprocess the grid
 //------------------------------------------------------------------------------
 void Grid::preproc ()
@@ -501,6 +651,10 @@ void Grid::preproc ()
    compute_face_centroid ();
    compute_cell_area ();
    compute_face_normal_and_area ();
+   if(cell_type == voronoi)
+      remove_empty_faces ();
    find_nbr_vertex ();
    renumber ();
+   if(debug)
+      print_cells();
 }
