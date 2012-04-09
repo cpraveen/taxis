@@ -20,12 +20,14 @@ static const double KKK = 1.0/3.0;
 
 enum GridType {gmsh};
 enum CellType {median, voronoi};
+enum Dimension {two, axi};
 
 class Parameter
 {
    public:
       char* file;
 
+      Dimension dim;
       std::string time_mode;
       std::string time_scheme;
       unsigned int n_rks;

@@ -21,6 +21,7 @@ struct Vertex
    Vector coord;
    std::vector<unsigned int> nbr_vertex;
    std::vector<unsigned int> face;
+   double radius;
 };
 
 class Grid
@@ -40,6 +41,8 @@ class Grid
       double max_dcarea;
       double min_face_length;
       double max_face_length;
+      double min_radius;
+      double max_radius;
       std::vector<Vertex> vertex;
       std::vector<Cell>   cell;
       std::vector<Face>   face;
@@ -71,6 +74,7 @@ class Grid
       void renumber();
       void find_nbr_vertex ();
       void print_cells();
+      void compute_radius ();
 
       std::vector< std::vector<unsigned int> > node_face;
 

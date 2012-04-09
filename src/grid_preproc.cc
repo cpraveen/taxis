@@ -641,6 +641,54 @@ void Grid::print_cells ()
 }
 
 //------------------------------------------------------------------------------
+// Area average radius for axisymmetric case
+//------------------------------------------------------------------------------
+void Grid::compute_radius ()
+{
+   for(unsigned int i=0; i<n_vertex; ++i)
+      vertex[i].radius = 0;
+
+   for(unsigned int i=0; i<n_cell; ++i)
+   {
+      unsigned int n0, n1, n2;
+      for(unsigned int j=0; j<3; ++j)
+      {
+         n0 = cell[i].vertex[j];
+         if(j==0)
+            n1 = cell[i].vertex[2];
+         else
+            n1 = cell[i].vertex[j-1];
+         if(j==2)
+            n2 = cell[i].vertex[0];
+         else
+            n2 = cell[i].vertex[j+1];
+         vector<Vector> point(4);
+         point[0] = vertex[n0].coord;
+         point[1] = ( vertex[n0].coord + vertex[n2].coord ) / 2.0;
+         point[2] = cell[i].centroid;
+         point[3] = ( vertex[n0].coord + vertex[n1].coord ) / 2.0;
+
+         double xc1 = (point[0].x + point[1].x + point[2].x)/3.0;
+         double xc2 = (point[0].x + point[3].x + point[2].x)/3.0;
+
+         Vector A1  = (point[1] - point[0]) ^ (point[2] - point[0]);
+         double a1  = 0.5 * A1.z;
+         assert(a1 > -1.0e-14);
+
+         Vector A2  = (point[2] - point[0]) ^ (point[3] - point[0]);
+         double a2  = 0.5 * A2.z;
+         assert(a2 > -1.0e-14);
+
+         vertex[n0].radius += xc1 * a1 + xc2 * a2;
+      }
+   }
+
+   for(unsigned int i=0; i<n_vertex; ++i)
+      vertex[i].radius /= dcarea[i];
+
+}
+
+//------------------------------------------------------------------------------
 // Preprocess the grid
 //------------------------------------------------------------------------------
 void Grid::preproc ()
@@ -657,4 +705,5 @@ void Grid::preproc ()
    renumber ();
    if(debug)
       print_cells();
+   compute_radius ();
 }

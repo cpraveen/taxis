@@ -40,6 +40,8 @@ void Grid::info ()
    max_mcarea = -1.0e20;
    min_dcarea =  1.0e20;
    max_dcarea = -1.0e20;
+   min_radius =  1.0e20;
+   max_radius = -1.0e20;
 
    for(unsigned int i=0; i<n_vertex; ++i)
    {
@@ -47,6 +49,8 @@ void Grid::info ()
       max_mcarea = max ( max_mcarea, mcarea[i] );
       min_dcarea = min ( min_dcarea, dcarea[i] );
       max_dcarea = max ( max_dcarea, dcarea[i] );
+      min_radius = min ( min_radius, vertex[i].radius );
+      max_radius = max ( max_radius, vertex[i].radius );
    }
 
    min_face_length =  1.0e20;
@@ -70,6 +74,8 @@ void Grid::info ()
    cout << "  Maximum dual area    = " << max_dcarea << endl;
    cout << "  Minimum face length  = " << min_face_length << endl;
    cout << "  Maximum face length  = " << max_face_length << endl;
+   cout << "  Minimum radius       = " << min_radius << endl;
+   cout << "  Maximum radius       = " << max_radius << endl;
 }
 
 //------------------------------------------------------------------------------
