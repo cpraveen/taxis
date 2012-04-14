@@ -25,6 +25,7 @@ void Parameter::read ()
    read_boundary (fin);
    read_integrals (fin);
    read_output (fin);
+   check ();
 }
 
 //------------------------------------------------------------------------------
@@ -447,4 +448,17 @@ void Parameter::read_output (Reader &fin)
    }
 
    fin.end_section ();
+}
+
+//------------------------------------------------------------------------------
+// Final checking of parameters
+//------------------------------------------------------------------------------
+void Parameter::check ()
+{
+   if(material.flux_scheme == Material::kep &&
+      reconstruct_scheme != Parameter::first)
+   {
+      reconstruct_scheme = Parameter::first;
+      cout << "   kep flux is chosen; hence setting reconstruction to first order\n";
+   }
 }

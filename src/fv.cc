@@ -350,10 +350,7 @@ void FiniteVolume::compute_residual ()
    compute_gradients ();
 
    // Inviscid fluxes
-   if(param.material.flux_scheme == Material::kep)
-      compute_inviscid_kep_residual ();
-   else
-      compute_inviscid_residual ();
+   compute_inviscid_residual ();
 
    // Viscous fluxes
    if(param.material.model == Material::ns)

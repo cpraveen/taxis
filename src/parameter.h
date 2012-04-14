@@ -80,6 +80,7 @@ class Parameter
       void read_boundary (Reader&);
       void read_integrals (Reader&);
       void read_output (Reader&);
+      void check ();
 };
 
 #endif
