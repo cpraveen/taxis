@@ -7,6 +7,8 @@ extern bool debug;
 extern bool restart;
 extern bool preprocess;
 extern bool bounds;
+extern bool convert_to_vtk;
+extern bool convert_to_tec;
 
 using namespace std;
 
@@ -27,6 +29,8 @@ void process_command_line (int   argc,
    restart    = false;
    preprocess = false;
    bounds     = false;
+   convert_to_vtk = false;
+   convert_to_tec = false;
 
    int i = 1;
    bool found_input_file = false;
@@ -49,6 +53,14 @@ void process_command_line (int   argc,
       {
          bounds = true;
       }
+      else if(strcmp(argv[i],"-vtk")==0)
+      {
+         convert_to_vtk = true;
+      }
+      else if(strcmp(argv[i],"-tec")==0)
+      {
+         convert_to_tec = true;
+      }
       else if(strcmp(argv[i],"-i")==0)
       {
          assert (i+1 < argc); // check that there is another argument
@@ -63,6 +75,13 @@ void process_command_line (int   argc,
       }
 
       ++i;
+   }
+
+   if(convert_to_vtk || convert_to_tec)
+   {
+      restart = true;
+      preprocess = true;
+      cout << "Conversion requested, enable reading of restart file\n";
    }
 
    if(!found_input_file)
@@ -80,5 +99,7 @@ void show_options ()
    cout << "   -r            Read restart file for initial condition (optional)\n";
    cout << "   -p            Do everything but do not solve (optional)\n";
    cout << "   -b            Compute min/max range of solution (optional)\n";
+   cout << "   -tec          Read restart file and save in tecplot format\n";
+   cout << "   -vtk          Read restart file and save in vtk format\n";
    abort ();
 }
