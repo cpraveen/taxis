@@ -7,6 +7,7 @@
 
 using namespace std;
 
+Dimension dim;
 bool debug;
 bool restart;
 bool preprocess;
@@ -19,7 +20,8 @@ void process_command_line (int argc, char* argv[], int& ifile);
 
 int main(int argc, char* argv[])
 {
-   cout << "Starting flo3d\n";   
+   cout << "Starting taxis: 2d and axisymmetric solver\n";   
+   cout << "   Author: Praveen. C, TIFR-CAM, Bangalore\n";
    int ifile;
    process_command_line (argc, argv, ifile);
 

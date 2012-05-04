@@ -8,6 +8,7 @@
 #include "fv.h"
 #include "writer.h"
 
+extern Dimension dim;
 extern bool restart;
 extern bool preprocess;
 extern bool bounds;
@@ -230,8 +231,8 @@ void FiniteVolume::compute_inviscid_residual ()
 
       unsigned int cl = grid.face[i].vertex[0];
       unsigned int cr = grid.face[i].vertex[1];
-      residual[cl] += flux;
-      residual[cr] -= flux;
+      residual[cl] += flux * grid.face[i].radius;
+      residual[cr] -= flux * grid.face[i].radius;
    }
 
    // Loop over boundary faces and accumulate flux
@@ -248,14 +249,14 @@ void FiniteVolume::compute_inviscid_residual ()
       state[1] = primitive[cl];
       bc.apply (grid.vertex[cl].coord, grid.bface[i], state);
       param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
-      residual[cl] += flux * 0.5;
+      residual[cl] += flux * (0.5 * grid.vertex[cl].radius);
 
       unsigned int cr = grid.bface[i].vertex[1];
       state[0] = primitive[cr];
       state[1] = primitive[cr];
       bc.apply (grid.vertex[cr].coord, grid.bface[i], state);
       param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
-      residual[cr] += flux * 0.5;
+      residual[cr] += flux * (0.5 * grid.vertex[cr].radius);
    }
 }
 
@@ -275,7 +276,8 @@ void FiniteVolume::compute_viscous_residual ()
       Vector& normal0 = grid.cell[i].normal[0];
       Vector& normal1 = grid.cell[i].normal[1];
       Vector& normal2 = grid.cell[i].normal[2];
-      param.material.viscous_flux (prim_avg, 
+      param.material.viscous_flux (grid.cell[i].radius,
+                                   prim_avg, 
                                    dU_cell[i], 
                                    dV_cell[i], 
                                    dW_cell[i], 
@@ -285,9 +287,9 @@ void FiniteVolume::compute_viscous_residual ()
                                    normal2, flux2);
 
       // negative sign because normal sign is opposite
-      residual[v0] -= flux0 / 2.0;
-      residual[v1] -= flux1 / 2.0;
-      residual[v2] -= flux2 / 2.0;
+      residual[v0] -= flux0 * (0.5 * grid.cell[i].radius);
+      residual[v1] -= flux1 * (0.5 * grid.cell[i].radius);
+      residual[v2] -= flux2 * (0.5 * grid.cell[i].radius);
    }
 
    // Diffusive flux from boundary faces
@@ -312,7 +314,8 @@ void FiniteVolume::compute_viscous_residual ()
 
       state[0] = primitive[v0];
       bc.apply (grid.vertex[v0].coord, grid.bface[i], state[0]);
-      param.material.viscous_flux (bc.adiabatic,
+      param.material.viscous_flux (grid.vertex[v0].radius,
+                                   bc.adiabatic,
                                    state[0],
                                    prim_avg,
                                    dU_cell[cl], 
@@ -322,7 +325,8 @@ void FiniteVolume::compute_viscous_residual ()
                                    normal, flux0);
       state[1] = primitive[v1];
       bc.apply (grid.vertex[v1].coord, grid.bface[i], state[1]);
-      param.material.viscous_flux (bc.adiabatic,
+      param.material.viscous_flux (grid.vertex[v1].radius,
+                                   bc.adiabatic,
                                    state[1],
                                    prim_avg,
                                    dU_cell[cl], 
@@ -331,8 +335,26 @@ void FiniteVolume::compute_viscous_residual ()
                                    dT_cell[cl],
                                    normal, flux1);
 
-      residual[v0] += flux0 / 2.0;
-      residual[v1] += flux1 / 2.0;
+      residual[v0] += flux0 * (0.5 * grid.vertex[v0].radius);
+      residual[v1] += flux1 * (0.5 * grid.vertex[v1].radius);
+   }
+}
+
+//------------------------------------------------------------------------------
+// Compute axisymmetric residual terms
+//------------------------------------------------------------------------------
+void FiniteVolume::compute_axisymmetric_residual ()
+{
+   for(unsigned int i=0; i<grid.n_vertex; ++i)
+   {
+      Flux source;
+      param.material.axisymmetric_source(grid.vertex[i].radius,
+                                         primitive[i], 
+                                         dU[i], 
+                                         dV[i], 
+                                         dW[i], 
+                                         source);
+      residual[i] += source * grid.dcarea[i];
    }
 }
 
@@ -355,6 +377,9 @@ void FiniteVolume::compute_residual ()
    // Viscous fluxes
    if(param.material.model == Material::ns)
       compute_viscous_residual ();
+
+   if(dim == axi)
+      compute_axisymmetric_residual ();
 }
 
 //------------------------------------------------------------------------------
@@ -451,7 +476,7 @@ void FiniteVolume::update_solution (const unsigned int r)
    {
       for(unsigned int i=0; i<grid.n_vertex; ++i)
       {
-         factor      = dt[i] / grid.dcarea[i];
+         factor      = dt[i] / (grid.vertex[i].radius * grid.dcarea[i]);
          conserved   = param.material.prim2con (primitive[i]);
          conserved   = conserved_old[i] * a_rk[r] +
                        (conserved - residual[i] * factor) * b_rk[r];

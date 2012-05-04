@@ -2,7 +2,9 @@
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
+#include "constants.h"
 
+extern Dimension dim;
 extern bool debug;
 extern bool restart;
 extern bool preprocess;
@@ -32,12 +34,19 @@ void process_command_line (int   argc,
    convert_to_vtk = false;
    convert_to_tec = false;
 
+   // Default is 2d
+   dim        = two;
+
    int i = 1;
    bool found_input_file = false;
 
    while (i < argc)
    {
-      if(strcmp(argv[i],"-d")==0)
+      if(strcmp(argv[i],"-axi")==0)
+      {
+         dim = axi;
+      }
+      else if(strcmp(argv[i],"-d")==0)
       {
          debug = true;
       }
@@ -95,11 +104,12 @@ void show_options ()
 {
    cout << "Valid flags are:\n";
    cout << "   -i filename   Specify input file name (required)\n";
+   cout << "   -axi          Axisymmetric flow (optional)\n";
    cout << "   -d            Enable debug mode (optional)\n";
    cout << "   -r            Read restart file for initial condition (optional)\n";
    cout << "   -p            Do everything but do not solve (optional)\n";
    cout << "   -b            Compute min/max range of solution (optional)\n";
-   cout << "   -tec          Read restart file and save in tecplot format\n";
-   cout << "   -vtk          Read restart file and save in vtk format\n";
+   cout << "   -tec          Read restart file and save in tecplot format (optional)\n";
+   cout << "   -vtk          Read restart file and save in vtk format (optional)\n";
    abort ();
 }

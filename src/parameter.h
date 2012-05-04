@@ -11,23 +11,13 @@
 #include "force.h"
 #include "ic.h"
 #include "bc.h"
-
-// Coefficients for 3-stage RK scheme of Shu-Osher
-static const double a_rk[] = {0.0, 3.0/4.0, 1.0/3.0};
-static const double b_rk[] = {1.0, 1.0/4.0, 2.0/3.0};
-
-static const double KKK = 1.0/3.0;
-
-enum GridType {gmsh};
-enum CellType {median, voronoi};
-enum Dimension {two, axi};
+#include "constants.h"
 
 class Parameter
 {
    public:
       char* file;
 
-      Dimension dim;
       std::string time_mode;
       std::string time_scheme;
       unsigned int n_rks;

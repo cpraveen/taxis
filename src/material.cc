@@ -3,8 +3,11 @@
 #include <cmath>
 #include <cassert>
 #include "material.h"
+#include "constants.h"
 
 using namespace std;
+
+extern Dimension dim;
 
 // Set conserved variable to zero
 void PrimVar::zero ()
@@ -93,7 +96,8 @@ void Material::euler_flux (const PrimVar& prim,
 // viscous flux: TODO check formulae
 // This is for boundary faces only.
 //------------------------------------------------------------------------------
-void Material::viscous_flux (const bool     adiabatic,
+void Material::viscous_flux (const double&  radius,
+                             const bool&    adiabatic,
                              const PrimVar& state, 
                              const PrimVar& state_avg,
                              const Vector&  dU,
@@ -118,6 +122,17 @@ void Material::viscous_flux (const bool     adiabatic,
    // Divergence of velocity
    double div = dU.x + dV.y;
 
+   // Extra term in case of axisymmetric
+   // x is radial direction
+   double stx = 0, sty = 0;
+   if(dim == axi)
+   {
+      div += state.velocity.x / radius;
+
+      stx = mu * (dW.x - state.velocity.z / radius);
+      sty = mu * dW.y;
+   }
+
    // Shear stress tensor: symmetric, compute only upper part
    double sxx = 2.0 * mu * (dU.x - (1.0/3.0) * div);
    double syy = 2.0 * mu * (dV.y - (1.0/3.0) * div);
@@ -126,7 +141,7 @@ void Material::viscous_flux (const bool     adiabatic,
    flux.mass_flux = 0.0;
    flux.momentum_flux.x = -(sxx * normal.x + sxy * normal.y);
    flux.momentum_flux.y = -(sxy * normal.x + syy * normal.y);
-   flux.momentum_flux.z =  0.0;
+   flux.momentum_flux.z = -(stx * normal.x + sty * normal.y);
    flux.energy_flux = flux.momentum_flux * state.velocity + q;
 
 }
@@ -135,7 +150,8 @@ void Material::viscous_flux (const bool     adiabatic,
 // viscous flux: TODO check formulae
 // This is for interior faces.
 //------------------------------------------------------------------------------
-void Material::viscous_flux (const PrimVar& state, 
+void Material::viscous_flux (const double&  radius,
+                             const PrimVar& state, 
                              const Vector&  dU,
                              const Vector&  dV,
                              const Vector&  dW,
@@ -156,6 +172,17 @@ void Material::viscous_flux (const PrimVar& state,
    // Divergence of velocity
    double div = dU.x + dV.y;
 
+   // Extra term in case of axisymmetric
+   // x is radial direction
+   double stx = 0, sty = 0;
+   if(dim == axi)
+   {
+      div += state.velocity.x / radius;
+
+      stx = mu * (dW.x - state.velocity.z / radius);
+      sty = mu * dW.y;
+   }
+
    // Shear stress tensor: symmetric, compute only upper part
    double sxx = 2.0 * mu * (dU.x - (1.0/3.0) * div);
    double syy = 2.0 * mu * (dV.y - (1.0/3.0) * div);
@@ -164,18 +191,47 @@ void Material::viscous_flux (const PrimVar& state,
    flux0.mass_flux       = 0.0;
    flux0.momentum_flux.x = -(sxx * normal0.x + sxy * normal0.y);
    flux0.momentum_flux.y = -(sxy * normal0.x + syy * normal0.y);
-   flux0.momentum_flux.z =  0.0;
+   flux0.momentum_flux.z = -(stx * normal0.x + sty * normal0.y);
    flux0.energy_flux     = flux0.momentum_flux * state.velocity + q0;
 
    flux1.mass_flux       = 0.0;
    flux1.momentum_flux.x = -(sxx * normal1.x + sxy * normal1.y);
    flux1.momentum_flux.y = -(sxy * normal1.x + syy * normal1.y);
-   flux1.momentum_flux.z =  0.0;
+   flux1.momentum_flux.z = -(stx * normal1.x + sty * normal1.y);
    flux1.energy_flux     = flux1.momentum_flux * state.velocity + q1;
 
    flux2.mass_flux       = 0.0;
    flux2.momentum_flux.x = -(sxx * normal2.x + sxy * normal2.y);
    flux2.momentum_flux.y = -(sxy * normal2.x + syy * normal2.y);
-   flux2.momentum_flux.z =  0.0;
+   flux2.momentum_flux.z = -(stx * normal2.x + sty * normal2.y);
    flux2.energy_flux     = flux2.momentum_flux * state.velocity + q2;
+}
+
+//------------------------------------------------------------------------------
+// Source terms in axisymmetric flow
+//------------------------------------------------------------------------------
+void Material::axisymmetric_source(const double&  radius,
+                                   const PrimVar& state,
+                                   const Vector&  dU, 
+                                   const Vector&  dV, 
+                                   const Vector&  dW, 
+                                   Flux&          source) const
+{
+   source.mass_flux   = 0.0;
+   source.energy_flux = 0.0;
+
+   double mu = viscosity (state.temperature);
+   double density = Density(state);
+   double div = dU.x + dV.y + state.velocity.x / radius;
+   double stt = 2.0 * mu * ( state.velocity.x / radius - (1.0/3.0) * div );
+   double stx = mu * (dW.x - state.velocity.z / radius);
+
+   // radial equation
+   source.momentum_flux.x = - state.pressure - density * pow(state.velocity.z,2.0) - stt;
+
+   // axial equation
+   source.momentum_flux.y = 0.0;
+
+   // tangential equation
+   source.momentum_flux.z = density * state.velocity.x * state.velocity.z - stx;
 }

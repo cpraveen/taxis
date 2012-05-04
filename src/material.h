@@ -67,7 +67,8 @@ class Material
       void    euler_flux (const PrimVar& prim, 
                           const Vector&  normal,
                           Flux& flux) const;
-      void viscous_flux (const bool     adiabatic,
+      void viscous_flux (const double&  radius,
+                         const bool&    adiabatic,
                          const PrimVar& state, 
                          const PrimVar& state_avg,
                          const Vector&  dU, 
@@ -76,7 +77,8 @@ class Material
                          const Vector&  dT, 
                          const Vector&  normal, Flux& flux
                          ) const;
-      void viscous_flux (const PrimVar& state, 
+      void viscous_flux (const double&  radius,
+                         const PrimVar& state, 
                          const Vector&  dU, 
                          const Vector&  dV, 
                          const Vector&  dW, 
@@ -85,6 +87,12 @@ class Material
                          const Vector&  normal1, Flux& flux1,
                          const Vector&  normal2, Flux& flux2
                          ) const;
+      void axisymmetric_source(const double&  radius,
+                               const PrimVar& state,
+                               const Vector&  dU, 
+                               const Vector&  dV, 
+                               const Vector&  dW, 
+                               Flux&          source) const;
       double viscosity (const double T) const;
       double total_energy (const PrimVar& state) const;
       double sound_speed (const PrimVar& state) const;

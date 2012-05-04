@@ -74,6 +74,7 @@ class FiniteVolume
       void compute_inviscid_residual ();
       void compute_inviscid_kep_residual ();
       void compute_viscous_residual ();
+      void compute_axisymmetric_residual ();
       void compute_residual ();
       void compute_dt ();
       void compute_residual_norm (const unsigned int iter);

@@ -41,7 +41,8 @@ void FiniteVolume::lusgs ()
             double area = grid.face[f].area;
             double rho = param.material.Density(primitive[i]); // TODO: take average across face
 
-            dt[i] += gamma * mu * area * area / (grid.dcarea[i] * rho * prandtl);
+            dt[i] += gamma * mu * area * area / 
+                    (grid.dcarea[i] * rho * prandtl);
          } 
 
 
@@ -75,14 +76,13 @@ void FiniteVolume::lusgs ()
                                            + residual[neighbour_cell]);
             param.material.euler_flux(prim, face_normal, flux_new);
             summation_face += (residual[neighbour_cell]*lambda
-                               - (flux_new - flux_old))*(-0.5);
+                               - (flux_new - flux_old))*(-0.5 * grid.face[f].radius);
             
          }
-         
-      } 
+      }
             
       residual[i] += summation_face;
-      residual[i] *= (-1.0/dt[i]); 
+      residual[i] *= (-1.0/(dt[i]*grid.vertex[i].radius)); 
       // Now residual contains increment of conserved variable
    }
    
@@ -130,10 +130,10 @@ void FiniteVolume::lusgs ()
                                            + residual[neighbour_cell]);
             param.material.euler_flux(prim, face_normal, flux_new);
             summation_face += (residual[neighbour_cell]*lambda -
-                               (flux_new - flux_old))*(-0.5);
+                               (flux_new - flux_old))*(-0.5 * grid.face[f].radius);
          }
       }
-      residual[i] -= summation_face * (1.0/dt[i]);
+      residual[i] -= summation_face * (1.0/(dt[i]*grid.vertex[i].radius));
    } 
    
 }

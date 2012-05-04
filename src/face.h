@@ -15,6 +15,7 @@ class Face
       Vector       centroid;
       int          type;
       double       area;
+      double       radius;
 
       bool operator== (const Face& face) const;
 };
@@ -33,6 +34,7 @@ Face::Face (const Face& face)
    centroid  = face.centroid;
    type      = face.type;
    area      = face.area;
+   radius    = face.radius;
 }
 
 // Check if two faces are same by checking their vertices

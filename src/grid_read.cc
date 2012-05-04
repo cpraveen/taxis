@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <cstdlib>
 #include <cassert>
@@ -36,12 +37,12 @@ void Grid::read (const Parameter& param)
 //------------------------------------------------------------------------------
 void Grid::info ()
 {
-   min_mcarea =  1.0e20;
-   max_mcarea = -1.0e20;
-   min_dcarea =  1.0e20;
-   max_dcarea = -1.0e20;
-   min_radius =  1.0e20;
-   max_radius = -1.0e20;
+   double min_mcarea =  1.0e20;
+   double max_mcarea = -1.0e20;
+   double min_dcarea =  1.0e20;
+   double max_dcarea = -1.0e20;
+   double min_vradius =  1.0e20;
+   double max_vradius = -1.0e20;
 
    for(unsigned int i=0; i<n_vertex; ++i)
    {
@@ -49,33 +50,54 @@ void Grid::info ()
       max_mcarea = max ( max_mcarea, mcarea[i] );
       min_dcarea = min ( min_dcarea, dcarea[i] );
       max_dcarea = max ( max_dcarea, dcarea[i] );
-      min_radius = min ( min_radius, vertex[i].radius );
-      max_radius = max ( max_radius, vertex[i].radius );
+      min_vradius = min ( min_vradius, vertex[i].radius );
+      max_vradius = max ( max_vradius, vertex[i].radius );
    }
 
-   min_face_length =  1.0e20;
-   max_face_length = -1.0e20;
+   double min_face_length =  1.0e20;
+   double max_face_length = -1.0e20;
+   double min_fradius =  1.0e20;
+   double max_fradius = -1.0e20;
    for(unsigned int i=0; i<n_vertex; ++i)
    {
       min_face_length = min ( min_face_length, face[i].normal.norm() );
       max_face_length = max ( max_face_length, face[i].normal.norm() );
+      min_fradius = min ( min_fradius, face[i].radius );
+      max_fradius = max ( max_fradius, face[i].radius );
    }
    
+   double min_cell_area =  1.0e20;
+   double max_cell_area = -1.0e20;
+   double min_cradius =  1.0e20;
+   double max_cradius = -1.0e20;
+   for(unsigned int i=0; i<n_cell; ++i)
+   {
+      min_cell_area = min ( min_cell_area, cell[i].area );
+      max_cell_area = max ( max_cell_area, cell[i].area );
+      min_cradius = min ( min_cradius, cell[i].radius );
+      max_cradius = max ( max_cradius, cell[i].radius );
+   }
+
    cout << "Grid information:\n";
-   cout << "  Number of vertices   = " << n_vertex << endl;
-   cout << "  Number of cells      = " << n_cell << endl;
-   cout << "  Number of faces      = " << n_face << endl;
-   cout << "  Number of bdry faces = " << n_boundary_face << endl;
-   cout << "  Minimum cell area    = " << min_cell_area << endl;
-   cout << "  Maximum cell area    = " << max_cell_area << endl;
-   cout << "  Minimum median area  = " << min_mcarea << endl;
-   cout << "  Maximum median area  = " << max_mcarea << endl;
-   cout << "  Minimum dual area    = " << min_dcarea << endl;
-   cout << "  Maximum dual area    = " << max_dcarea << endl;
-   cout << "  Minimum face length  = " << min_face_length << endl;
-   cout << "  Maximum face length  = " << max_face_length << endl;
-   cout << "  Minimum radius       = " << min_radius << endl;
-   cout << "  Maximum radius       = " << max_radius << endl;
+   cout << setw(30) << "min" << setw(15) << "max" << endl;
+   cout << "  cell area    =  " << setw(15) << min_cell_area 
+                                << setw(15) << max_cell_area << endl;
+   cout << "  median area  =  " << setw(15) << min_mcarea 
+                                << setw(15) << max_mcarea << endl;
+   cout << "  dual area    =  " << setw(15) << min_dcarea
+                                << setw(15) << max_dcarea << endl;
+   cout << "  face length  =  " << setw(15) << min_face_length
+                                << setw(15) << max_face_length << endl;
+   cout << "  vertex radius = " << setw(15) << min_vradius 
+                                << setw(15) << max_vradius << endl;
+   cout << "  face   radius = " << setw(15) << min_fradius
+                                << setw(15) << max_fradius << endl;
+   cout << "  tri    radius = " << setw(15) << min_cradius
+                                << setw(15) << max_cradius << endl;
+
+   assert (min_vradius > 0.0);
+   assert (min_fradius > 0.0);
+   assert (min_cradius > 0.0);
 }
 
 //------------------------------------------------------------------------------
