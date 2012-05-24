@@ -300,14 +300,24 @@ inline
 void BoundaryCondition::apply_maxwell(const Face           &face,
                                       std::vector<PrimVar> &state)
 {
+   // wall values
    double point[2]  = {face.centroid.x, face.centroid.y};
    state[1].velocity.x = xvelocity.Eval(point);
    state[1].velocity.y = yvelocity.Eval(point);
    state[1].velocity.z = zvelocity.Eval(point);
-
    state[1].temperature = temperature.Eval(point);
 
-   double rhow = 0;
+   // normal velocity should be zero
+   // state[1] must already have zero normal velocity
+   Vector unit_normal = face.normal / face.area;
+   state[0].velocity -= unit_normal * (state[0].velocity * unit_normal);
+
+   double density = material->Density(state[0]);
+
+   double taunn= 0.0;
+   double rhow = density * 
+                 sqrt(state[0].temperature / state[1].temperature) * 
+                 (1.0 - 0.5 * taunn/state[0].pressure);
    state[1].pressure = rhow * material->gas_const * state[1].temperature;
 }
 
