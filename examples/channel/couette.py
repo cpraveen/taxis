@@ -67,4 +67,4 @@ for i in range(velocity.GetNumberOfTuples()):
 
 from math import sqrt
 uerror = sqrt(uerror/np)
-print uerror
+print "u error =", uerror

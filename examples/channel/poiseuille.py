@@ -49,6 +49,9 @@ velocity = ptdata.GetArray(arrayid)
 arrayid  = ptdata.SetActiveScalars("temperature")
 temperature = ptdata.GetArray(arrayid)
 
+uerror = 0
+np = 0
+
 f = open('u.dat','w')
 for i in range(velocity.GetNumberOfTuples()):
    p  = data.GetPoint(i)
@@ -56,6 +59,12 @@ for i in range(velocity.GetNumberOfTuples()):
    y  = p[1]
    u  = a[0] # z is along axis of pipe
    ue = 4*y*(1-y) # parabolic velocity
+   uerror += (u-ue)*(u-ue)
+   np     += 1
    T  = temperature.GetValue(i)
    s  = str(y) + " " + str(u) + " " + str(ue) + " " + str(T) + "\n"
    f.write(s)
+
+from math import sqrt
+uerror = sqrt(uerror/np)
+print "u error = ", uerror
