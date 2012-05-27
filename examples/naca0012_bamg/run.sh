@@ -2,7 +2,7 @@
 #   the -e option to stop  on error
 #   we are with awk to do real operation in the shell
 #
-bamg=$HOME/Applications/bamg/bamg
+bamg=bamg
 AWK=awk
 SED=sed
 
@@ -40,6 +40,6 @@ ERRGLOBAL=$ERR
 $AWK -f naca.awk </dev/null >MESH_g.msh 
 
 #  create the initial mesh  MESH_0.amdba
-$bamg  -g MESH_g.msh -o  MESH_$j.msh -hmax $HMAX -oamdba MESH_$j.amdba $METRIC
+$bamg  -g MESH_g.msh -o  MESH_$j.msh -hmax $HMAX $METRIC
 
 ###############################################################################

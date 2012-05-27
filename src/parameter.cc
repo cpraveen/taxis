@@ -43,6 +43,8 @@ void Parameter::read_grid (Reader &fin)
    fin >> input;
    if(input=="gmsh")
       grid_type = gmsh;
+   else if(input=="bamg")
+      grid_type = bamg;
    else
    {
       cout << "   Unknown file type " << input << endl;

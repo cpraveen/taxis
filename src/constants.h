@@ -7,7 +7,7 @@ static const double b_rk[] = {1.0, 1.0/4.0, 2.0/3.0};
 
 static const double KKK = 1.0/3.0;
 
-enum GridType {gmsh};
+enum GridType {gmsh, bamg};
 enum CellType {median, voronoi};
 enum Dimension {two, axi};
 

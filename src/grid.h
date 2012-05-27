@@ -48,6 +48,7 @@ class Grid
 
    private:
       void read_gmsh (std::string grid_file);
+      void read_bamg (std::string grid_file);
       void check_face_type (const std::map<int,BoundaryCondition>& bc);
       void preproc ();
       void compute_cell_centroid ();
