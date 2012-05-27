@@ -10,7 +10,7 @@ numeric
    time_mode    steady
    time_scheme  lusgs
    time_step    0.0
-   cfl          1e3
+   cfl          1e6
    max_iter     500000
    final_time   1.0e20
    min_residue  1.0e-6
@@ -90,6 +90,6 @@ output
       mach  
       density
    }
-   restart    false
+   restart    true
    global_KE  false
 }
