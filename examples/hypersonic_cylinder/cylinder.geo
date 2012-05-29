@@ -2,7 +2,7 @@ Ri=0.1524;
 Ro=10*Ri;
 L=10*Ri;
 
-cl1=Pi*Ri/200;
+cl1=Pi*Ri/400;
 cl2=Ro/50;
 cl3=Pi*Ro/100;
 
