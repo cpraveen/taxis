@@ -19,8 +19,7 @@ void Grid::read (const Parameter& param)
    if(param.grid_type == gmsh)
       read_gmsh (param.grid_file);
    else if(param.grid_type == bamg)
-      ;
-      //read_bamg (param.grid_file);
+      read_bamg (param.grid_file);
    else
    {
       cout << "Unknown grid type specified !!!" << endl;
