@@ -292,7 +292,7 @@ void Writer::output_tec (double time, string filename)
 //------------------------------------------------------------------------------
 // Write solution for restarting
 //------------------------------------------------------------------------------
-void Writer::output_restart ()
+void Writer::output_restart (int iter)
 {
    assert (has_primitive);
 
@@ -310,5 +310,6 @@ void Writer::output_restart ()
          << (*vertex_primitive)[i].velocity.z  << "  "
          << (*vertex_primitive)[i].pressure    << endl;
 
+   fo << iter << endl;
    fo.close ();
 }

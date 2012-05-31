@@ -37,7 +37,7 @@ class Writer
       void output (std::string format, int counter, double elapsed_time);
       void output_vtk (std::string filename);
       void output_tec (double time, std::string filename);
-      void output_restart ();
+      void output_restart (int iter);
 
    private:
 

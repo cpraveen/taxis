@@ -54,6 +54,7 @@ void FiniteVolume::initialize ()
             >> primitive[i].velocity.y
             >> primitive[i].velocity.z
             >> primitive[i].pressure;
+      fi >> last_iter;
       fi.close ();
    }
    else
@@ -66,6 +67,7 @@ void FiniteVolume::initialize ()
          assert (primitive[i].pressure > 0.0);
       }
       cout << " Done\n";
+      last_iter = 0;
    }
 
    // Check if solution conversion was requested
@@ -560,7 +562,7 @@ void FiniteVolume::compute_residual_norm (const unsigned int iter)
    residual_norm_total = sqrt (residual_norm_total);
 
    // Copy residual in first iteration for normalization
-   if(iter == 0)
+   if(iter == last_iter)
    {
       residual_norm_total0 = residual_norm_total;
       cout << "  Initial residual = " << residual_norm_total0 << endl;
@@ -654,11 +656,11 @@ void FiniteVolume::output (const unsigned int iter, bool write_variables)
 //------------------------------------------------------------------------------
 // Save solution to file for restart
 //------------------------------------------------------------------------------
-void FiniteVolume::output_restart ()
+void FiniteVolume::output_restart (int iter)
 {
    Writer writer (grid);
    writer.attach_data (primitive);
-   writer.output_restart ();
+   writer.output_restart (iter);
 }
 
 //------------------------------------------------------------------------------
@@ -753,7 +755,7 @@ void FiniteVolume::compute_global (unsigned int iter)
 //------------------------------------------------------------------------------
 void FiniteVolume::solve ()
 {
-   unsigned int iter = 0;
+   unsigned int iter = last_iter;
    elapsed_time = 0.0;
    residual_norm_total = 1.0e20;
    unsigned int last_output_iter = 0;
@@ -765,7 +767,7 @@ void FiniteVolume::solve ()
    }
 
    while (residual_norm_total > param.min_residue &&
-          iter < param.max_iter && 
+          iter < param.max_iter+last_iter && 
           elapsed_time < param.final_time)
    {
       store_conserved_old ();
@@ -796,7 +798,7 @@ void FiniteVolume::solve ()
    if(iter != last_output_iter)
       output (iter);
 
-   if(param.write_restart) output_restart ();
+   if(param.write_restart) output_restart (iter);
 }
 
 //------------------------------------------------------------------------------

@@ -14,6 +14,7 @@ void Grid::read_bamg (string grid_file)
 {
    unsigned int i, v_type, c_type;
    char line[80];
+   string input;
 
    cout << "Reading bamg grid file " << grid_file << endl;
 
@@ -22,9 +23,10 @@ void Grid::read_bamg (string grid_file)
    assert ( file.is_open() );
 
    // Skip some lines
-   for(i=0;i<=11;i++)
-      file >> line;
+   for(i=0;i<11;i++)
+      getline(file, input);
    file >> line;
+   cout << line << endl;
    assert(!strcmp("Vertices",line));
    file >> n_vertex;
    assert(n_vertex>0);
@@ -38,6 +40,7 @@ void Grid::read_bamg (string grid_file)
    file >> line;
    assert(!strcmp(line,"Edges"));
    file >> n_face;
+   assert(n_face > 0);
    face.resize(n_face);
    //Reading the edges next
    //Reducing the vertices in faces and cells by 1 is done
@@ -51,6 +54,7 @@ void Grid::read_bamg (string grid_file)
    file >> line;
    assert(!strcmp(line, "Triangles"));
    file >> n_cell;
+   assert(n_cell > 0);
    cell.resize(n_cell);
    //Reading Triangles
    for(i=0;i<n_cell;i++)

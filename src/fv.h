@@ -53,6 +53,7 @@ class FiniteVolume
       double               dt_global;
       std::vector<Force>   force;
       double               elapsed_time;
+      int                  last_iter;
 
       void reconstruct (const unsigned int&      f,
                         std::vector<PrimVar>&    state) const;
@@ -83,7 +84,7 @@ class FiniteVolume
       void solve ();
       void compute_bounds (const unsigned int iter);
       void output (const unsigned int iter, bool write_variables = true);
-      void output_restart ();
+      void output_restart (int iter);
       void lusgs ();
       void create_force_face_list ();
       void compute_forces (unsigned int iter);
