@@ -12,12 +12,6 @@ LANG=C
 export LANG
 
 #  some VAR
-ifin=5
-j=0
-INIT=0
-LastIteration=0
-NBITER=2000
-ITLAST=2000
 METRIC="-aniso"
 ANISOMAX=2.5
 MAXVERT=45000
@@ -27,19 +21,16 @@ HMINGLOBAL=$HMIN
 HCOEF=1
 HMAX=1.5
 # -------
-ERR=0.02
-ERRCOEF=1.0
-ERRGLOBAL=$ERR
-# -----------
 #  end of some parameters 
 # ----------
 #  clean of the output file 
 #rm -f [A-Z]*
+rm -f MESH
 
 #  create the geometry file 
-$AWK -f naca.awk </dev/null >MESH_g.msh 
+$AWK -f naca.awk </dev/null > MESH_g.msh 
 
 #  create the initial mesh  MESH_0.amdba
-$bamg  -g MESH_g.msh -o  MESH_$j.msh -hmax $HMAX $METRIC
+$bamg  -g MESH_g.msh -o MESH -hmax $HMAX $METRIC
 
 ###############################################################################

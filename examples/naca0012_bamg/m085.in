@@ -1,7 +1,7 @@
 grid
 {
    type   bamg
-   file   MESH_0.msh
+   file   MESH
    cell   median
 }
 
