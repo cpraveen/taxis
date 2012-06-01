@@ -2,7 +2,7 @@
 #   the -e option to stop  on error
 #   we are with awk to do real operation in the shell
 #
-bamg=bamg
+bamg=$TAXIS_HOME/extern/bamg-v0.68/bamg
 TAXIS=$TAXIS_HOME/src/taxis
 
 #GEO_FILE=wedge.awk

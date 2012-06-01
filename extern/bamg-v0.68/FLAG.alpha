@@ -1,0 +1,12 @@
+CXX=cxx
+longlong = -DLONGLONG
+O =   -O $(longlong) 
+G = -g  $(longlong) 
+CXXFLAGS= $(O) 
+CXXGRAPHIC =   -I/usr/include/X11R6  -DDRAWING   -DDEBUG 
+CXXLINKFLAG =  
+X11LIB = -L/usr/lib/X11R6  -lX11
+X11INCLUDE= -I/usr/include/X11R6
+STDLIB = -lm 
+F77FLAGS = 
+F77 = f77
