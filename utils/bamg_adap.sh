@@ -5,32 +5,46 @@
 bamg=bamg
 TAXIS=$TAXIS_HOME/src/taxis
 
-PAR_FILE=m085.in
-GEO_FILE=naca.awk
+#GEO_FILE=wedge.awk
+#PAR_FILE=param.in
+
 SOL_FILE=restart.dat
 RES_FILE=residue.dat
+VTK_FILE=sol0000.vtk
+TEC_FILE=sol0000.plt
+GRD_FILE=grid.plt
 
 # for awk because in french the number 1/1000 is written 0,001 not 0.001
 # to be sure the RADIXCHAR  is '.'   (cf.  Native Language Support)
 LANG=C
 export LANG
 
-#  some VAR
+#  default variables
 ifin=5
-j=0
 # ---------
 HMIN=1e-6
 HMINGLOBAL=$HMIN
-HMAX=5
+HMAX=0.5
 HCOEF=1
 RATIO=2.5
+ANISOMAX=10
+METRIC=-aniso
 # -------
 ERR=0.01
 ERRCOEF=0.8608916593317348
 ERRGLOBAL=0.01
+ERRGEO=0.05
+MAXSUBDIV=1.8
 # -----------
-#  end of some parameters 
+#  end of default parameters 
 # ----------
+# Read variables from file
+# ----------
+. adap.in
+
+# Set iteration counter
+j=0
+
 #  clean of the output file 
 rm -f [A-Z]*
 
@@ -54,12 +68,37 @@ while [ $j -lt $ifin ] ; do
    echo "--------- TAXIS iteration $j    -----------"
    $TAXIS -i $PAR_FILE $RESTART_FLAG
 
+   ##  put all the residual in one file 
+   cat $RES_FILE >> RESIDU
+
+   # Copy vtk/plt solution file
+   if [ -f $VTK_FILE ]
+   then
+      mv -f $VTK_FILE sol_$j.vtk
+   fi
+   if [ -f $TEC_FILE ]
+   then
+      mv -f $TEC_FILE sol_$j.plt
+   fi
+   if [ -f $GRD_FILE ]
+   then
+      mv -f $GRD_FILE grid_$j.plt
+   fi
+
+   # Check whether to stop
+   jj=`expr $ifin - 1`
+   if [ $j -eq $jj ]
+   then
+      mv RESIDU $RES_FILE
+      exit
+   fi
+
    ##  find the nb of vertices in the file MESH 
    nbv=`head -n 13 MESH | tail -n 1 | awk '{print $1}'`
 
    ##  create the bb file for interpolation 
    echo "2 5 $nbv  2" > SOL_$j.bb
-   cat  $SOL_FILE  >> SOL_$j.bb
+   cat  $SOL_FILE >> SOL_$j.bb
 
    ## create the bb file for metric construction 
    ## in file SOL_NS  on each line i we have  ro ro*u ro*v  energy 
@@ -67,18 +106,18 @@ while [ $j -lt $ifin ] ; do
    ## + a last line with 2 number last iteration and last time
    #echo "2 1 $nbv  2" > MACH.bb
    #awk 'NF==4 { print sqrt($2*$2+$3*$3)/$1}' SOL_NS >>  MACH.bb
-
-   ##  put all the residual in one file 
-   cat $RES_FILE >> RESIDU
+   echo "2 4 $nbv  2" > METRIC.bb
+   cat  $SOL_FILE | awk '{print $1, $2, $3, $5}'  >> METRIC.bb
 
    ## set HMIN = MAX($HMINGLOBAL,$HMIN*$HCOEF) 
    HMIN=`awk "END {c=$HMIN*$HCOEF;c=c<$HMINGLOBAL ?$HMINGLOBAL:c; print c};" </dev/null`
    ERR=`awk "END {c=$ERR*$ERRCOEF;c=c<$ERRGLOBAL ?$ERRGLOBAL:c; print c};" </dev/null`
 
-   echo " -b MESH_$j.msh -err $ERR -errg 0.05 -AbsError  
-          -hmin $HMIN -hmax $HMAX -Mbb SOL_$j.bb   -o  MESH_$i.msh 
+   echo " -b MESH_$j.msh -err $ERR -errg $ERRGEO -AbsError  
+          -hmin $HMIN -hmax $HMAX -Mbb METRIC.bb  -o  MESH_$i.msh 
+          $METRIC -anisomax $ANISOMAX
           -ratio $RATIO -rbb SOL_$j.bb   
-          -splitpbedge  -maxsubdiv 1.8
+          -splitpbedge  -maxsubdiv $MAXSUBDIV
           -wbb INIT_$i.bb -v 4 " > DATA_bamg
 
    echo --- bamg parameters ---
