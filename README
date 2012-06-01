@@ -7,3 +7,20 @@ e.g.,
 export TAXIS_HOME = /home/praveen/taxis
 
 Set the compiler in src/makefile.in and type "make" inside src directory to compile the code.
+
+You should also add following lines to your .bashrc file
+
+PATH=$PATH:$TAXIS_HOME/src
+PATH=$PATH:$TAXIS_HOME/utils
+PATH=$PATH:$TAXIS_HOME/extern/bamg-v0.68
+export PATH
+
+-------------------------------------------------------------------------------
+BAMG
+-------------------------------------------------------------------------------
+BAMG is included inside extern directory. You need to compile it first. It is setup for linux and should also compile on mac.
+
+cd $TAXIS_HOME/extern/bamg-v0.68
+make
+
+This should executables "bamg" and "drawbdmesh" which are useful.

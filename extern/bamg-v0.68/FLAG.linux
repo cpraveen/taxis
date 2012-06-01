@@ -1,8 +1,8 @@
-CXX=g++
+CXX=g++ -Wno-deprecated
 longlong = -DLONGLONG
 O =   -O $(longlong) 
 G = -g  $(longlong) 
-CXXFLAGS= $(O)  -Wno-deprecated
+CXXFLAGS= $(O)
 CXXGRAPHIC =  -I/usr/include/X11R6  -DDRAWING   -DDEBUG 
 CXXLINKFLAG =  
 X11LIB = -L/usr/lib/X11R6 -L/usr/X11R6/lib    -lX11
