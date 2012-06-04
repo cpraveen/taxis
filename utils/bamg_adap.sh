@@ -46,7 +46,7 @@ MAXSUBDIV=1.8
 j=0
 
 #  clean of the output file 
-rm -f [A-Z]*
+rm -f DATA_bamg INIT_*.bb MESH MESH_*.msh METRIC.bb SOL_*.bb
 
 #  create the geometry file 
 awk -f $GEO_FILE < /dev/null > MESH_g.msh 

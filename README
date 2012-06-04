@@ -16,11 +16,32 @@ PATH=$PATH:$TAXIS_HOME/extern/bamg-v0.68
 export PATH
 
 -------------------------------------------------------------------------------
+GMSH
+-------------------------------------------------------------------------------
+GMSH is a free grid generation tool which you can get from here
+
+http://www.geuz.org/gmsh/
+
+There are binary versions available for Linux and Mac. In the taxis/examples directories, you will find files with extension "geo" which are gmsh files. To generate a mesh, open it in gmsh
+
+gmsh annulus.geo
+
+and then click on 
+
+Mesh -> 2D -> Save
+
+This creates the mesh file annulus.msh which can be read by taxis. You can also run gmsh from the command line
+
+gmsh -2 annulus.geo
+
+which creates the msh file without starting the gui.
+
+-------------------------------------------------------------------------------
 BAMG
 -------------------------------------------------------------------------------
-BAMG is included inside extern directory. You need to compile it first. It is setup for linux and should also compile on mac.
+BAMG is a 2-d grid generation tool with metric-based mesh adaptation capabilities. BAMG is included inside taxis/extern directory. You need to compile it first. It is setup for linux and should also compile on mac.
 
 cd $TAXIS_HOME/extern/bamg-v0.68
 make
 
-This should executables "bamg" and "drawbdmesh" which are useful.
+This should create executables "bamg" and "drawbdmesh" which are useful.
