@@ -241,6 +241,8 @@ void Parameter::read_material (Reader &fin)
       material.flux_scheme = Material::roe;
    else if(input == "kfvs")
       material.flux_scheme = Material::kfvs;
+   else if(input == "keps")
+      material.flux_scheme = Material::keps;
    else
    {
       cout << "read_material:: unknown flux scheme: " << input << endl;

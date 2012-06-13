@@ -124,15 +124,15 @@ void Writer::output_vtk (string filename)
    // If vertex primitive data is available, write to file
    if (has_primitive)
    {
-      vtk << "SCALARS temperature float 1" << endl;
-      vtk << "LOOKUP_TABLE default" << endl;
-      for(unsigned int i=0; i<grid->n_vertex; ++i)
-         vtk << (*vertex_primitive)[i].temperature << endl;
-
       vtk << "SCALARS pressure float 1" << endl;
       vtk << "LOOKUP_TABLE default" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          vtk << (*vertex_primitive)[i].pressure << endl;
+
+      vtk << "SCALARS temperature float 1" << endl;
+      vtk << "LOOKUP_TABLE default" << endl;
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         vtk << (*vertex_primitive)[i].temperature << endl;
 
       vtk << "VECTORS velocity float" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
@@ -240,6 +240,9 @@ void Writer::output_tec (double time, string filename)
    if (has_primitive)
    {
       for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].pressure << endl;
+
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
          tec << (*vertex_primitive)[i].temperature << endl;
       
       for(unsigned int i=0; i<grid->n_vertex; ++i)
@@ -247,9 +250,6 @@ void Writer::output_tec (double time, string filename)
       
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          tec << (*vertex_primitive)[i].velocity.y << endl;
-      
-      for(unsigned int i=0; i<grid->n_vertex; ++i)
-         tec << (*vertex_primitive)[i].pressure << endl;
    }
    
    

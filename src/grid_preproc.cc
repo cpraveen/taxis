@@ -15,7 +15,11 @@ using namespace std;
 //------------------------------------------------------------------------------
 void Grid::compute_cell_centroid ()
 {
+   cout << "Finding cell centroid ... ";
+
    if(cell_type == median)
+   {
+      cout << " median cell\n";
       for(unsigned int i=0; i<n_cell; ++i)
       { 
          unsigned int v0, v1, v2;
@@ -26,8 +30,10 @@ void Grid::compute_cell_centroid ()
                               vertex[v1].coord + 
                               vertex[v2].coord ) / 3.0;
       }   
+   }
    else if(cell_type == voronoi)
    {
+      cout << " voronoi cell\n";
       for(unsigned int i=0; i<n_cell; ++i)
       { 
          unsigned int n1 = cell[i].vertex[0];
@@ -83,6 +89,26 @@ void Grid::compute_cell_centroid ()
          }
 
       }
+      // check if centroid (circumcenter) is on boundary face
+      // If yes, then set centroid to geometric centroid
+      // Otherwise, boundary vertices become decoupled as there is no flux
+      // between the two vertices
+      unsigned int count = 0;
+      for(unsigned int i=0; i<bface.size(); ++i)
+      {
+         int lcell = bface[i].lcell;
+         Vector dr  = bface[i].centroid - cell[lcell].centroid;
+         if(dr.norm() < 1.0e-14)
+         {
+            unsigned int v0 = cell[lcell].vertex[0];
+            unsigned int v1 = cell[lcell].vertex[1];
+            unsigned int v2 = cell[lcell].vertex[2];
+            cell[lcell].centroid = ( vertex[v0].coord + vertex[v1].coord + vertex[v2].coord ) / 3.0;
+            ++count;
+         }
+      }
+      if(count > 0)
+         cout << "  " << count << " boundary faces had circumcenters" << endl;
    }
 }
 
@@ -91,6 +117,7 @@ void Grid::compute_cell_centroid ()
 //------------------------------------------------------------------------------
 void Grid::compute_face_centroid ()
 {
+   cout << "Computing face centers ...\n";
    for(unsigned int i=0; i<n_face; ++i)
    { 
       unsigned int v0 = face[i].vertex[0];
@@ -110,6 +137,7 @@ void Grid::compute_face_centroid ()
 //------------------------------------------------------------------------------
 void Grid::compute_cell_area ()
 {
+   cout << "Computing cell areas ...\n";
 
    mcarea.resize (n_vertex);
    dcarea.resize (n_vertex);
@@ -674,8 +702,8 @@ void Grid::preproc ()
 {
    make_faces ();
    find_cell_faces ();
-   compute_cell_centroid ();
    compute_face_centroid ();
+   compute_cell_centroid ();
    compute_cell_area ();
    compute_face_normal_and_area ();
    if(cell_type == voronoi)
