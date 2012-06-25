@@ -5,6 +5,30 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
+// Logarithmic average: (a - b)/log(a/b)
+// Numerically stable alogorithm taken from Ismail and Roe
+//------------------------------------------------------------------------------
+inline
+double logavg(double a, double b)
+{
+   double xi = b/a;
+   double f = (xi - 1.0) / (xi + 1.0);
+   double u = f * f;
+
+   double F;
+   if (u < 1.0e-2)
+   {
+      double u2 = u * u;
+      double u3 = u2 * u;
+      F = 1.0 + u/3.0 + u2/5.0 + u3/7.0;
+   }
+   else
+      F = log(xi)/2.0/f;
+
+   return 0.5*(a+b)/F;
+}
+
+//------------------------------------------------------------------------------
 // KEPS flux with entropy dissipation
 //------------------------------------------------------------------------------
 void Material::keps_flux (const PrimVar& left,
@@ -12,25 +36,29 @@ void Material::keps_flux (const PrimVar& left,
                           const Vector& normal,
                           Flux& flux) const
 {
-   static const double BETA = 1.0;
+   static const double BETA = 1.0/6.0;
    
    double area = normal.norm();
    Vector unit_normal = normal / area;
 
-   double rho = 0.5 * ( Density(left) + Density(right) );
+   double rhol = Density(left);
+   double rhor = Density(right);
+   double rho = logavg( rhol, rhor );
    Vector vel = (left.velocity + right.velocity) / 2.0;
-   double T   = 2.0 * left.temperature * right.temperature / 
-                (left.temperature + right.temperature);
-   double p   = rho * gas_const * T;
    double vel2= 0.5 * (left.velocity.square() + right.velocity.square());
-   double a   = sqrt(gamma * gas_const * T);
+   double betal = 0.5 / (gas_const * left.temperature);
+   double betar = 0.5 / (gas_const * right.temperature);
+   double beta = logavg(betal, betar);
+   double a   = sqrt(0.5 * gamma / beta);
+
+   double p     = 0.5 * (rhol + rhor) / (betal + betar);
 
    double vel_normal = vel * unit_normal;
 
    // central flux
    flux.mass_flux = rho * vel_normal;
    flux.momentum_flux = unit_normal * p + vel * flux.mass_flux;
-   flux.energy_flux = ( p/(gamma-1.0) - 0.5 * rho * vel2) * vel_normal + 
+   flux.energy_flux = 0.5 * ( 1.0/((gamma-1.0)*beta) - vel2) * flux.mass_flux + 
                       flux.momentum_flux *  vel;
 
    // entropy dissipation
@@ -51,12 +79,12 @@ void Material::keps_flux (const PrimVar& left,
    double vnr = right.velocity * unit_normal;
    double al  = sound_speed (left);
    double ar  = sound_speed (right);
-   double LambdaL[] = { fabs(vnl - al), fabs(vnl), fabs(vnl), fabs(vnl), fabs(vnl + al) };
-   double LambdaR[] = { fabs(vnr - ar), fabs(vnr), fabs(vnr), fabs(vnr), fabs(vnr + ar) };
+   double LambdaL[] = { vnl - al, vnl, vnl, vnl, vnl + al };
+   double LambdaR[] = { vnr - ar, vnr, vnr, vnr, vnr + ar };
    double Lambda[]  = { fabs(vel_normal - a) + BETA*fabs(LambdaL[0]-LambdaR[0]), 
-                        fabs(vel_normal)     + BETA*fabs(LambdaL[1]-LambdaR[1]), 
-                        fabs(vel_normal)     + BETA*fabs(LambdaL[2]-LambdaR[2]),
-                        fabs(vel_normal)     + BETA*fabs(LambdaL[3]-LambdaR[3]),
+                        fabs(vel_normal),
+                        fabs(vel_normal),
+                        fabs(vel_normal),
                         fabs(vel_normal + a) + BETA*fabs(LambdaL[4]-LambdaR[4])};
 
    double S[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };
@@ -66,8 +94,6 @@ void Material::keps_flux (const PrimVar& left,
                   Lambda[3]*S[3],
                   Lambda[4]*S[4] };
 
-   double betal = 1.0/(2.0 * gas_const * left.temperature);
-   double betar = 1.0/(2.0 * gas_const * right.temperature);
    // jump in entropy: s = log(p) - gamma*log(rho) = (1-gamma)*log(p) + gamma*log(T) + const
    double ds    = (1.0-gamma)*log(right.pressure/left.pressure) + 
                   gamma * log(right.temperature/left.temperature);
