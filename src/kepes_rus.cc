@@ -5,15 +5,13 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-// KEPS flux with entropy dissipation
+// KEPS flux with Rusanov entropy dissipation
 //------------------------------------------------------------------------------
-void Material::keps_flux (const PrimVar& left,
-                          const PrimVar& right,
-                          const Vector& normal,
-                          Flux& flux) const
+void Material::kepes_rus_flux (const PrimVar& left,
+                               const PrimVar& right,
+                               const Vector& normal,
+                               Flux& flux) const
 {
-   static const double BETA = 1.0/6.0;
-   
    double area = normal.norm();
    Vector unit_normal = normal / area;
 
@@ -51,24 +49,9 @@ void Material::keps_flux (const PrimVar& left,
    };
 
    // eigenvalues
-   double vnl = left.velocity  * unit_normal;
-   double vnr = right.velocity * unit_normal;
-   double al  = sound_speed (left);
-   double ar  = sound_speed (right);
-   double LambdaL[] = { vnl - al, vnl, vnl, vnl, vnl + al };
-   double LambdaR[] = { vnr - ar, vnr, vnr, vnr, vnr + ar };
-   double Lambda[]  = { fabs(vel_normal - a) + BETA*fabs(LambdaL[0]-LambdaR[0]), 
-                        fabs(vel_normal),
-                        fabs(vel_normal),
-                        fabs(vel_normal),
-                        fabs(vel_normal + a) + BETA*fabs(LambdaL[4]-LambdaR[4])};
+   double lambda = fabs(vel_normal) + a;
 
-   double S[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };
-   double D[] = { Lambda[0]*S[0], 
-                  Lambda[1]*S[1],
-                  Lambda[2]*S[2],
-                  Lambda[3]*S[3],
-                  Lambda[4]*S[4] };
+   double D[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };
 
    // jump in entropy: s = log(p) - gamma*log(rho) = (1-gamma)*log(p) + gamma*log(T) + const
    double ds    = (1.0-gamma)*log(right.pressure/left.pressure) + 
@@ -94,11 +77,11 @@ void Material::keps_flux (const PrimVar& left,
          for(unsigned int k=0; k<5; ++k)
             Diff[i] += R[i][j] * DRT[j][k] * dV[k];
 
-   flux.mass_flux       -= 0.5 * Diff[0];
-   flux.momentum_flux.x -= 0.5 * Diff[1];
-   flux.momentum_flux.y -= 0.5 * Diff[2];
-   flux.momentum_flux.z -= 0.5 * Diff[3];
-   flux.energy_flux     -= 0.5 * Diff[4];
+   flux.mass_flux       -= 0.5 * lambda * Diff[0];
+   flux.momentum_flux.x -= 0.5 * lambda * Diff[1];
+   flux.momentum_flux.y -= 0.5 * lambda * Diff[2];
+   flux.momentum_flux.z -= 0.5 * lambda * Diff[3];
+   flux.energy_flux     -= 0.5 * lambda * Diff[4];
 
    flux *= area;
 }

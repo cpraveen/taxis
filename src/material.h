@@ -11,6 +11,30 @@
 #include "convar.h"
 
 //------------------------------------------------------------------------------
+// Logarithmic average: (a - b)/log(a/b)
+// Numerically stable alogorithm taken from Ismail and Roe
+//------------------------------------------------------------------------------
+inline
+double logavg(double a, double b)
+{
+   double xi = b/a;
+   double f = (xi - 1.0) / (xi + 1.0);
+   double u = f * f;
+
+   double F;
+   if (u < 1.0e-2)
+   {
+      double u2 = u * u;
+      double u3 = u2 * u;
+      F = 1.0 + u/3.0 + u2/5.0 + u3/7.0;
+   }
+   else
+      F = log(xi)/2.0/f;
+
+   return 0.5*(a+b)/F;
+}
+
+//------------------------------------------------------------------------------
 // Material class
 //------------------------------------------------------------------------------
 class Material
@@ -28,7 +52,7 @@ class Material
       double omega; // exponent in power law viscosity
       enum FlowModel {euler, ns};
       FlowModel model;
-      enum FluxScheme { kep, lxf, roe, kfvs, keps };
+      enum FluxScheme { kep, lxf, roe, kfvs, keps, kepes_rus };
       FluxScheme flux_scheme;
 
       enum MuModel {mu_constant, mu_sutherland, mu_power};
@@ -57,6 +81,10 @@ class Material
                         const PrimVar& right, 
                         const Vector& normal, 
                         Flux& flux) const;
+      void   kepes_rus_flux (const PrimVar& left, 
+                             const PrimVar& right, 
+                             const Vector& normal, 
+                             Flux& flux) const;
       void kfvs_split_flux (const double   sign,
                             const Vector&  normal,
                             const PrimVar& state,

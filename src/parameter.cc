@@ -45,6 +45,8 @@ void Parameter::read_grid (Reader &fin)
       grid_type = gmsh;
    else if(input=="bamg")
       grid_type = bamg;
+   else if(input=="delaundo")
+      grid_type = delaundo;
    else
    {
       cout << "   Unknown file type " << input << endl;
@@ -243,6 +245,8 @@ void Parameter::read_material (Reader &fin)
       material.flux_scheme = Material::kfvs;
    else if(input == "keps")
       material.flux_scheme = Material::keps;
+   else if(input == "kepes_rus")
+      material.flux_scheme = Material::kepes_rus;
    else
    {
       cout << "read_material:: unknown flux scheme: " << input << endl;

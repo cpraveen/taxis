@@ -58,6 +58,10 @@ void Material::num_flux (const PrimVar& left,
          keps_flux (left, right, normal, flux);
          break;
 
+      case kepes_rus:
+         kepes_rus_flux (left, right, normal, flux);
+         break;
+
       default:
          cout << "num_flux: unknown flux " << flux_scheme << endl;
          abort ();
