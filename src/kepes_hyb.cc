@@ -7,13 +7,11 @@ using namespace std;
 //------------------------------------------------------------------------------
 // KEPS flux with entropy dissipation
 //------------------------------------------------------------------------------
-void Material::keps_flux (const PrimVar& left,
-                          const PrimVar& right,
-                          const Vector& normal,
-                          Flux& flux) const
+void Material::kepes_hyb_flux (const PrimVar& left,
+                               const PrimVar& right,
+                               const Vector& normal,
+                               Flux& flux) const
 {
-   static const double BETA = 1.0/6.0;
-   
    double area = normal.norm();
    Vector unit_normal = normal / area;
 
@@ -51,17 +49,13 @@ void Material::keps_flux (const PrimVar& left,
    };
 
    // eigenvalues
-   double vnl = left.velocity  * unit_normal;
-   double vnr = right.velocity * unit_normal;
-   double al  = sound_speed (left);
-   double ar  = sound_speed (right);
-   double LambdaL[] = { vnl - al, vnl, vnl, vnl, vnl + al };
-   double LambdaR[] = { vnr - ar, vnr, vnr, vnr, vnr + ar };
-   double Lambda[]  = { fabs(vel_normal - a) + BETA*fabs(LambdaL[0]-LambdaR[0]), 
-                        fabs(vel_normal),
-                        fabs(vel_normal),
-                        fabs(vel_normal),
-                        fabs(vel_normal + a) + BETA*fabs(LambdaL[4]-LambdaR[4])};
+   double lmax = fabs(vel_normal) + a;
+   double phi  = sqrt(fabs(right.pressure - left.pressure)/(right.pressure + left.pressure));
+   double Lambda[]  = { fabs(vel_normal - a)*(1.0-phi) + lmax*phi,
+                        fabs(vel_normal)    *(1.0-phi) + lmax*phi,
+                        fabs(vel_normal)    *(1.0-phi) + lmax*phi,
+                        fabs(vel_normal)    *(1.0-phi) + lmax*phi,
+                        fabs(vel_normal + a)*(1.0-phi) + lmax*phi};
 
    double S[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };
    double D[] = { Lambda[0]*S[0], 

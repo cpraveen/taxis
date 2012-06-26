@@ -52,7 +52,7 @@ class Material
       double omega; // exponent in power law viscosity
       enum FlowModel {euler, ns};
       FlowModel model;
-      enum FluxScheme { kep, lxf, roe, kfvs, keps, kepes_rus };
+      enum FluxScheme { kep, lxf, roe, kfvs, kepes_roe, kepes_rus, kepes_hyb };
       FluxScheme flux_scheme;
 
       enum MuModel {mu_constant, mu_sutherland, mu_power};
@@ -77,10 +77,14 @@ class Material
                         const PrimVar& right, 
                         const Vector& normal, 
                         Flux& flux) const;
-      void   keps_flux (const PrimVar& left, 
-                        const PrimVar& right, 
-                        const Vector& normal, 
-                        Flux& flux) const;
+      void   kepes_roe_flux (const PrimVar& left, 
+                             const PrimVar& right, 
+                             const Vector& normal, 
+                             Flux& flux) const;
+      void   kepes_hyb_flux (const PrimVar& left, 
+                             const PrimVar& right, 
+                             const Vector& normal, 
+                             Flux& flux) const;
       void   kepes_rus_flux (const PrimVar& left, 
                              const PrimVar& right, 
                              const Vector& normal, 
