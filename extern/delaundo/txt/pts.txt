@@ -1,0 +1,155 @@
+A .pts file contains the geometry information with which delaundo starts.
+The geometry is split up in segments, that are given by ordered
+sets of boundary nodes, preferably given with the domain to the
+left. Segments are connected to other segments at their ends,
+possibly themselves. The nodes where segments connect are listed
+for both segments.
+
+The information in the formatted .pts files are read via,
+the familiar six-letter capitalized keywords. The information
+pertaining to a keyword follows the line[s] after the keyword.
+The following keywords are known to DELAUNDO:
+
+NEWBND
+  This opens a new boundary segment and closes the previous one
+  (if there was). Any information pertaining to one boundary
+  must be given before the next NEWBND,INDEXY or ENDDAT statement.
+
+%
+  Comment sign. A lign beginning with '%' is ignored.
+
+NAMEBN
+  Each segment can recieve a name which is a number betwen 1 and 20.
+  Segments are adressed with this name. If the name is omitted, the
+  name defaults to the number of the boundary taken from the
+  position in the .pts file if this name is not yet taken. Otherwise
+  the first open name starting from 1 is selected. Note that it is 
+  bad practice to omit the name other than for self connected 
+  boundaries that carry no anti-connectivity-information. Also, you
+  might run into trouble with a name that you chose for a boundary
+  that coincides with a name given by the program to a boundary
+  that is listed earlier in the .pts file.
+
+NRBNDE
+  The number of nodes found in the .pts file for this boundary
+  is compared to this integer. A warning is issued if they don't
+  coincide.
+
+NFRSBN
+  The name of the boundary connected to the first node of this
+  boundary. If NFRSBN is omitted, the boundary is supposed to
+  be linked to itself. 
+  NFRSBN is a little tricky for wake-type boundaries that are 
+  connected to a solid surface. By convention, for a 'counter-
+  clockwise' wake, i.e. ITYPBN = +4, NFRSBN is the boundary to
+  the left of the juncture, as viewed from the wake. In this 
+  case, NLSTBN = 0. Note that, for reasons of keeping a simple
+  datastructure, wake-type boundaries may not be connected to
+  other wake-type boundaries. They may only be left open, 
+  NFRSBN = 0, or connected to a solid surface at a junction of
+  boundary segments at one of their ends.
+
+NLSTBN
+  The name of the boundary connected to the last node of this
+  boundary. If NLSTBN is omitted, the boundary is supposed to
+  be linked to itself. In the case of ITYPBN = -4, NLSTBN is 
+  the boundary to the left of the juncture, as viewed from the 
+  wake. The limitations on the connectivity of wake-type seg-
+  ments are unchanged, naturally.
+
+ITYPBN
+  The type of the boundary. Possible types are:
+  1: a frontal, enforced boundary. (E.g solid body.)
+  2: a non-frontal, enforced boundary. (E.g outer boundary.)
+  3: a non-frontal, non-enforced set of nodes. (E.g a set of
+     interior nodes to be used when also constructing interior
+     nodes. Note that as there is no nodal overlap due to
+     connected segments, all nodes are used.)
+  4: a frontal, non-enforced boundary. (E.g. a wake. Note that
+     as there is no nodal overlap due to connected segments,
+     all nodes are used.)
+  9: a boundary in the background grid. (E.g. to change the
+     spacing distribution.)
+  All boundaries with positive type have the domain to the left,
+  the ones with negative type to the right. Default is 1.
+
+MINRES
+  The minimum required resolution for this segment. The
+  segment will not be coarsened beyond this value. Default
+  is 2.
+
+ANTICO
+  The set of names of segments this one must not be connected to.
+  Connection between mutual ANTICO boundaries will by removed
+  by insertion of nodes with a spacing value extrapolated from
+  the surfaces with an average gradient. This information is
+  only used if ANTICO is set in the .ctr file.
+
+BNDEXY
+  The set of boundary nodes as x,y pairs.
+ 
+NRINDE
+  The number of internal nodes found in the .pts file 
+  is compared to this integer. A warning is issued if they don't
+  coincide. Note that NRINDE and NRBNDE are equivalent.
+
+INDEXY
+  The set of boundary nodes as x,y pairs. This is another of those
+  remnants. (Delaundo has come a long way.) An INDEXY statement
+  opens a type 3 boundary, that is a set of non-enforced foreground
+  vertices. It is equivalent to specifying ITYPBN:3, NFRSBN:0,
+  NLSTBN:0. Every new INDEXY statement will open a new
+  type 3 segment.
+  The fact that all arrays pertaining to boundary vertices are only 
+  dimensioned for a small subset of all the vertices, should not 
+  cause any trouble since these arrays are only invoked for the 
+  frontal process. That is, if you have a large number of internal 
+  vertices, list them at the end after the boundaries with frontal 
+  character.
+
+ENDDAT
+  Anything after an ENDDAT statement will be ignored.
+
+The unformatted format is a relic from the old days, as are
+the VKB file formats. Actually, I heard that compressing your
+data files is more efficient in terms of saving storage as 
+writing binaries as it takes care of repetitions. Also the
+formatted .pts is a quantum leap in user friendliness. But
+if you really have to use the unformatted .pts:
+
+Integers are given as INTEGER*4, Floats are given as REAL*4
+The following read operations are carried out:
+C     Read number of boundary segments.
+      READ(NtRead) MBnd
+C
+      DO NBnd=1,MBnd
+C
+C       Read parameters for the boundary segments.
+        READ(NtRead) NmeBnd(NBnd),MBndNde,NmNghFNd(NBnd),
+     &               NmNghLNd(NBnd),IBndType(NBnd),
+     &               MNotCon(NBnd),(LsNotCon(I,NBnd),I=1,MNotCon(NBnd))
+C       Create an index of the last node of this segment, NdxLBnNd.
+        NdxLBnNd(NBnd) = NdxLBnNd(NBnd-1)+MBndNde-1
+C       Read coordinates of the boundary segment.
+        IF (IBndType(1).GE.0) THEN
+C         This is a boundary given in counterclockwise sense with the
+C         domain to the left.
+          READ(NtRead) XFrst,YFrst,
+     &                 (XNode(NNde),YNode(NNde),
+     &                  NNde=NdxLBnNd(NBnd-1)+1,NdxLBnNd(NBnd))
+        ELSE
+C         This is a boundary with the domain to the right.
+          READ(NtRead) (XNode(NNde),YNode(NNde),
+     &                  NNde=NdxLBnNd(NBnd),NdxLBnNd(NBnd-1)+1,-1),
+     &                 XFrst,YFrst
+        END IF
+C
+      END DO
+C
+C     Read interior nodes.
+      READ(NtRead) MNtNde
+C     Number of Nodes.
+      MNde = NdxLBnNd(MBnd)+MNtNde
+      READ(NtRead) (XNode(NNtNde),YNode(NNtNde),
+     &              NNtNde=NdxLBnNd(MBnd)+1,MNde)
+

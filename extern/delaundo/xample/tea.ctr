@@ -1,0 +1,53 @@
+ VERBOSe:
+       3, User.
+ ALLPARameters:
+       f, User.
+ INFILE:
+       tea.4pts
+ INFORMatted:
+       T
+ NODEUSe:
+       F, User.
+ NODECOnstr.:
+       T, User.
+ ANTICOnnect.:
+       t, User.
+ SPCRATio:
+         1.00, User.
+ DTOLERance:
+       0.6000, User.
+ QTOLERance:
+       0.6500, User.
+ STRETChing:
+       t, User.
+ BTOLERance:
+       1.5000, User.
+ DELTAStar:
+       0.10, User.
+ MAXASPect ratio:
+        10., User.
+ MVISROw:
+        1000, User.
+ ASKROW:
+        f
+ ISMOOTh:
+         2 User
+ MISOROw:
+         50, User.
+ FLATSWap:
+       f, User.
+ ANGMAX:
+       133.
+ MCYCSWap:
+       20 User
+ OUTFILe:
+       ./tea.100.dpl
+ OUTTYPe:
+      t 
+ OUTFORmat:
+       dpl (dplot)
+ DOLOGFile:
+       T, User.
+ LOGFILe:
+       delaundo.log
+

@@ -1,0 +1,185 @@
+New as of version 5.4, Apr 97;
+
+- A different algorithm to fix boundary violations that should be 
+  able to deal with all cases. The algorithm now implemented is
+  actually the one described in the thesis.
+- Constructed isotropic nodes that would lead to a degenerate
+  triangle are now eliminated and do not lead to failure.
+- The screen output has been reformatted and some cleanup has
+  been done.
+
+New as of version 5.3, Jan 97;
+
+- Check frontal isotropic edges for their length, and cut the ones
+  that are too long in half by placing the new node at midedge.
+- Only type 1 and 2 boundaries are considered closed loops in
+  the calculation of the background spacing. All other types
+  are considered doubly open.
+
+New as of version 5.2, Nov 96;
+
+- a bug in IVVALK was fixed that led to error messages like
+  'linear degeneracy' when trying to construct a triangle with
+  single vertex.
+- A help file for the boundary point distribution program ipol
+  has been written and is accessible via the help menu.
+
+New as of version 5.1, Aug 96:
+
+- The basic node and cell count are checked in various places. You
+  should get a warning if you exceed table sizes.
+- The support for .ucb, .gri and .out files has been removed since
+  it seemed there were no users of this. These routines demanded
+  quite some extra storage, so very large grids can now be made,
+  500000 works, but since there is still no effective search method,
+  performance does suffer for large meshes.
+  If you need one of those formats, uncomment them in delaundo.f and
+  place them in the Makefile. The necessary routines are in old_out
+  in the tar file of the distribution.
+- The Laplacian Filtering now ignores the viscous nodes. Only the
+  isotropic field will be smoothened.
+- Fixed a bug in the search for the nearest node that occured
+  with very small cell sizes. The added robustness was bought at
+  a small added computational expense of normalizing all crossproducts.
+  Another bug in the same routine connected with the search leaving
+  the convex hull was fixed. This bug occured e.g at square viscously
+  meshed boxes.
+
+
+New as of version 5.0, May 96:
+
+- The messy sed-conversion of Paths.F was dropped. To access the
+  help files, set the two environment variables DLNDO_HELP,
+  DLNDO_XMPL for the help and example files. 
+- The search routines IWALK for locating the containing cell
+  and IVVALK for locating the closest vertex have been capped
+  to ensure termination. As of now, there are no known failures
+  to IVVALK on genuinely Delaunay grids. It should work fine for
+  any geometry.
+- It was found that IVVALK is actually very fragile on Non-Delaunay 
+  grids, as occuring in the stretched layer. As opposed to my oath
+  not to work on Delaundo's stretching capability anymore, I hacked
+  a pretty ugly fix into IVVALK: a fallback BOXWALK picks up certain 
+  failures of IVVALK, doing a 'recursive' search over all neighboring 
+  cells that have a bounding box intersecion with the box around the 
+  target that contains the minimum distance circle.
+- Type 3 boundaries, non-enforced to affect the spacing,
+  should work properly (i.e. as advertised) now.
+- The coordinates in the .pts file are read with double precision
+  as opposed to single precision in the previous releases.
+- The calculation of the stretching power can fail for ill-posed
+  combinations of thickness, max. frontal length and aspect ratio.
+  A failure value of StrPw=1. has been set.
+- Various little bugs have been fixed, one that comes to
+  mind is giving INFLNM for the output file.
+- The node-extraction routine NDEX saw a bug fix, no more allowing
+  the creation of round-off-zero determinant triangles that 
+  include vertices outside the cavity. (This failure would have let
+  in the past to an endless loop of IVVALK.)
+
+New as of version 4.4, September 95:
+
+- various bugs have been fixed, first and foremost a huge one
+  affecting the walk on the Voronoi diagram to find the closest
+  vertex (routine IVVNXT for the insiders), and a bug with
+  the ANTICO information and the ALLDISconnect parameter.
+- It is now possible to run ANTICO and ALLDIS in parallel,
+  independently, whatever. With ANTICO alone, only specified
+  segments are disconnected. ALLDIS overrides ANTICO to
+  disconnect all. Try for yourself.
+- This version should run on SGI's, as well. The loops that
+  read an unidentified number of parameters, like coordinates,
+  antico-info, etc. use FORTRAN's EXIT jump-condition. SGI
+  invalidates the loop counter on this event, a valid, but
+  relatively stupid interpretation of the FORTRAN standard,
+  and a workaround had to be devised.
+- This was most likely done already for 4.3, but not reported,
+  the point construction algorithm has been slightly changed
+  to work better in fields with high gradients.
+
+New as of version 4.3, September 94:
+
+- the bug mentioned below was fixed even better ;-). Maybe it has
+  been really fixed?
+- a bug in the boundary coarsening was fixed, as well as a bug in 
+  writing triangulations of coarsened meshes that had extra
+  background vertices.
+- a new parameter MINRES limits the coarse-grid resolution for
+  each segment from below. Put it in your .pts.
+
+
+New as of version 4.2:
+
+Multigrid:
+----------
+
+Delaundo now can produce vertex-nested coarsened grids. The boundaries
+are coarsened by a factor of 2, if the number of boundary faces on 
+each boundary segment is not even, a suitable extra face to clip is
+determined. The background grid is unchanged, however the spacing
+values are doubled.
+
+A new initial triangulation of the convex hull with the coarsenend
+boundaries is established and the frontal vertex-generation process
+performed as usual. However, the spacing check that guarantees the
+minimum distance between newly created vertices is replaced by 
+warping the new vertex on the nearest fine grid vertex.
+
+The different grid levels are written to different, independent
+files with file suffixes .2 through .9. At most 10 deeper levels
+can be created. Note that this option currently cannot be combined
+with grid stretching.
+
+The new parameter that controls the number of grid levels is:
+
+MLEVEL
+  This integer value specifies the number of multigrid levels that
+  are to be produced. The maximum permissible depth is 10, default
+  is 1.
+
+
+Laplacian Smoothing:
+--------------------
+
+Delaundo now can smoothe the meshes produced with FroD. In addition
+to a simple Laplacian ( you'd never expect us to leave is that unso-
+phisticated, did you? ) the weights of each neighboring vertex can
+be made dependent on their vertex degree. This avoids the frequently
+observed phenomenon of vertices with high degree that form very
+long edges after smoothing, although such vertices are extremely 
+rare with FroD. Note that this option currently cannot be combined
+with grid stretching.
+
+A good idea is to play with the following new parameters:
+
+
+LAPLAC
+  If set to 't' or 'y', a Laplacian filter is applied to smoothen
+  the mesh. Default is 'f'.
+
+RSWEEP
+  This integer value specifies the number of relaxation sweeps for
+  the Laplacian. Default is 10.
+
+LPBETA
+  This floating point value specifies how much the weight of the
+  points increases with increasing vertex degree. 0. means fixed
+  weights, 1. is maximum variance. Default is .5.
+
+RELFAC
+  This floating point value specifies the relaxation factor for
+  the Laplacian. The stability limits are [0.,1.], default is .75
+
+
+The News:
+---------
+
+The help menu has a new entry, you are just using it. The news
+file will be updated for every version. A quick glance should
+make you familiar with the added ;-) or removed *-( features.
+
+
+Bugs fixed with 4.2:
+--------------------
+
+- proper connectivity at trailing edges with wakes.

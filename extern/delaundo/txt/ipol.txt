@@ -1,0 +1,384 @@
+IPOL distributes points along curves in 2-D to approximately
+satisfy a spacing that is user-specified. 
+
+Curves can be
+either analytic curves such as straight lines, polynomes,
+circles, sines, straight lines or NACA 4digit airfoils, or
+discrete curves interpolated between a set of points. 
+These curves are loaded into the 'spline buffer'. The
+spline buffer can be rotated, translated and scaled in the plane.
+The spacing is given by setting up interpolation stations at
+at the beginning and the end of the curve and at a number 
+of locations along the arclength of the curve, and is inter-
+polated linearly among these points. On top of that, global
+scaling values that scale the entire mesh are applied. 
+Points are then splined along the curve in the spline buffer
+to match the specified spacing. The resulting distribution
+is called a 'segment' in the following. The segment is written
+to a format directly compatible with the DELAUNDO Delaunay mesher.
+
+Commands for IPOL can either be entered at a prompt (which
+is not recommended, since grid generation is still an
+iterative process) or can be listed in a control file,
+customarily with the extension .ictr to distinguish them
+from the similarly formatted .ctr files of DELAUNDO. All
+commands are six-letter capitalized keywords, most of them
+followed by one argument on the next line. Any ! or % as
+the first significant character in a line is a comment
+sign. (Do take the habit to extensively comment your
+control files, otherwise you might quickly lose overview
+of your geometry.)
+
+The basic principle is the following:
+- define an output file and the global scaling values
+  for the mesh-size
+- for each geometry segment:
+  - load a curve, this set of points is called the spline buffer,
+  - translate, rotate and scale the spline buffer,
+  - set up spacing interpolation stations
+  - distribute points along that curve,
+  - smooth the point distribution,
+  - set name and connectivity attributes of this
+    segments to be used by the mesher, 
+  - write it to file.
+
+Note that there is no testing of the sequence of the
+commands. Most parameters do have default values, and
+many sequences could make sense. E.g. it should be
+possible to reset the output file name and write to
+a different file. (It is however not recommended to do
+so, since I cannot test for all possible and possibly
+reasonable combinations.) It is recommended to have
+the sequence of the parameters in the .ictr file follow
+the sequence shown above.
+
+As a basic example a NACA 0012 airfoil is presented
+with the points of the airfoil surface read from a
+file rather than using the ones analytically calculated
+in IPOL:
+
+% naca from .pts file
+VERBOS
+5
+OUTFIL
+newnaca.pts
+SCALEE
+2.1
+SCALEI
+2.1
+%
+%
+SCREEN
+
+SCREEN
+---> airfoil
+NEWFIL
+naca.pts
+FILCRV
+1
+SPCCLR
+SPCING
+0. .005
+SPCING
+.075 .01
+SPCING
+.25 .02
+SPCING
+.425 .01
+SPCING
+.5 .005
+SPCING
+.575 .01
+SPCING
+.75 .02
+SPCING
+.925 .01
+SPCING
+1. .005
+MINRES
+4
+NEWPTS
+WRTPTS
+%
+%
+SCREEN
+
+SCREEN
+---> outer circle
+SCALEE
+1.
+SCALEE
+1.
+RADIUS
+10.
+XYCENT
+.5 0.
+PIECRV
+0. 2.
+CALCRV
+circle
+OUTNAM
+2
+OUTNGF
+2
+OUTNGL
+2
+OUTTYP
+2
+MINRES
+4
+SPCCLR
+SPCING
+0. 2.
+SPCING
+0. 2.
+NEWPTS
+WRTPTS
+%
+ENDDAT
+
+
+At the beginning the verbosity level is set to the maximum, 5,
+and the output file is given. Global scaling is set to 2.1, i.e
+that all spacing values will be multiplied by 2.1: the grid 
+will be a little more than twice as coarse.
+  The SCREEN command echoes the following line of text at the
+screen. A file naca.pts is read, actually using the exact
+same subroutine as in DELAUNDO (see the help files in Delaundo
+on the format of the .pts file). From this file the curve
+named 1 is extracted, the shape of the airfoil. The list
+of spacing stations is cleared and 9 spacing stations are
+inserted. A Minimum resolution of 4 faces is prescribed, e.g.
+to allow for multi-grid coarsening. The NEWPTS command 
+distributes the points and relaxes the distribution and
+the WRTPTS writes the segment to the output file.
+  Similarly for the second segment, a circle for the outer
+boundary calculated as an analytical curve. The global scaling 
+is reset. The radius and origin of the circle and the starting
+and finishing angles are defined (for convienince units of pi 
+are chosen). The segment's attributes for DELAUNDO are set, a
+new spacing distribution defined, and the points are distributed 
+and written.
+  An ENDDAT command closes the file.
+
+Note that default values for all parameters that are described
+in the following are only set initially. Once a value has been
+changed it retains its value until it is being changed again.
+
+The keywords in detail, first global/initial options. However,
+those can be updated at any time. Arguments appear on the
+line after the keyword, if no arguments are expected for a
+keyword, the next line is the next keyword.
+SCREEN
+  string: the string will be echoed to the screen
+LISTON
+  no argument: switches on the listing to the screen of the 
+  distributed points.
+LISTOFf
+  no argument: switches it off.
+VERBOSity
+  int: sets the verbosity level.
+SCALEInterior
+  real: global scaling at the interior (=not at the ends) 
+  stations of a segment.
+SCALEEnd
+  real: global scaling of the end stations of a segment.
+OUTFILe
+  string: open an output file with the name on the next line.
+
+Curves to be loaded into the spline buffer are specified as either
+a discrete curve out of a .pts file:
+NEWFILe
+  no argument: open an input file for curves.
+FILCRVe
+  int: select a curve named with the integer. (See the .pts
+  file format help for this 'name'.)
+NDEFIL
+  int, int: select a first and a last point among the points
+  of the file curve to truncate it.
+
+of an analytic curve that is calculated within IPOL:
+CALCRVe
+  string: select an analytic curve of the type given:
+  line, circle, polynom, sine, nacaXXXX
+  The curves are defined by a choice of values before CALCRV
+  is invoked (see the circle example above):
+    line: XYBEGIN, XYFINIsh
+       Well, as you might imagine just a line segment from
+       a to b.
+    circle: XYCENTer, ALFCRVe or
+            XYCENTer, PIECRVe or
+            XYBEGIN, XYTHIRd, XYFINIsh
+       Note: a cricular arc can be specified either by a center and
+       the range of angles in degrees, the same but the range of
+       angles in units of pi, or by a first and a last point of
+       the arc and a point inbetween. Do check the accuracy of
+       the geometry when using the last option: if the arc
+       approaches a straight line or if the third point is very
+       close to one of the others, the math involve a division
+       by nearly zero.
+    polynom: XYBEGin,XYFINIsh,POLYN0,..,POLYN4
+       Note that the y-values specified are needed by the format
+       but are not used. Unspecified coefficients are set to zero.
+    sine: ALFCRVe, RADIUS, SINPWR or
+          PIECRVe, RADIUS, SINPWR
+       The curve is specified by either angles of multiples of
+       pi giving the x-values, their coordinates expressed in
+       radian. The y is radius*sin(x)**sinpwr. Too difficult to
+       understand? Just try it out.
+    nacaXXXX:
+       The coefficients are taken from the string, ie. a naca0012
+       will give you, guess, yes, a NACA 0012. The leading edge is
+       at 0, the trailing edge at 1.
+
+The parameters for the analytic curves are:
+MPTCRVe
+  int: The number of spline points to lay on an analytic curve.
+XYBEGIin
+  real, real: the coordinates of a begin point.
+XYFINIsh
+  real, real: the coordinates of an end point.
+XYTHIRd
+  real, real: the coordinates of a third point.
+XYCENTer
+  real, real: the coordinates of a center.
+ALFCRVe
+  real, real: the angles in degrees of start and finish
+PIECRVe
+  real, real: the angles in units of pi for start and finish
+RADIUS
+  real: a radius
+SINPWR
+  real: an exponent. You better make sure it is positive if
+  your sine curve runs through y=0.
+POLYN0
+  real: the polynomial coefficient of x**0. 
+POLYN1
+  real: the polynomial coefficient of x**1. Well and so on
+  until POLYN4. Maybe someday I'll get around to introduce
+  a neato keyword that lets you set all at once.
+
+The spline buffer then can be translated, scaled, rotated. A
+translation can either (and best, if possible) be specified
+by the points where the beginning and the end of the spline
+buffer will be mapped to:
+NEWBEG
+  real, real: new location of the beginning
+NEWEND
+  real, real: new location of the end
+
+Alternatively, e.g. for closed segments like an ellipsoid
+at an angle of attack also translation vector, rotation
+angle and rotation origin, as well as a global scaling can 
+be specified:
+TRNVEC
+  real, real: translation vector
+ALFROT
+  real: rotation angle in degrees
+ROTORGin
+  real, real: rotation origin
+SCALEC
+  real: a scaling value for the spline buffer's coordinates.
+
+Curves can also be reflected around the x-axis
+REFLEC
+  int: reflect around y=0, y->-y, if set to 1.
+
+The translation is done upon the invocation of
+TRNSLT
+  no arguments. The translation follows the sequence
+  reflection -> rotation -> scaling -> translation.
+  Naturally, the transformation parameters have
+  to be set to execute the transformation. It should be 
+  possible to concatenate any number of translations, let me
+  know if it doesn't work. (In that way you can reflect around
+  x=0, eg.) Note finally, that the translation only applies to
+  the spline buffer. As of now, alas, the transformation of
+  segments is not yet implemented.
+
+
+Before points can be splined on the current spline buffer,
+a spacing distribution has to be fixed:
+SPCCLR
+  no arguments: empties the list of spacing stations
+SPCING
+  real, real: adds a spacing station at an arc-length of
+  the curve as given by the first argument with a value
+  as given by the second. Note: the arclength of the curve
+  in the spline buffer will always be normalized to unity,
+  therefore any arclength values outside the interval 0,1
+  will be rejected.
+
+However a minimum resolutin of a curve can be enforced.
+MINRESolution
+  int: the minimum number of faces (nodes-1) to lay on the
+  segment.
+
+The points are placed along the curve in a shooting manner
+upon invoking:
+NEWPTS
+  no arguments: distribute points.
+The first point is placed at the origin. For the next point,
+the spacing at the origin is evaluated, interpolating the
+local spacing and scaling it with the global factor and the 
+point placed at that distance. This is done until the arc-
+length of the next point exceeds 1, that point is instead
+placed on the end of the curve. The points are then smoothed
+with a backward Gauss-Seidel, placing each point at an
+arc-length ratio that reflects the ratios of spacings at
+the midpoints of the two faces that form the point. (See
+Muellers PhD thesis for details). The number of relaxations
+can be changed with
+MRELAX
+  int: number of relaxation sweeps to apply.
+LVLBLE
+  int: set the blending level:
+  0: Linear blending
+  1: Quadratic blending, C0 Continuity
+  2: Qubic blending,     C1 Continuity
+  3: Quintic blending,   C2 Continuity
+CLOSED
+  int: the curve will be treated as a closed curve if set to 1.
+  Otherwise, the curve is open-ended with curvature going to
+  zero at the ends.
+
+The segment is appended to the output file upon
+invocation of
+WRTPTS
+  no argument: append the segment to OUTFIL.
+
+Various segment attribute pertinent to DELAUNDO can be set that will
+be passed on to the file in the header of the segment. There are
+certain defaults for these values. File curves inherit their
+attributes from the file, discrete curves increment the last
+segment number and consider the segment closed upon itself. If
+the user wishes do change these defaults, it has to be done so
+naturally before the invocation of WRTPTS. (For the detailed
+meaning of these parameters, see the help on the .ctr format
+in DEALUNDO.)
+DLTCLR
+  no argument: similar to SPCCLR, voids the buffer of stretching
+  layer thicknesses.
+DLTZERo
+  real, real: similar to SPCING, adds a 'delta' station that will
+  be passed on to DELAUNDO. (This fixes a distance close to the
+  stretched surfaces where stretching remains constant at the 
+  maximum value. See the help in DELAUNDO on this, and try not
+  to use it.)
+OUTNAM
+  int: 'name' of the boundary segment to write
+OUTNGF
+  int: 'name' of the boundary connected to the beginning of this
+  segment.
+OUTNGL
+  int: 'name' of the boundary connected to the end of this segment.
+OUTTYP
+  int: frontal type of this segment.
+NOTCON
+  int, int, ...: A list of names of segments that this segment
+  must not be connected to in the background grid. An empty list
+  can be specified.
+
+The program finishes after an
+ENDDAT
+  no argument: IPOL will stop reading the file after an ENDDAT
