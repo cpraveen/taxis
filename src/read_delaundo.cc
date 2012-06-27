@@ -23,9 +23,12 @@ void Grid::read_delaundo (string grid_file)
    file.open (grid_file.c_str());
    assert ( file.is_open() );
 
+   getline(file, input);
+
    // Read triangles
-   file >> n_cell;
-   file >> idummy >> idummy;
+   file >> n_cell
+        >> idummy 
+        >> idummy;
    assert(n_cell > 0);
    cell.resize(n_cell);
    for(i=0;i<n_cell;i++)
@@ -49,7 +52,12 @@ void Grid::read_delaundo (string grid_file)
    vertex.resize(n_vertex);
 
    // skip a line
-   getline(file, input);
+   file >> rdummy 
+        >> rdummy 
+        >> rdummy 
+        >> rdummy 
+        >> rdummy 
+        >> rdummy;
 
    for(i=0; i<n_vertex; i++)
    {
@@ -63,12 +71,17 @@ void Grid::read_delaundo (string grid_file)
       vertex[i].coord.z = 0; //dimension =2
    }
 
-   unsigned int n_seg, c=0;
-   file >> n_seg;
+   unsigned int n_seg, n_corner, c=0;
+   file >> n_seg >> n_corner;
+   for(unsigned int s=0; s<n_corner; ++s)
+      file >> idummy;
+   for(unsigned int s=0; s<n_corner; ++s)
+      file >> idummy;
    for(unsigned int s=0; s<n_seg; ++s)
    {
       unsigned int ne, etype;
       file >> ne >> etype;
+      assert (ne > 0);
       face.resize( face.size() + ne );
       for(i=0; i<ne; ++i)
       {
@@ -83,6 +96,8 @@ void Grid::read_delaundo (string grid_file)
       }
    }
 
+   // total number of face
+   n_face = face.size();
+
    file.close();
 }
-   
