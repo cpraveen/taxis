@@ -85,6 +85,7 @@ void Writer::output (string format, int counter, double elapsed_time)
       filename += ".plt";
       output_tec (elapsed_time, filename);
    }
+   cout << "Saving solution into file " << filename << endl;
 }
 
 //------------------------------------------------------------------------------

@@ -76,6 +76,10 @@ void FiniteVolume::initialize ()
    if(convert_to_vtk) param.write_format = "vtk";
    if(convert_to_tec || convert_to_vtk)
    {
+      cout << "Saving solution in ";
+      if(convert_to_tec) cout << "tecplot ";
+      if(convert_to_vtk) cout << "vtk ";
+      cout << "format\n";
       compute_gradients ();
       output (0);
    }
