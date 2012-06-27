@@ -659,6 +659,14 @@ void Grid::print_cells ()
       dual << cell[i].centroid.x << "  " << cell[i].centroid.y << "\n";
       dual << "\n";
    }
+   for(unsigned int i=0; i<bface.size(); ++i)
+   {
+      unsigned int v0 = bface[i].vertex[0];
+      unsigned int v1 = bface[i].vertex[1];
+      dual << vertex[v0].coord.x << "  " << vertex[v0].coord.y << endl;
+      dual << vertex[v1].coord.x << "  " << vertex[v1].coord.y << endl;
+      dual << endl;
+   }
    tri.close();
    dual.close();
 }
