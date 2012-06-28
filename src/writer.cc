@@ -224,7 +224,7 @@ void Writer::output_tec (double time, string filename)
    tec.open (filename.c_str());
    
    tec << "FILETYPE = SOLUTION" << endl;
-   tec << "VARIABLES = \"T\" \"U\" \"V\" \"P\"";
+   tec << "VARIABLES = \"P\" \"T\" \"U\" \"V\"";
    if(write_mach)
       tec << " \"Mach\"";
    if(write_density)
@@ -251,6 +251,7 @@ void Writer::output_tec (double time, string filename)
       
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          tec << (*vertex_primitive)[i].velocity.y << endl;
+
    }
    
    
