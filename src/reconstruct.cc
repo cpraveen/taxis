@@ -191,6 +191,35 @@ PrimVar FiniteVolume::minmod_slope (const PrimVar& ul, const PrimVar& ur) const
 //------------------------------------------------------------------------------
 // Reconstruct left and right states
 //------------------------------------------------------------------------------
+void FiniteVolume::reconstruct_minmax
+(
+ const unsigned int& f,
+ vector<PrimVar>&    state
+ ) const
+{
+   unsigned int cl = grid.face[f].vertex[0];
+   unsigned int cr = grid.face[f].vertex[1];
+   
+   Vector  dr    = grid.vertex[cr].coord - grid.vertex[cl].coord;
+   
+   // left state
+   state[0].temperature = primitive[cl].temperature+ 0.5 * (dT[cl] * dr);
+   state[0].velocity.x  = primitive[cl].velocity.x + 0.5 * (dU[cl] * dr);
+   state[0].velocity.y  = primitive[cl].velocity.y + 0.5 * (dV[cl] * dr);
+   state[0].velocity.z  = primitive[cl].velocity.z + 0.5 * (dW[cl] * dr);
+   state[0].pressure    = primitive[cl].pressure   + 0.5 * (dP[cl] * dr);
+   
+   // right state
+   state[1].temperature = primitive[cr].temperature- 0.5 * (dT[cr] * dr);
+   state[1].velocity.x  = primitive[cr].velocity.x - 0.5 * (dU[cr] * dr);
+   state[1].velocity.y  = primitive[cr].velocity.y - 0.5 * (dV[cr] * dr);
+   state[1].velocity.z  = primitive[cr].velocity.z - 0.5 * (dW[cr] * dr);
+   state[1].pressure    = primitive[cr].pressure   - 0.5 * (dP[cr] * dr);
+}
+
+//------------------------------------------------------------------------------
+// Reconstruct left and right states
+//------------------------------------------------------------------------------
 void FiniteVolume::reconstruct (const unsigned int& f,
                                 vector<PrimVar>&    state) const
 {
@@ -210,6 +239,10 @@ void FiniteVolume::reconstruct (const unsigned int& f,
          
       case Parameter::minmod:
          reconstruct_minmod (f, state);
+         break;
+
+      case Parameter::minmax:
+         reconstruct_minmax (f, state);
          break;
 
       default:

@@ -14,7 +14,6 @@ void Grid::read_delaundo (string grid_file)
 {
    unsigned int i, idummy;
    double rdummy;
-   char line[80];
    string input;
 
    cout << "Reading delaundo grid file " << grid_file << endl;

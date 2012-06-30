@@ -18,8 +18,10 @@ class PrimVar
       PrimVar  operator/  (const double& scalar) const;
       PrimVar  operator*  (const PrimVar& prim_var) const; // componentwise multi
       PrimVar& operator*= (const double& scalar);
+      PrimVar& operator=  (const double& scalar);
       PrimVar& operator+= (const PrimVar& prim_var);
-      void zero ();
+      void min (const PrimVar& p);
+      void max (const PrimVar& p);
 };
 
 //------------------------------------------------------------------------------
@@ -111,6 +113,19 @@ PrimVar& PrimVar::operator*= (const double& scalar)
    temperature *= scalar;
    velocity    *= scalar; 
    pressure    *= scalar;
+
+   return *this;
+}
+
+//------------------------------------------------------------------------------
+// Set a scalar value
+//------------------------------------------------------------------------------
+inline
+PrimVar& PrimVar::operator= (const double& scalar)
+{
+   temperature = scalar;
+   velocity    = scalar; 
+   pressure    = scalar;
 
    return *this;
 }

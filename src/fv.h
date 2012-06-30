@@ -67,10 +67,13 @@ class FiniteVolume
       void reconstruct_minmod (const unsigned int&      f,
                                std::vector<PrimVar>&    state) const;
       PrimVar minmod_slope (const PrimVar& ul, const PrimVar& ur) const;
+      void reconstruct_minmax(const unsigned int&      f,
+                              std::vector<PrimVar>&    state) const;
 
       void initialize ();
       void interpolate_vertex ();
       void compute_gradients ();
+      void limit_gradients ();
       void store_conserved_old ();
       void compute_inviscid_residual ();
       void compute_inviscid_kep_residual ();

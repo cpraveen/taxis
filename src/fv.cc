@@ -219,6 +219,10 @@ void FiniteVolume::compute_gradients ()
       dW_cell[i] /= 2.0 * grid.cell[i].area;
       dP_cell[i] /= 2.0 * grid.cell[i].area;
    }
+
+   // minmax limiter
+   if(param.reconstruct_scheme == Parameter::minmax)
+      limit_gradients ();
 }
 
 //------------------------------------------------------------------------------
