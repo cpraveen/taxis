@@ -29,7 +29,7 @@ class Parameter
 
       enum ReconstructScheme 
       { 
-         first, second, limited, minmod, minmax
+         first, second, limited, minmod, bj, minmax
       };
 
       enum BCScheme

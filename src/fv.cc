@@ -221,8 +221,10 @@ void FiniteVolume::compute_gradients ()
    }
 
    // minmax limiter
-   if(param.reconstruct_scheme == Parameter::minmax)
-      limit_gradients ();
+   if(param.reconstruct_scheme == Parameter::bj)
+      limit_gradients_bj ();
+   else if(param.reconstruct_scheme == Parameter::minmax)
+      limit_gradients_mm ();
 }
 
 //------------------------------------------------------------------------------

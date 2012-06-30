@@ -241,6 +241,7 @@ void FiniteVolume::reconstruct (const unsigned int& f,
          reconstruct_minmod (f, state);
          break;
 
+      case Parameter::bj:
       case Parameter::minmax:
          reconstruct_minmax (f, state);
          break;

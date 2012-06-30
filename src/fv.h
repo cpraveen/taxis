@@ -73,7 +73,8 @@ class FiniteVolume
       void initialize ();
       void interpolate_vertex ();
       void compute_gradients ();
-      void limit_gradients ();
+      void limit_gradients_bj ();
+      void limit_gradients_mm ();
       void store_conserved_old ();
       void compute_inviscid_residual ();
       void compute_inviscid_kep_residual ();

@@ -123,11 +123,14 @@ void Parameter::read_numeric (Reader &fin)
       reconstruct_scheme = Parameter::limited;
    else if(input == "minmod")
       reconstruct_scheme = Parameter::minmod;
+   else if(input == "bj")
+      reconstruct_scheme = Parameter::bj;
    else if(input == "minmax")
       reconstruct_scheme = Parameter::minmax;
    else
    {
       cout << "read_numeric: unknown reconstruction scheme " << input << endl;
+      cout << "              first, second, limited, minmod, bj, minmax\n";
       abort ();
    }
 
