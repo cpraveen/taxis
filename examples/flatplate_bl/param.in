@@ -25,7 +25,7 @@ material
    viscosity   constant  3.5e-5
    prandtl     0.72
    model       ns
-   flux        roe
+   flux        kepes_hyb
 }
 
 constants
