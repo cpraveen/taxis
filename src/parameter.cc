@@ -248,6 +248,8 @@ void Parameter::read_material (Reader &fin)
       material.flux_scheme = Material::roe;
    else if(input == "kfvs")
       material.flux_scheme = Material::kfvs;
+   else if(input == "kepes")
+      material.flux_scheme = Material::kepes;
    else if(input == "kepes_roe")
       material.flux_scheme = Material::kepes_roe;
    else if(input == "kepes_rus")
@@ -470,8 +472,9 @@ void Parameter::read_output (Reader &fin)
 //------------------------------------------------------------------------------
 void Parameter::check ()
 {
-   if(material.flux_scheme == Material::kep &&
-      reconstruct_scheme != Parameter::first)
+   if( (material.flux_scheme == Material::kep ||
+        material.flux_scheme == Material::kepes) &&
+       reconstruct_scheme != Parameter::first)
    {
       reconstruct_scheme = Parameter::first;
       cout << "   kep flux is chosen; hence setting reconstruction to first order\n";

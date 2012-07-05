@@ -30,6 +30,7 @@ void FiniteVolume::limit_gradients_mm ()
       pmax[v1].max(primitive[v0]);
    }
 
+   // Compute limiter function
    for(unsigned int i=0; i<grid.n_face; ++i)
    {
       unsigned int n0 = grid.face[i].vertex[0];
@@ -61,6 +62,7 @@ void FiniteVolume::limit_gradients_mm ()
       minmax (T1, u1, v1, w1, p1, e_max_min, e_min_max, primitive[n1], phi[n1]);
    }
 
+   // Modify gradient
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
       dT[i] *= phi[i].temperature;

@@ -70,6 +70,10 @@ void Material::num_flux (const PrimVar& left,
          kfvs_flux (left, right, normal, flux);
          break;
 
+      case kepes:
+         kepes_flux (left, right, normal, flux);
+         break;
+
       case kepes_roe:
          kepes_roe_flux (left, right, normal, flux);
          break;
