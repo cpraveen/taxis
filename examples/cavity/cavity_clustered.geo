@@ -38,7 +38,7 @@ Plane Surface(4) = {4};
 
 Physical Surface(100000) = {1,2,3,4};
 
-Physical Line(100001) = {1};
-Physical Line(100002) = {2};
-Physical Line(100003) = {3};
-Physical Line(100004) = {4};
+Physical Line(100001) = {1,2};
+Physical Line(100002) = {3,4};
+Physical Line(100003) = {5,6};
+Physical Line(100004) = {7,8};
