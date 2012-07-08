@@ -107,7 +107,7 @@ void Parameter::read_numeric (Reader &fin)
 
    fin.entry ("final_time");
    fin >> final_time;
-   assert (final_time > 0.0);
+   assert (final_time >= 0.0);
 
    fin.entry ("min_residue");
    fin >> min_residue;
@@ -167,6 +167,18 @@ void Parameter::read_numeric (Reader &fin)
       cout << "Specify only one of them, other being zero\n";
       abort();
    }
+
+   // For steady flow, no need for final time
+   if(time_mode == "steady")
+      final_time = 1.0e20;
+   else
+   {
+      assert (final_time > 0.0);
+      // For unsteady flow, final time must be specified, so dont put any limit
+      // on max_iter
+      max_iter = 99999999;
+   }
+
 }
 
 //------------------------------------------------------------------------------
@@ -479,4 +491,5 @@ void Parameter::check ()
       reconstruct_scheme = Parameter::first;
       cout << "   kep flux is chosen; hence setting reconstruction to first order\n";
    }
+
 }
