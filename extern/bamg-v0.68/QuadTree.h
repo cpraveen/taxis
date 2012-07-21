@@ -13,6 +13,9 @@
 //
 // ORIG-DATE:     Dec 97
 
+#include <iostream>
+
+using namespace std;
 
 const int MaxDeep = 30;
 typedef  long  IntQuad;

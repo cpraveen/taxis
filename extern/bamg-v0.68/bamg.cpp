@@ -18,13 +18,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
-#include <new.h>
+#include <new>
 #include <assert.h>
 #include "Meshio.h"
-#include <iomanip.h>
+#include <iomanip>
 #include "Mesh2.h"
 #include "QuadTree.h"
-#include <fstream.h>
+#include <fstream>
 #ifdef __MWERKS__
 #define   NBVMAX 10000
 #else

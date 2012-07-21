@@ -20,6 +20,7 @@ extern int verbosity;
 extern int SHOW;
 #include "meshtype.h"
 #include <stdlib.h>
+#include <iostream>
 
 #include <math.h>
 #include <limits.h>
@@ -31,6 +32,8 @@ extern int SHOW;
 #include <sys/times.h>
 #include <unistd.h>
 #endif
+
+using namespace std;
 
 #include "R2.h"
 

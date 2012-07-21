@@ -20,7 +20,7 @@ int verbosity =1;
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <iostream.h>
+#include <iostream>
 
 #include "Mesh2.h"
 #include "QuadTree.h"

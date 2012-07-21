@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
-#include <new.h>
+#include <new>
 #include <assert.h>
 #include "Meshio.h"
 #include "Mesh2.h"

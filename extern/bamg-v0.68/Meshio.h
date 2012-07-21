@@ -14,12 +14,14 @@
 // ORIG-DATE:     Dec 97
 
 #include <stdio.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+using namespace std;
 
 //  PB compilo HP aCC 
 #if defined(__hpux) || defined(__SUNPRO_CC) 
@@ -28,6 +30,7 @@
 #define IOS_OPENMODE ios::openmode
 #endif
 
+using namespace std;
 
 extern  void (*MeshIstreamErrorHandler)(ios & );
 extern  int verbosity ;

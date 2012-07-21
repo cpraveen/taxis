@@ -1,7 +1,8 @@
-#include <iostream.h> 
+#include <iostream> 
 #include "meshtype.h"
 #include "SetOfE4.h"
 
+using namespace std;
 
  SetOfEdges4::SetOfEdges4(Int4 mmx,Int4 nnx)
    {nx=nnx;

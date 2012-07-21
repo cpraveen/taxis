@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <iostream.h>
+#include <iostream>
 #include <assert.h>
 
 #define MAXSHORT 0xFFFF
@@ -37,6 +37,8 @@ typedef char *caddr_t;
 #include <X11/cursorfont.h>
 
 #include "rgraph.h"
+
+using namespace std;
 
 template<class T> inline T Min (const T &a,const T &b){return a < b ? a : b;}
 template<class T> inline T Max (const T &a,const T & b){return a > b ? a : b;}
