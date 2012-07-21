@@ -1,6 +1,6 @@
 # This will not compile with gfortran or g95 since they lack time and ctime
 # functions. Compiles with ifort
-FC = ifort
+FC = gfortran
 # Makefile for DELAUNDO.
 all: delaundo
 #

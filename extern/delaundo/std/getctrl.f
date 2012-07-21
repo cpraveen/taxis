@@ -78,8 +78,11 @@ C        1         2         3         4         5         6         7
       FNotReq = .FALSE.
 C
 C     Get the current system time.
-      STime = TIME()
-      SysTime = CTIME(STime)
+C     Comment these two lines since they do not compile with new
+C     gfortran compilers. Anyway, STime and SysTime are not used
+C     anywhere else. So commenting them should be ok.
+c     STime = TIME()
+c     SysTime = CTIME(STime)
 C
 C     Set default parameters.
       CALL DEFCTRL (IVerbose,NpFlNm,KHiNpFlNm,FNpFlFrm,
