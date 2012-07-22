@@ -254,6 +254,6 @@ void FiniteVolume::reconstruct (const unsigned int& f,
       default:
          cout << "reconstruct: unknown reconstruction scheme = " 
               << param.reconstruct_scheme << endl;
-         abort ();
+         exit (0);
    }
 }

@@ -50,7 +50,7 @@ void Parameter::read_grid (Reader &fin)
    else
    {
       cout << "   Unknown file type " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.entry ("file");
@@ -65,7 +65,7 @@ void Parameter::read_grid (Reader &fin)
    else
    {
       cout << "   Unknown cell type " << input << endl;
-      abort();
+      exit (0);
    }
 
    fin.end_section ();
@@ -137,7 +137,7 @@ void Parameter::read_numeric (Reader &fin)
    {
       cout << "read_numeric: unknown reconstruction scheme " << input << endl;
       cout << "              first, second, limited, minmod, bj, minmax\n";
-      abort ();
+      exit (0);
    }
 
    fin.entry ("bc_scheme");
@@ -149,7 +149,7 @@ void Parameter::read_numeric (Reader &fin)
    else
    {
       cout << "read_numeric: unknown bc scheme " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.end_section ();
@@ -165,13 +165,13 @@ void Parameter::read_numeric (Reader &fin)
    if(time_step == 0.0 && cfl == 0.0)
    {
       cout << "Either time_step or cfl must be non-zero\n";
-      abort();
+      exit (0);
    }
    if(time_step > 0.0 && cfl > 0.0)
    {
       cout << "You have specified both time_step and cfl\n";
       cout << "Specify only one of them, other being zero\n";
-      abort();
+      exit (0);
    }
 
    // For steady flow, no need for final time
@@ -237,7 +237,7 @@ void Parameter::read_material (Reader &fin)
    else
    {
       cout << "read_material: unknown viscosity type " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.entry ("prandtl");
@@ -253,7 +253,7 @@ void Parameter::read_material (Reader &fin)
    else
    {
       cout << "read_material: unknown flow model " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.entry ("flux");
@@ -277,7 +277,7 @@ void Parameter::read_material (Reader &fin)
    else
    {
       cout << "read_material:: unknown flux scheme: " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.end_section ();
@@ -462,7 +462,7 @@ void Parameter::read_output (Reader &fin)
    else
    {
       cout << "   Unknown input: " << input << endl;
-      abort ();
+      exit (0);
    }
 
    has_global = false;
@@ -479,7 +479,7 @@ void Parameter::read_output (Reader &fin)
    else
    {
       cout << "   Unknown input: " << input << endl;
-      abort ();
+      exit (0);
    }
 
    fin.end_section ();

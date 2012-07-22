@@ -82,7 +82,7 @@ void Grid::read_gmsh (string grid_file)
       {
          cout << "Unknown element type !!!" << endl;
          cout << "   Element type =" << elem_type << endl;
-         abort ();
+         exit (0);
       }
    }
 

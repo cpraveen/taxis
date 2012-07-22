@@ -741,7 +741,7 @@ void FiniteVolume::compute_bounds (const unsigned int iter)
        prim_min.pressure    < 0.0)
    {
          output (iter, false);
-         abort ();
+         exit (0);
    }
 }
 

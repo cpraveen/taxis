@@ -200,7 +200,7 @@ void Grid::compute_cell_area ()
                cout << "Dual cell area is non-positive\n";
                cout << "   Area     = " << area << "\n";
                cout << "   Triangle = " << i << "\n";
-               abort ();
+               exit (0);
             }
             area *= 0.5;
             dcarea[n0] += area;

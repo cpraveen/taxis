@@ -70,7 +70,7 @@ void FiniteVolume::create_force_face_list ()
    }
 
    if(!ok)
-      abort ();
+      exit (0);
 
    if(force.size() == 0)
       cout << "   No forces found\n";

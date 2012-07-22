@@ -38,7 +38,7 @@ void Writer::attach_variables (const vector<string>& variables)
       else
       {
          cout << "Writer: unknown variable " << variables[i] << endl;
-         abort ();
+         exit (0);
       }
 }
 

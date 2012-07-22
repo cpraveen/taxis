@@ -88,7 +88,7 @@ void Material::num_flux (const PrimVar& left,
 
       default:
          cout << "num_flux: unknown flux " << flux_scheme << endl;
-         abort ();
+         exit (0);
    }
 }
 

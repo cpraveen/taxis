@@ -111,5 +111,5 @@ void show_options ()
    cout << "   -b            Compute min/max range of solution (optional)\n";
    cout << "   -tec          Read restart file and save in tecplot format (optional)\n";
    cout << "   -vtk          Read restart file and save in vtk format (optional)\n";
-   abort ();
+   exit (0);
 }

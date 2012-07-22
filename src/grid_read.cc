@@ -25,7 +25,7 @@ void Grid::read (const Parameter& param)
    else
    {
       cout << "Unknown grid type specified !!!" << endl;
-      abort ();
+      exit (0);
    }
 
    // At this stage, we have only boundary faces. We save this number.
@@ -118,7 +118,7 @@ void Grid::check_face_type (const map<int,BoundaryCondition>& bc)
          cout << "   No boundary condition specified for\n";
          cout << "   face = " << i << " whose type = " << face[i].type << endl;
          cout << "   There may be more faces with similar problem.\n";
-         abort ();
+         exit (0);
       }
    }
 }
