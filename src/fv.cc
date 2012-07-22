@@ -484,7 +484,7 @@ void FiniteVolume::update_solution (const unsigned int r)
    double factor;
    ConVar conserved;
 
-   if(param.time_scheme == "rk1" || param.time_scheme == "rk3")
+   if(param.time_scheme == "ssprk3")
    {
       for(unsigned int i=0; i<grid.n_vertex; ++i)
       {
@@ -492,6 +492,18 @@ void FiniteVolume::update_solution (const unsigned int r)
          conserved   = param.material.prim2con (primitive[i]);
          conserved   = conserved_old[i] * a_rk[r] +
                        (conserved - residual[i] * factor) * b_rk[r];
+         primitive[i]= param.material.con2prim (conserved);
+      }
+   }
+   else if(param.time_scheme == "rk1" ||
+           param.time_scheme == "rk3" ||
+           param.time_scheme == "rk4")
+   {
+      for(unsigned int i=0; i<grid.n_vertex; ++i)
+      {
+         factor      = 1.0/(param.n_rks - r);
+         factor     *= dt[i] / (grid.vertex[i].radius * grid.dcarea[i]);
+         conserved   = conserved_old[i]  - residual[i] * factor;
          primitive[i]= param.material.con2prim (conserved);
       }
    }

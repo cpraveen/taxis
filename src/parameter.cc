@@ -88,10 +88,16 @@ void Parameter::read_numeric (Reader &fin)
 
    fin.entry ("time_scheme");
    fin >> time_scheme;
-   assert (time_scheme == "rk1" || time_scheme == "rk3" || time_scheme == "lusgs");
-   if(time_scheme=="rk1")   n_rks = 1;
-   if(time_scheme=="rk3")   n_rks = 3;
-   if(time_scheme=="lusgs") n_rks = 1; 
+   assert (time_scheme == "rk1"    || 
+           time_scheme == "ssprk3" ||
+           time_scheme == "rk3"    ||
+           time_scheme == "rk4"    ||
+           time_scheme == "lusgs");
+   if(time_scheme=="rk1")    n_rks = 1;
+   if(time_scheme=="ssprk3") n_rks = 3;
+   if(time_scheme=="rk3")    n_rks = 3;
+   if(time_scheme=="rk4")    n_rks = 4;
+   if(time_scheme=="lusgs")  n_rks = 1; 
 
    fin.entry ("time_step");
    fin >> time_step;
