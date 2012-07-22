@@ -71,14 +71,25 @@ void FiniteVolume::create_force_face_list ()
 
    if(!ok)
       abort ();
+
+   if(force.size() == 0)
+      cout << "   No forces found\n";
+   else
+      cout << "   Found " << force.size() << " forces\n";
 }
 
 //------------------------------------------------------------------------------
 // Compute forces
-// TODO: Currently computes only pressure forces
+// TODO: Axisymmetric case
 //------------------------------------------------------------------------------
 void FiniteVolume::compute_forces (unsigned int iter)
 {
+   // Do we have any forces to compute
+   if(force.size() == 0) return;
+
+   // Recompute gradient needed for viscous force
+   if(param.material.model == Material::ns) compute_gradients ();
+
    force_file << setw(6) << iter << " " << scientific << setw(15);
    force_file << elapsed_time << setw(15);
 
@@ -97,7 +108,7 @@ void FiniteVolume::compute_forces (unsigned int iter)
          double pressure = 0.5 * (primitive[v0].pressure + primitive[v1].pressure);
          force[i].value += normal * pressure;
 
-         // viscous force
+         // viscous force, using vertex gradients
          double T = (primitive[v0].temperature +
                      primitive[v1].temperature)/2.0;
          double mu = param.material.viscosity(T);

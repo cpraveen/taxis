@@ -46,6 +46,7 @@ class FiniteVolume
       std::vector<Flux>    residual;
       std::vector<Vector>  dT, dU, dV, dW, dP;
       std::vector<Vector>  dT_cell, dU_cell, dV_cell, dW_cell, dP_cell;
+      std::vector<PrimVar> phi;
       Flux                 residual_norm;
       double               residual_norm_total;
       double               residual_norm_total0;

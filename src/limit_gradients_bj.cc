@@ -10,7 +10,6 @@ void FiniteVolume::limit_gradients_bj ()
 {
    vector<PrimVar> pmin (grid.n_vertex);
    vector<PrimVar> pmax (grid.n_vertex);
-   vector<PrimVar> phi  (grid.n_vertex);
 
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
@@ -54,14 +53,4 @@ void FiniteVolume::limit_gradients_bj ()
       minmax (T1, u1, v1, w1, p1, pmin[n1], pmax[n1], primitive[n1], phi[n1]);
    }
 
-   // Modify gradient with limiter
-   for(unsigned int i=0; i<grid.n_vertex; ++i)
-   {
-      dT[i] *= phi[i].temperature;
-      dU[i] *= phi[i].velocity.x;
-      dV[i] *= phi[i].velocity.y;
-      dW[i] *= phi[i].velocity.z;
-      dP[i] *= phi[i].pressure;
-   }
-      
 }

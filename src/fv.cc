@@ -27,6 +27,7 @@ void FiniteVolume::initialize ()
    conserved_old.resize (grid.n_vertex);
    residual.resize (grid.n_vertex);
    dt.resize (grid.n_vertex);
+   phi.resize (grid.n_vertex);
 
    // we need gradient for second order scheme
    dT.resize (grid.n_vertex);
