@@ -1,4 +1,7 @@
-n = 131;
+Mesh.Algorithm = 5;
+Mesh.Smoothing = 10;
+
+n = 128;
 h = 1.0/(n-1);
 
 Point(1) = {0, 0, 0, h};
