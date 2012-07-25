@@ -40,7 +40,7 @@ MAXSUBDIV=1.8
 # ----------
 # Read variables from file
 # ----------
-. adap.in
+. ./adap.in
 
 # Set iteration counter
 j=0
