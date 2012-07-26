@@ -23,7 +23,6 @@ void Material::kepes_flux (const PrimVar& left,
    double betal = 0.5 / (gas_const * left.temperature);
    double betar = 0.5 / (gas_const * right.temperature);
    double beta = logavg(betal, betar);
-   double a   = sqrt(0.5 * gamma / beta);
 
    double p     = 0.5 * (rhol + rhor) / (betal + betar);
 

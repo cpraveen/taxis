@@ -45,3 +45,14 @@ cd $TAXIS_HOME/extern/bamg-v0.68
 make
 
 This should create executables "bamg" and "drawbdmesh" which are useful.
+
+-------------------------------------------------------------------------------
+FAQ
+-------------------------------------------------------------------------------
+Q: How to see the dual cells ?
+A: Run taxis with -d flag which then creates the files tri.dat and dual.dat containing the primal grid of triangles and the dual grid (median or voronoi). The grid can be seen in gnuplot. Start gnuplot and type
+
+gnuplot> plot 'tri.dat' w l
+gnuplot> plot 'dual.dat' w l
+
+If you dont want to run the computation but only want to see the grids, give the -p flag also.
