@@ -6,13 +6,14 @@ e.g.,
 
 export TAXIS_HOME = /home/praveen/taxis
 
-Set the compiler in src/makefile.in and type "make" inside src directory to compile the code.
+Set the compiler in $TAXIS_HOME/src/makefile.in and type "make" inside src directory to compile the code.
 
 You should also add following lines to your .bashrc file
 
 PATH=$PATH:$TAXIS_HOME/src
 PATH=$PATH:$TAXIS_HOME/utils
 PATH=$PATH:$TAXIS_HOME/extern/bamg-v0.68
+PATH=$PATH:$TAXIS_HOME/extern/delaundo/std
 export PATH
 
 -------------------------------------------------------------------------------
@@ -47,6 +48,16 @@ make
 This should create executables "bamg" and "drawbdmesh" which are useful.
 
 -------------------------------------------------------------------------------
+delaundo
+-------------------------------------------------------------------------------
+Delaundo is a 2-d triangular grid generation code written by J.-D. Muller. To compile delaundo
+
+cd $TAXIS_HOME/extern/delaundo/std
+make
+
+This creates the executable "delaundo" in the std directory which is already added to your PATH variable.
+
+-------------------------------------------------------------------------------
 FAQ
 -------------------------------------------------------------------------------
 Q: How to see the dual cells ?
@@ -56,3 +67,10 @@ gnuplot> plot 'tri.dat' w l
 gnuplot> plot 'dual.dat' w l
 
 If you dont want to run the computation but only want to see the grids, give the -p flag also.
+
+Q: How to plot residual convergence history ?
+A: Type the following in the terminal
+
+bash $ res_plot.sh
+
+This will create the file residue.ps which can be opened in gv or any other postscript viewer. You can run this command even while taxis is running so that convergence can be monitored.
