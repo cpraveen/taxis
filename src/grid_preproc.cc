@@ -255,7 +255,7 @@ void Grid::compute_face_normal_and_area ()
       face[i].normal.y =  dr.x;
       face[i].normal.z =  0.0;
 
-      face[i].area = face[i].normal.norm();
+      face[i].measure = face[i].normal.norm();
   }
 
    // boundary faces
@@ -269,7 +269,7 @@ void Grid::compute_face_normal_and_area ()
       bface[i].normal.y = -dr.x;
       bface[i].normal.z =  0.0;
 
-      bface[i].area = bface[i].normal.norm();
+      bface[i].measure = bface[i].normal.norm();
       
       // Check orintation of boundary face
       unsigned int cl = bface[i].lcell;
@@ -523,7 +523,7 @@ void Grid::remove_empty_faces()
    vector<Face> tmp;
    for(unsigned int i=0; i<n_face; ++i)
    {
-      if(face[i].area > 0.0) tmp.push_back (face[i]);
+      if(face[i].measure > 0.0) tmp.push_back (face[i]);
    }
    cout << "   faces with zero area = " << face.size() - tmp.size() << "\n";
 

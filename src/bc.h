@@ -235,7 +235,7 @@ inline
 void BoundaryCondition::apply_slip(const Face           &face,
                                    std::vector<PrimVar> &state)
 {
-   Vector unit_normal = face.normal / face.area;
+   Vector unit_normal = face.normal / face.measure;
    state[0].velocity -= unit_normal * (state[0].velocity * unit_normal);
 
    state[1] = state[0];
@@ -245,7 +245,7 @@ inline
 void BoundaryCondition::apply_slip(const Face &face,
                                    PrimVar    &state)
 {
-   Vector unit_normal = face.normal / face.area;
+   Vector unit_normal = face.normal / face.measure;
    state.velocity -= unit_normal * (state.velocity * unit_normal);
 }
 
@@ -309,7 +309,7 @@ void BoundaryCondition::apply_maxwell(const Face           &face,
 
    // normal velocity should be zero
    // state[1] must already have zero normal velocity
-   Vector unit_normal = face.normal / face.area;
+   Vector unit_normal = face.normal / face.measure;
    state[0].velocity -= unit_normal * (state[0].velocity * unit_normal);
 
    double density = material->Density(state[0]);

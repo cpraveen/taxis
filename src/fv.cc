@@ -348,6 +348,29 @@ void FiniteVolume::compute_viscous_residual ()
                                    dT_cell[cl],
                                    normal, flux1);
 
+      // Nitsche penalty term
+      // state[0] and state[1] contain bc values
+      if(param.bc_scheme == Parameter::weak)
+      {
+         double dse = grid.bface[i].measure;
+         double he  = 2.0 * grid.cell[cl].area / dse;
+         double mu0 = param.material.viscosity(primitive[v0].temperature);
+         double mu1 = param.material.viscosity(primitive[v1].temperature);
+         double k0  = mu0 * param.material.Cp / param.material.prandtl;
+         double k1  = mu1 * param.material.Cp / param.material.prandtl;
+         double f0  = param.Cpen * dse * mu0 / he;
+         double f1  = param.Cpen * dse * mu1 / he;
+         double g0  = param.Cpen * dse * k0  / he;
+         double g1  = param.Cpen * dse * k1  / he;
+
+         flux0.momentum_flux += (primitive[v0].velocity - state[0].velocity) * f0;
+         flux1.momentum_flux += (primitive[v1].velocity - state[1].velocity) * f1;
+
+         flux0.energy_flux += (primitive[v0].temperature - state[0].temperature) * g0;
+         flux1.energy_flux += (primitive[v1].temperature - state[1].temperature) * g1;
+      }
+
+      // Factor of 0.5 is present because only half the face belongs to each vertex
       residual[v0] += flux0 * (0.5 * grid.vertex[v0].radius);
       residual[v1] += flux1 * (0.5 * grid.vertex[v1].radius);
    }
@@ -414,7 +437,7 @@ void FiniteVolume::compute_dt ()
    // Interior faces
    for(unsigned int i=0; i<grid.n_face; ++i)
    {
-      double area = grid.face[i].area;
+      double area = grid.face[i].measure;
 
       unsigned int cl = grid.face[i].vertex[0];
       double vel_normal_left = primitive[cl].velocity * grid.face[i].normal;
@@ -430,7 +453,7 @@ void FiniteVolume::compute_dt ()
    // Boundary faces
    for(unsigned int i=0; i<grid.bface.size(); ++i)
    {
-      double area = grid.bface[i].area;
+      double area = grid.bface[i].measure;
 
       unsigned int cl = grid.bface[i].vertex[0];
       double vel_normal_left = primitive[cl].velocity * grid.bface[i].normal;

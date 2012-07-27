@@ -38,7 +38,7 @@ void FiniteVolume::lusgs ()
          if(param.material.model == Material::ns)
          {
             double mu = param.material.viscosity (primitive[i].temperature);
-            double area = grid.face[f].area;
+            double area = grid.face[f].measure;
             double rho = param.material.Density(primitive[i]); // TODO: take average across face
 
             dt[i] += gamma * mu * area * area / 
@@ -60,7 +60,7 @@ void FiniteVolume::lusgs ()
             PrimVar prim_avg = (primitive[i] + primitive[neighbour_cell])*0.5;
 	         double vel_normal  = prim_avg.velocity * face_normal;
 	         double c  = param.material.sound_speed (prim_avg);
-            double area = grid.face[f].area;
+            double area = grid.face[f].measure;
 	         double lambda  = omega * (fabs(vel_normal) + c * area); 
 
             // viscous eigenvalue
@@ -110,7 +110,7 @@ void FiniteVolume::lusgs ()
                                       face_normal,
                                       flux_old);
             
-            double area = grid.face[f].area;
+            double area = grid.face[f].measure;
             
             PrimVar prim_avg = (primitive[i] + primitive[neighbour_cell])*0.5;
             double vel_normal  = prim_avg.velocity * face_normal;

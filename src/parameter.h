@@ -36,6 +36,7 @@ class Parameter
       {
          strong, weak
       };
+      double Cpen;
 
       ReconstructScheme reconstruct_scheme;
       BCScheme          bc_scheme;

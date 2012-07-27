@@ -14,7 +14,7 @@ class Face
       Vector       normal;
       Vector       centroid;
       int          type;
-      double       area;
+      double       measure;
       double       radius;
 
       bool operator== (const Face& face) const;
@@ -33,7 +33,7 @@ Face::Face (const Face& face)
    normal    = face.normal;
    centroid  = face.centroid;
    type      = face.type;
-   area      = face.area;
+   measure   = face.measure;
    radius    = face.radius;
 }
 
