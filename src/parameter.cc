@@ -152,12 +152,9 @@ void Parameter::read_numeric (Reader &fin)
       exit (0);
    }
 
-   if(bc_scheme == Parameter::weak)
-   {
-      fin.entry ("nitsche_pen");
-      fin >> Cpen;
-      assert (Cpen >= 0.0);
-   }
+   fin.entry ("nitsche_pen");
+   fin >> Cpen;
+   assert (Cpen >= 0.0);
 
    fin.end_section ();
 
