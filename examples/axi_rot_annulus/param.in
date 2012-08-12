@@ -8,31 +8,36 @@ grid
 numeric
 {
    time_mode    steady
-   time_scheme  lusgs
+   time_scheme  ssprk3
    time_step    0.0
-   cfl          1e6
+   cfl          0.01
    max_iter     500000
    final_time   1.0e20
    min_residue  1.0e-6
-   reconstruct  second
-   bc_scheme    strong
+   reconstruct  limited
+   bc_scheme    weak
+   nitsche_pen  10.0
 }
 
+// Argon gas
 material
 {
-   gamma       1.4
-   gas_const   287.0
-   viscosity   constant  0.01
-   prandtl     0.72
+   gamma       1.67
+   gas_const   208.0
+   viscosity   constant  2.273e-5
+   prandtl     0.668
    model       ns
-   flux        roe
+   flux        kfvs
 }
 
 constants
 {
    T    300.0
-   p    86100.0
-   omg  100.0
+   po   15.237
+   pi   1.42430066092549
+   omg  3140.0
+   A    7.90032051282051e-01
+   ri   0.1
 }
 
 initial_condition
@@ -41,7 +46,7 @@ initial_condition
    xvelocity     0.0
    yvelocity     0.0
    zvelocity     omg*x
-   pressure      p
+   pressure      pi * exp(A*(x^2/ri^2 - 1))
 }
 
 boundary
@@ -72,6 +77,6 @@ output
       mach  
       density
    }
-   restart    false
+   restart    true
    global_KE  false
 }

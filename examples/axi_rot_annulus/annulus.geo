@@ -1,9 +1,9 @@
-r1 = 1.0; // radius of inner cylinder
-r2 = 2.0; // radius of outer cylinder
-h  = 2.0; // height of cylinder
+r1 = 0.1; // radius of inner cylinder
+r2 = 0.2; // radius of outer cylinder
+h  = 0.1; // height of cylinder
 
-n1     = 25; // points along radial
-n2     = 25; // points along axial
+n1     = 100; // points along radial
+n2     = 100; // points along axial
 
 p      = 0.1;// progression
 
