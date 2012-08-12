@@ -8,6 +8,8 @@
 #include <sstream>
 #include "writer.h"
 
+extern Dimension dim;
+
 using namespace std;
 
 //------------------------------------------------------------------------------
@@ -135,11 +137,19 @@ void Writer::output_vtk (string filename)
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          vtk << (*vertex_primitive)[i].temperature << endl;
 
+      if(dim == axi)
+      {
+         vtk << "SCALARS Vtheta float 1" << endl;
+         vtk << "LOOKUP_TABLE default" << endl;
+         for(unsigned int i=0; i<grid->n_vertex; ++i)
+            vtk << (*vertex_primitive)[i].velocity.z << endl;
+      }
+
       vtk << "VECTORS velocity float" << endl;
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          vtk << (*vertex_primitive)[i].velocity.x << "  "
              << (*vertex_primitive)[i].velocity.y << "  "
-             << (*vertex_primitive)[i].velocity.z
+             << 0.0
              << endl;
    }
 
@@ -231,6 +241,8 @@ void Writer::output_tec (double time, string filename)
       tec << " \"Density\"";
    if(write_vorticity)
       tec << " \"Vorticity\"";
+   if(dim == axi)
+      tec << " \"Vtheta\"";
    tec << endl;
    
    tec << "ZONE STRANDID=1, SOLUTIONTIME=" << time 
@@ -286,6 +298,13 @@ void Writer::output_tec (double time, string filename)
          double vorticity = (*dV)[i].x - (*dU)[i].y;
          tec << vorticity << endl;
       }
+   }
+
+   // Theta component of velocity
+   if(dim == axi)
+   {
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_primitive)[i].velocity.z << endl;
    }
    
    tec.close ();
