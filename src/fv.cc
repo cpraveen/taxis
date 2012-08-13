@@ -466,6 +466,30 @@ void FiniteVolume::compute_dt ()
       dt[cr] += 0.5 * (fabs(vel_normal_right) + c_right * area);
    }
 
+   // Add viscous time step restriction
+   // We dont need this for lusgs
+   if(param.time_scheme != "lusgs" &&
+      param.material.model == Material::ns)
+   {
+      // Interior faces
+      for(unsigned int i=0; i<grid.n_face; ++i)
+      {
+         double area = grid.face[i].measure;
+
+         unsigned int cl = grid.face[i].vertex[0];
+         unsigned int cr = grid.face[i].vertex[1];
+         Vector ds = grid.vertex[cr].coord - grid.vertex[cl].coord;
+         double dlength = ds.norm();
+         double mu_l = param.material.viscosity (primitive[cl].temperature);
+         double mu_r = param.material.viscosity (primitive[cr].temperature);
+         double rho_l = param.material.Density(primitive[cl]);
+         double rho_r = param.material.Density(primitive[cr]);
+
+         dt[cl] += mu_l * area / dlength / rho_l;
+         dt[cr] += mu_r * area / dlength / rho_r;
+      }
+   }
+
    // Compute global time step
    dt_global = 1.0e20;
 
