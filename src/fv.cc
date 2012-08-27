@@ -17,6 +17,8 @@ extern bool convert_to_tec;
 
 using namespace std;
 
+bool check_for_stop_file ();
+
 //------------------------------------------------------------------------------
 // Set initial condition
 //------------------------------------------------------------------------------
@@ -836,9 +838,11 @@ void FiniteVolume::solve ()
       output (0);
    }
 
+   bool found_stop_file = check_for_stop_file ();
+   
    while (residual_norm_total > param.min_residue &&
           iter < param.max_iter+last_iter && 
-          elapsed_time < param.final_time)
+          elapsed_time < param.final_time && !found_stop_file)
    {
       store_conserved_old ();
       compute_dt ();
@@ -861,6 +865,7 @@ void FiniteVolume::solve ()
       {
          output (iter);
          last_output_iter = iter;
+         found_stop_file = check_for_stop_file ();
       }
    }
 

@@ -83,6 +83,9 @@ void Grid::info ()
    }
 
    cout << "Grid information:\n";
+   cout << "   Number of vertices       = " << n_vertex << endl;
+   cout << "   Number of triangles      = " << n_cell << endl;
+   cout << "   Number of boundary edges = " << n_boundary_face << endl;
    cout << setw(30) << "min" << setw(15) << "max" << endl;
    cout << "  cell area    =  " << setw(15) << min_cell_area 
                                 << setw(15) << max_cell_area << endl;
