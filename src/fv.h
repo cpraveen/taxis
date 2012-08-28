@@ -7,6 +7,8 @@
 #include "material.h"
 #include "grid.h"
 
+extern bool preprocess;
+
 // Main class for finite volume scheme
 class FiniteVolume
 {
@@ -16,13 +18,19 @@ class FiniteVolume
          param.file = file;
          param.read ();
 
-         res_file.open ("residue.dat");
+         // If we are in preprocess mode, then dont open
+         // these files. This avoids overwriting existing 
+         // files, e.g., when converting to tec or vtk format.
+         if(!preprocess)
+         {
+            res_file.open ("residue.dat");
 
-         if(param.force_data.size() > 0)
-            force_file.open ("force.dat");
+            if(param.force_data.size() > 0)
+               force_file.open ("force.dat");
 
-         if(param.has_global == true)
-            global_file.open ("global.dat");
+            if(param.has_global == true)
+               global_file.open ("global.dat");
+         }
       };
       ~FiniteVolume () 
       {
