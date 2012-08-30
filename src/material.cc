@@ -259,7 +259,7 @@ void Material::axisymmetric_source(const double&  radius,
    double stx = mu * (dW.x - state.velocity.z / radius);
 
    // radial equation
-   source.momentum_flux.x = - state.pressure - density * pow(state.velocity.z,2.0) - stt;
+   source.momentum_flux.x = - state.pressure - density * pow(state.velocity.z,2.0) + stt;
 
    // axial equation
    source.momentum_flux.y = 0.0;
