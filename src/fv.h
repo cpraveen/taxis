@@ -86,7 +86,6 @@ class FiniteVolume
       void limit_gradients_mm ();
       void store_conserved_old ();
       void compute_inviscid_residual ();
-      void compute_inviscid_kep_residual ();
       void compute_viscous_residual ();
       void compute_axisymmetric_residual ();
       void compute_residual ();

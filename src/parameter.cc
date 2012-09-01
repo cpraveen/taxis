@@ -210,19 +210,25 @@ void Parameter::read_material (Reader &fin)
    fin >> material.gas_const;
    assert (material.gas_const > 0.0);
 
-   fin.entry ("viscosity");
+   fin.begin_section ("viscosity");
+   fin.entry ("model");
    fin >> input;
    if(input == "constant")
    {
       material.mu_model = Material::mu_constant;
+
+      fin.entry ("mu_ref");
       fin >> material.mu_ref;
       assert (material.mu_ref >= 0.0);
    }
    else if(input == "sutherland")
    {
       material.mu_model = Material::mu_sutherland;
+      fin.entry ("mu_ref");
       fin >> material.mu_ref;
+      fin.entry ("T_ref");
       fin >> material.T_ref;
+      fin.entry ("T_0");
       fin >> material.T_0;
       assert (material.mu_ref > 0.0);
       assert (material.T_ref > 0.0);
@@ -231,8 +237,11 @@ void Parameter::read_material (Reader &fin)
    else if(input == "power")
    {
       material.mu_model = Material::mu_power;
+      fin.entry ("mu_ref");
       fin >> material.mu_ref;
+      fin.entry ("T_ref");
       fin >> material.T_ref;
+      fin.entry ("omega");
       fin >> material.omega;
       assert (material.mu_ref > 0.0);
       assert (material.T_ref > 0.0);
@@ -243,6 +252,7 @@ void Parameter::read_material (Reader &fin)
       cout << "read_material: unknown viscosity type " << input << endl;
       exit (0);
    }
+   fin.end_section ();
 
    fin.entry ("prandtl");
    fin >> material.prandtl;

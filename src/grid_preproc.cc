@@ -557,11 +557,14 @@ void Grid::find_nbr_vertex()
 //------------------------------------------------------------------------------
 void Grid::renumber()
 {  
+   cout << "Renumbering vertices using Cuthill-McKee algorithm ...\n";
+
    unsigned int i, j, current_cell, old_cell, k;
    int neighbour =-1;
-   // new_num vector says directly the value of renumbering tag for a old cell number
-   // old_num vector says what is the value of old cell number for a given renumbering tag
-   // renumbering cell vector is a dummy vector to reshuffle all old cell according to new numbering 
+   // new_num vector says directly the value of renumbering tag for a old cell 
+   // number old_num vector says what is the value of old cell number for a 
+   // given renumbering tag renumbering cell vector is a dummy vector to 
+   // reshuffle all old cell according to new numbering 
    new_num.resize(n_vertex,0);
    old_num.resize(n_vertex,0);
    

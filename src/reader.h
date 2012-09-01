@@ -189,7 +189,8 @@ void Reader::entry (std::string str1)
 
    if(str1 != str2)
    {
-      std::cout << "   Expecting " << str1 << " but found " << str2 << std::endl;
+      std::cout << "   Expecting = " << str1 << ", but found = " 
+                << str2 << std::endl;
       abort ();
    }
 }
