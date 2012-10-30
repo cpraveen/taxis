@@ -19,4 +19,5 @@ set key font "Times-Roman, 20"
 p 'residue.dat' u 1:4 t 'Density'    w l ls 1, \
   'residue.dat' u 1:5 t 'x momentum' w l ls 2, \
   'residue.dat' u 1:6 t 'y momentum' w l ls 3, \
-  'residue.dat' u 1:8 t 'Energy'     w l ls 4
+  'residue.dat' u 1:7 t 'z momentum' w l ls 4, \
+  'residue.dat' u 1:8 t 'Energy'     w l ls 5
