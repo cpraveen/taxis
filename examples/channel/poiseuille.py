@@ -31,7 +31,7 @@ reader.Update()
 line = vtk.vtkLineSource()
 line.SetPoint1(2.5, 0.0,0.0)
 line.SetPoint2(2.5, 1.0,0.0)
-line.SetResolution(25)
+line.SetResolution(24)
 
 # Move the line into place and create the probe filter.  For
 # vtkProbeFilter, the probe line is the input, and the underlying data
@@ -67,4 +67,5 @@ for i in range(velocity.GetNumberOfTuples()):
 
 from math import sqrt
 uerror = sqrt(uerror/np)
+print "Number of points = ", np
 print "u error = ", uerror

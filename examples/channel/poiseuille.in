@@ -13,16 +13,21 @@ numeric
    cfl          1e6
    max_iter     5000
    final_time   1e20
-   min_residue  1.0e-10
+   min_residue  1.0e-12
    reconstruct  second
    bc_scheme    weak
+   nitsche_pen  10.0
 }
 
 material
 {
    gamma       1.4
    gas_const   1.0
-   viscosity   constant  1.0e-2
+   viscosity
+   {
+      model    constant
+      mu_ref   1.0e-2
+   }
    prandtl     0.72
    model       ns
    flux        roe
@@ -71,6 +76,7 @@ boundary
       xvelocity   0.0
       yvelocity   0.0
       zvelocity   0.0
+      temperature T
    }
 }
 
@@ -81,7 +87,7 @@ integrals
 output
 {
    format      vtk
-   frequency   5000
+   frequency   500
    variables
    {
       mach 
