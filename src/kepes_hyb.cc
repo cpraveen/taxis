@@ -6,6 +6,7 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 // KEPS flux with entropy dissipation
+// Blend of Roe and Rusanov eigenvalues
 //------------------------------------------------------------------------------
 void Material::kepes_hyb_flux (const PrimVar& left,
                                const PrimVar& right,

@@ -459,12 +459,19 @@ void Parameter::read_output (Reader &fin)
    assert (write_frequency > 0);
 
    fin.begin_section ("variables");
-
    while (!fin.eos())
    {
       fin >> input;
       assert (input=="mach" || input=="density" || input=="vorticity");
       write_variables.push_back (input);
+   }
+
+   fin.begin_section ("surfaces");
+   while (!fin.eos())
+   {
+      int id;
+      fin >> id;
+      write_surfaces.push_back (id);
    }
 
    fin.entry ("restart");

@@ -5,7 +5,7 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-// KEPS flux with entropy dissipation
+// Central KEP and entropy conservative flux
 //------------------------------------------------------------------------------
 void Material::kepes_flux (const PrimVar& left,
                            const PrimVar& right,

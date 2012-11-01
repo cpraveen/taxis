@@ -18,11 +18,15 @@ class Writer
          write_density (false),
          write_vorticity (false)
          {};
-      Writer (const Grid&     grid,
-              const Material& material) 
+      Writer (const Grid&      grid,
+              const Material&  material,
+              std::string      format,
+              std::vector<int> surfaces) 
          : 
          grid (&grid),
          material (&material),
+         format (format),
+         surfaces (surfaces),
          has_primitive (false),
          has_gradient (false),
          write_mach (false),
@@ -34,15 +38,18 @@ class Writer
                             std::vector<Vector>& dV,
                             std::vector<Vector>& dW);
       void attach_variables (const std::vector<std::string>& variables);
-      void output (std::string format, int counter, double elapsed_time);
+      void output (int counter, double elapsed_time);
       void output_vtk (std::string filename);
       void output_tec (double time, std::string filename);
+      void output_surfaces (std::string surffilename);
       void output_restart (int iter);
 
    private:
 
-      const Grid*     grid;
-      const Material* material;
+      const Grid*      grid;
+      const Material*  material;
+      std::string      format;
+      std::vector<int> surfaces;
 
       std::vector<PrimVar>* vertex_primitive;
       std::vector<Vector>* dU;

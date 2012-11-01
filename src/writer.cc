@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
+#include <map>
 #include "writer.h"
 
 extern Dimension dim;
@@ -47,9 +48,9 @@ void Writer::attach_variables (const vector<string>& variables)
 //------------------------------------------------------------------------------
 // Add gradient values; currently only velocity gradients added
 //------------------------------------------------------------------------------
-void Writer::attach_gradient (std::vector<Vector>& dU_,
-                              std::vector<Vector>& dV_,
-                              std::vector<Vector>& dW_)
+void Writer::attach_gradient (vector<Vector>& dU_,
+                              vector<Vector>& dV_,
+                              vector<Vector>& dW_)
 {
    assert (!has_gradient);
    dU = &dU_;
@@ -61,9 +62,9 @@ void Writer::attach_gradient (std::vector<Vector>& dU_,
 //------------------------------------------------------------------------------
 // Call output function for saving solution to file
 //------------------------------------------------------------------------------
-void Writer::output (string format, int counter, double elapsed_time)
+void Writer::output (int counter, double elapsed_time)
 {
-   string filename = "sol";
+   string filename;
    if     (counter <= 9)    filename = "sol000";
    else if(counter <= 99)   filename = "sol00";
    else if(counter <= 999)  filename = "sol0";
@@ -88,6 +89,20 @@ void Writer::output (string format, int counter, double elapsed_time)
       output_tec (elapsed_time, filename);
    }
    cout << "Saving solution into file " << filename << endl;
+
+   // save solution at specified surfaces
+   string surffilename;
+   if     (counter <= 9)    surffilename = "000";
+   else if(counter <= 99)   surffilename = "00";
+   else if(counter <= 999)  surffilename = "0";
+   else if(counter <= 9999) surffilename = "";
+   else
+   {
+      cout << "Writer::output: counter is too large !!!\n";
+      exit(0);
+   }
+   surffilename += ss.str();
+   output_surfaces (surffilename);
 }
 
 //------------------------------------------------------------------------------
@@ -308,6 +323,77 @@ void Writer::output_tec (double time, string filename)
    }
    
    tec.close ();
+}
+
+//------------------------------------------------------------------------------
+// Write solution at surfaces
+// For each type, two files are created, one with data at vertices (pressure)
+// and another at face centers (skin friction)
+//------------------------------------------------------------------------------
+void Writer::output_surfaces (string surffilename)
+{
+   if(surfaces.size() == 0) return;
+
+   const int nsurf = surfaces.size();
+   vector<ofstream*> fv (nsurf);
+   vector<ofstream*> ff (nsurf);
+   map<int,int> type_to_idx;
+   for(int i=0; i<nsurf; ++i)
+   {
+      stringstream ss;
+      ss << surfaces[i];
+      string vfilename = "v" + surffilename + "_" + ss.str() + ".dat";
+      string ffilename = "f" + surffilename + "_" + ss.str() + ".dat";
+      fv[i] = new ofstream(vfilename.c_str());
+      ff[i] = new ofstream(ffilename.c_str());
+      assert (fv[i]->is_open());
+      assert (ff[i]->is_open());
+      type_to_idx.insert(pair<int,int>(surfaces[i], i));
+   }
+   for(unsigned int i=0; i<grid->bface.size(); ++i)
+   {
+      const int type = grid->bface[i].type;
+      const unsigned int v0 = grid->bface[i].vertex[0];
+      const unsigned int v1 = grid->bface[i].vertex[1];
+      map<int,int>::iterator it;
+      it = type_to_idx.find(type);
+      if(it != type_to_idx.end())
+      {
+         // viscous force, using vertex gradients
+         const double T = ((*vertex_primitive)[v0].temperature +
+                           (*vertex_primitive)[v1].temperature)/2.0;
+         const double mu = material->viscosity(T);
+         const Vector gradU = ((*dU)[v0] + (*dU)[v1])/2.0;
+         const Vector gradV = ((*dV)[v0] + (*dV)[v1])/2.0;
+         const double div = gradU.x + gradV.y;
+         const double sxx = 2.0 * mu * (gradU.x - (1.0/3.0) * div);
+         const double syy = 2.0 * mu * (gradV.y - (1.0/3.0) * div);
+         const double sxy = mu * (gradU.y + gradV.x);
+         const Vector normal = grid->bface[i].normal / grid->bface[i].measure;
+         const double fx = (sxx * normal.x + sxy * normal.y);
+         const double fy = (sxy * normal.x + syy * normal.y);
+         const double cf = fx*normal.y - fy*normal.x;
+         const Vector center = (grid->vertex[v0].coord + grid->vertex[v1].coord)/2.0;
+
+         const int j = it->second;
+         *fv[j] << grid->vertex[v0].coord.x << "  "
+                << grid->vertex[v0].coord.y << "  "
+                << (*vertex_primitive)[v0].pressure << "  "
+                << (*vertex_primitive)[v0].temperature << "  "
+                << (*vertex_primitive)[i].velocity.x  << "  "
+                << (*vertex_primitive)[i].velocity.y  << "  "
+                << (*vertex_primitive)[i].velocity.z  << "  "
+                << endl;
+         *ff[j] << center.x << "  " << center.y << "  "
+                << cf << "  "
+                << endl;
+      }
+   }
+   for(int i=0; i<nsurf; ++i)
+   {
+      fv[i]->close();
+      ff[i]->close();
+   }
 }
 
 //------------------------------------------------------------------------------

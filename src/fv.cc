@@ -715,13 +715,13 @@ void FiniteVolume::output (const unsigned int iter, bool write_variables)
 {
    static int counter = 0;
 
-   Writer writer (grid, param.material);
+   Writer writer (grid, param.material, param.write_format, param.write_surfaces);
    writer.attach_data (primitive);
    writer.attach_gradient (dU, dV, dW);
    if(param.write_variables.size() > 0 && write_variables == true)
       writer.attach_variables (param.write_variables);
 
-   writer.output (param.write_format, counter, elapsed_time);
+   writer.output (counter, elapsed_time);
    if(param.time_mode == "unsteady") ++counter;
 }
 
