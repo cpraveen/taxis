@@ -16,16 +16,21 @@ numeric
    min_residue  1.0e-6
    reconstruct  second
    bc_scheme    weak
+   nitsche_pen  0.0
 }
 
 material
 {
    gamma       1.4
    gas_const   287.0
-   viscosity   constant  3.5e-5
+   viscosity
+   {
+      model    constant  
+      mu_ref   3.5e-5
+   }
    prandtl     0.72
    model       ns
-   flux        kepes_hyb
+   flux        roe
 }
 
 constants
@@ -89,6 +94,9 @@ output
    {
       mach  
       density
+   }
+   surfaces
+   {
    }
    restart    true
    global_KE  false
