@@ -1,3 +1,7 @@
+// mach = 0.5
+// Re   = 5000
+// aoa  = 0 deg
+
 grid
 {
    type   gmsh 
@@ -26,20 +30,19 @@ material
    viscosity
    {
       model    constant 
-      mu_ref   2e-3
+      mu_ref   2e-4
    }
    prandtl     0.72
    model       ns
    flux        roe
 }
 
-// mach = 0.85
 constants
 {
-   T    0.988630746416214
-   p    0.988630746416214
-   uinf 1.0
-   vinf 0.0
+   T     2.85714285714286
+   p     2.85714285714286
+   uinf  1.0
+   vinf  0.0
 }
 
 initial_condition
