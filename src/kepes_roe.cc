@@ -20,12 +20,16 @@ void Material::kepes_roe_flux (const PrimVar& left,
    double rhol = Density(left);
    double rhor = Density(right);
    double rho = logavg( rhol, rhor );
-   Vector vel = (left.velocity + right.velocity) / 2.0;
    double vel2= 0.5 * (left.velocity.square() + right.velocity.square());
    double betal = 0.5 / (gas_const * left.temperature);
    double betar = 0.5 / (gas_const * right.temperature);
    double beta = logavg(betal, betar);
    double a   = sqrt(0.5 * gamma / beta);
+
+   //Vector vel = (left.velocity + right.velocity) / 2.0;
+   double sbetal = sqrt(betal);
+   double sbetar = sqrt(betar);
+   Vector vel = (left.velocity * sbetal + right.velocity * sbetar) / (sbetal + sbetar);
 
    double p     = 0.5 * (rhol + rhor) / (betal + betar);
 
