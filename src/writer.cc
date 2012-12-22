@@ -220,6 +220,7 @@ void Writer::output_tec (double time, string filename)
    static bool write_grid = true;
    if(write_grid)
    {
+      cout << "Saving grid into grid.plt" << endl;
       ofstream tec;
       tec.open ("grid.plt");
    

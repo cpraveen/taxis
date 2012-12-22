@@ -549,10 +549,10 @@ void FiniteVolume::update_solution (const unsigned int r)
            param.time_scheme == "rk3" ||
            param.time_scheme == "rk4")
    {
+      double f = 1.0/(param.n_rks - r);
       for(unsigned int i=0; i<grid.n_vertex; ++i)
       {
-         factor      = 1.0/(param.n_rks - r);
-         factor     *= dt[i] / (grid.vertex[i].radius * grid.dcarea[i]);
+         factor      = f * dt[i] / (grid.vertex[i].radius * grid.dcarea[i]);
          conserved   = conserved_old[i]  - residual[i] * factor;
          primitive[i]= param.material.con2prim (conserved);
       }
