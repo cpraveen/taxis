@@ -256,4 +256,7 @@ void FiniteVolume::reconstruct (const unsigned int& f,
               << param.reconstruct_scheme << endl;
          exit (0);
    }
+
+   // Modify velocity by Thornber scheme for low mach case
+   //prec_thornber(state);
 }

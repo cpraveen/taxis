@@ -78,6 +78,7 @@ class FiniteVolume
       PrimVar minmod_slope (const PrimVar& ul, const PrimVar& ur) const;
       void reconstruct_minmax(const unsigned int&      f,
                               std::vector<PrimVar>&    state) const;
+      void prec_thornber(std::vector<PrimVar>& state) const;
 
       void initialize ();
       void interpolate_vertex ();
