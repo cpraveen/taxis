@@ -50,14 +50,11 @@ void Material::initialize ()
 void Material::num_flux (const PrimVar& left,
                          const PrimVar& right,
                          const Vector& normal,
+                         const double ssw,
                          Flux& flux) const
 {
    switch (flux_scheme)
    {
-      case kep:
-         kep_flux (left, right, normal, flux);
-         break;
-
       case lxf:
          lxf_flux (left, right, normal, flux);
          break;
@@ -70,12 +67,18 @@ void Material::num_flux (const PrimVar& left,
          kfvs_flux (left, right, normal, flux);
          break;
 
+      // Jameson kinetic energy preserving flux
+      case kep:
+         kep_flux (left, right, normal, flux);
+         break;
+
+      // kinetic energy preserving and entropy conservative flux
       case kepes:
          kepes_flux (left, right, normal, flux);
          break;
 
       case kepes_roe:
-         kepes_roe_flux (left, right, normal, flux);
+         kepes_roe_flux (left, right, normal, ssw, flux);
          break;
 
       case kepes_rus:

@@ -65,6 +65,7 @@ class Material
       void num_flux(const PrimVar& left, 
                     const PrimVar& right, 
                     const Vector& normal, 
+                    const double ssw,
                     Flux& flux) const;
       void    kep_flux (const PrimVar& left, 
                         const PrimVar& right, 
@@ -78,6 +79,10 @@ class Material
                         const PrimVar& right, 
                         const Vector& normal, 
                         Flux& flux) const;
+      void    roe2_flux (const PrimVar& left, 
+                        const PrimVar& right, 
+                        const Vector& normal, 
+                        Flux& flux) const;
       void   kepes_flux (const PrimVar& left, 
                          const PrimVar& right, 
                          const Vector& normal, 
@@ -85,6 +90,7 @@ class Material
       void   kepes_roe_flux (const PrimVar& left, 
                              const PrimVar& right, 
                              const Vector& normal, 
+                             const double ssw,
                              Flux& flux) const;
       void   kepes_hyb_flux (const PrimVar& left, 
                              const PrimVar& right, 

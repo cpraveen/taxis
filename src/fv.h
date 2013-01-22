@@ -55,6 +55,7 @@ class FiniteVolume
       std::vector<Vector>  dT, dU, dV, dW, dP;
       std::vector<Vector>  dT_cell, dU_cell, dV_cell, dW_cell, dP_cell;
       std::vector<PrimVar> phi;
+      std::vector<double>  ssw;
       Flux                 residual_norm;
       double               residual_norm_total;
       double               residual_norm_total0;
@@ -79,6 +80,7 @@ class FiniteVolume
       void reconstruct_minmax(const unsigned int&      f,
                               std::vector<PrimVar>&    state) const;
       void prec_thornber(std::vector<PrimVar>& state) const;
+      void compute_ssw();
 
       void initialize ();
       void interpolate_vertex ();

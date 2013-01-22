@@ -10,6 +10,7 @@ using namespace std;
 void Material::kepes_roe_flux (const PrimVar& left,
                                const PrimVar& right,
                                const Vector& normal,
+                               const double ssw,
                                Flux& flux) const
 {
    static const double BETA = 1.0/6.0;
@@ -26,13 +27,9 @@ void Material::kepes_roe_flux (const PrimVar& left,
    double beta = logavg(betal, betar);
    double a   = sqrt(0.5 * gamma / beta);
 
-   //Vector vel = (left.velocity + right.velocity) / 2.0;
-   double sbetal = sqrt(betal);
-   double sbetar = sqrt(betar);
-   Vector vel = (left.velocity * sbetal + right.velocity * sbetar) / (sbetal + sbetar);
-
    double p     = 0.5 * (rhol + rhor) / (betal + betar);
 
+   Vector vel = (left.velocity + right.velocity) / 2.0;
    double vel_normal = vel * unit_normal;
 
    // central flux
@@ -61,10 +58,13 @@ void Material::kepes_roe_flux (const PrimVar& left,
    double ar  = sound_speed (right);
    double LambdaL[] = { vnl - al, vnl, vnl, vnl, vnl + al };
    double LambdaR[] = { vnr - ar, vnr, vnr, vnr, vnr + ar };
+   double l2, l3, l4;
+   l2 = l3 = l4 = fabs(vel_normal);
+   if(ssw > 0) l2 = max(l2, a); // Liou modification for carbuncle
    double Lambda[]  = { fabs(vel_normal - a) + BETA*fabs(LambdaL[0]-LambdaR[0]), 
-                        fabs(vel_normal),
-                        fabs(vel_normal),
-                        fabs(vel_normal),
+                        l2,
+                        l3,
+                        l4,
                         fabs(vel_normal + a) + BETA*fabs(LambdaL[4]-LambdaR[4])};
 
    double S[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };

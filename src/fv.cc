@@ -30,6 +30,7 @@ void FiniteVolume::initialize ()
    residual.resize (grid.n_vertex);
    dt.resize (grid.n_vertex);
    phi.resize (grid.n_vertex);
+   ssw.resize (grid.n_vertex);
 
    // we need gradient for second order scheme
    dT.resize (grid.n_vertex);
@@ -241,11 +242,12 @@ void FiniteVolume::compute_inviscid_residual ()
       vector<PrimVar> state(2);
       reconstruct ( i, state );
 
-      Flux flux;
-      param.material.num_flux ( state[0], state[1], grid.face[i].normal, flux );
-
       unsigned int cl = grid.face[i].vertex[0];
       unsigned int cr = grid.face[i].vertex[1];
+
+      Flux flux;
+      param.material.num_flux ( state[0], state[1], grid.face[i].normal, ssw[cl]+ssw[cr], flux );
+
       residual[cl] += flux * grid.face[i].radius;
       residual[cr] -= flux * grid.face[i].radius;
    }
@@ -260,17 +262,18 @@ void FiniteVolume::compute_inviscid_residual ()
       BoundaryCondition& bc = param.boundary_condition[face_type];
 
       unsigned int cl = grid.bface[i].vertex[0];
+      unsigned int cr = grid.bface[i].vertex[1];
+
       state[0] = primitive[cl];
       state[1] = primitive[cl];
       bc.apply (grid.vertex[cl].coord, grid.bface[i], state);
-      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
+      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, 0, flux );
       residual[cl] += flux * (0.5 * grid.vertex[cl].radius);
 
-      unsigned int cr = grid.bface[i].vertex[1];
       state[0] = primitive[cr];
       state[1] = primitive[cr];
       bc.apply (grid.vertex[cr].coord, grid.bface[i], state);
-      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, flux );
+      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, 0, flux );
       residual[cr] += flux * (0.5 * grid.vertex[cr].radius);
    }
 }
@@ -846,6 +849,7 @@ void FiniteVolume::solve ()
    {
       store_conserved_old ();
       compute_dt ();
+      compute_ssw ();
       for(unsigned int r=0; r<param.n_rks; ++r)
       {
          compute_residual ();
