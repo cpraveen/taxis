@@ -58,13 +58,13 @@ void Material::kepes_roe_flux (const PrimVar& left,
    double ar  = sound_speed (right);
    double LambdaL[] = { vnl - al, vnl, vnl, vnl, vnl + al };
    double LambdaR[] = { vnr - ar, vnr, vnr, vnr, vnr + ar };
-   double l2, l3, l4;
-   l2 = l3 = l4 = fabs(vel_normal);
-   if(ssw > 0) l2 = max(l2, a); // Liou modification for carbuncle
+   double l2, l3;
+   l2 = l3 = fabs(vel_normal);
+   if(ssw > 0) l3 = max(l3, a); // Liou modification for carbuncle
    double Lambda[]  = { fabs(vel_normal - a) + BETA*fabs(LambdaL[0]-LambdaR[0]), 
                         l2,
                         l3,
-                        l4,
+                        l3,
                         fabs(vel_normal + a) + BETA*fabs(LambdaL[4]-LambdaR[4])};
 
    double S[] = { 0.5*rho/gamma, (gamma-1.0)*rho/gamma, p, p, 0.5*rho/gamma };
