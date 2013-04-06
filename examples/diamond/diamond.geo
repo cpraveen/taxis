@@ -38,6 +38,7 @@ Physical Surface(100000) = {1};
 Physical Line(100001) = {1,2,3,4}; // airfoil
 Physical Line(100002) = {5,6,7,8}; // farfield
 
-//Physical Surface("100000") = {1};
-//Physical Line("100001") = {1,2,3,4}; // airfoil
-//Physical Line("100002") = {5,6,7,8}; // farfield
+// Physical names: NOT FOR TAXIS
+//Physical Surface("domain") = {1};
+//Physical Line("airfoil") = {1,2,3,4}; // airfoil
+//Physical Line("farfield") = {5,6,7,8}; // farfield
