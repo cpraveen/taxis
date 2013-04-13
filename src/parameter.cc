@@ -156,6 +156,18 @@ void Parameter::read_numeric (Reader &fin)
    fin >> Cpen;
    assert (Cpen >= 0.0);
 
+   fin.entry ("smooth_res");
+   fin >> input;
+   if(input == "yes")
+      smooth_res = true;
+   else if(input == "no")
+      smooth_res = false;
+   else
+   {
+      cout << "read_numeric: unknown option for smooth_res " << input << endl;
+      exit (0);
+   }
+
    fin.end_section ();
 
    // Some parameter checks
@@ -187,6 +199,8 @@ void Parameter::read_numeric (Reader &fin)
       // For unsteady flow, final time must be specified, so dont put any limit
       // on max_iter
       max_iter = 99999999;
+      // For unsteady flow, dont use residual smoothing
+      assert(!smooth_res);
    }
 
 }

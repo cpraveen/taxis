@@ -26,6 +26,7 @@ class Parameter
       double cfl;
       double final_time;
       double min_residue;
+      bool smooth_res;
 
       enum ReconstructScheme 
       { 

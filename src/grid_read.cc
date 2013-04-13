@@ -28,6 +28,20 @@ void Grid::read (const Parameter& param)
       exit (0);
    }
 
+   /*
+   int c = 0;
+   for(unsigned int i=0; i<n_vertex; ++i)
+   {
+      double yy = fabs(vertex[i].coord.y - 0.5);
+      if(yy < 1.0e-10)
+      {
+         vertex[i].coord.y += pow(-1.0, c) * 1e-3;
+         ++c;
+      }
+   }
+   printf("Number of perturbed points = %d\n", c);
+   */
+
    // At this stage, we have only boundary faces. We save this number.
    n_boundary_face = n_face;
 

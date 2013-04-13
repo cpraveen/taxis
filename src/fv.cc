@@ -28,6 +28,11 @@ void FiniteVolume::initialize ()
    primitive.resize (grid.n_vertex);
    conserved_old.resize (grid.n_vertex);
    residual.resize (grid.n_vertex);
+   if(param.smooth_res)
+   {
+      residual1.resize (grid.n_vertex);
+      residual2.resize (grid.n_vertex);
+   }
    dt.resize (grid.n_vertex);
    phi.resize (grid.n_vertex);
    ssw.resize (grid.n_vertex);
@@ -854,6 +859,7 @@ void FiniteVolume::solve ()
       {
          compute_residual ();
 
+         smooth_residual ();
          if(r == param.n_rks-1)
             compute_residual_norm (iter);
          update_solution (r);

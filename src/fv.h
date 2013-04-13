@@ -52,6 +52,8 @@ class FiniteVolume
       std::vector<PrimVar> primitive;
       std::vector<ConVar>  conserved_old;
       std::vector<Flux>    residual;
+      std::vector<Flux>    residual1;
+      std::vector<Flux>    residual2;
       std::vector<Vector>  dT, dU, dV, dW, dP;
       std::vector<Vector>  dT_cell, dU_cell, dV_cell, dW_cell, dP_cell;
       std::vector<PrimVar> phi;
@@ -92,6 +94,7 @@ class FiniteVolume
       void compute_viscous_residual ();
       void compute_axisymmetric_residual ();
       void compute_residual ();
+      void smooth_residual ();
       void compute_dt ();
       void compute_residual_norm (const unsigned int iter);
       void log_messages (const unsigned int iter);
