@@ -16,13 +16,19 @@ numeric
    min_residue  1.0e-6
    reconstruct  limited
    bc_scheme    weak
+   nitsche_pen  0
+   smooth_res   no
 }
 
 material
 {
    gamma       1.4
    gas_const   1.0
-   viscosity   constant  0.0
+   viscosity
+   {
+      model    constant
+      mu_ref   0.0
+   }
    prandtl     1.0
    model       euler
    flux        roe
@@ -80,6 +86,9 @@ output
    variables
    {
       mach
+   }
+   surfaces
+   {
    }
    restart    true
    global_KE  false
