@@ -10,30 +10,6 @@ using namespace std;
 extern Dimension dim;
 
 //------------------------------------------------------------------------------
-// Update PrimVar = min(PrimVar, p)
-//------------------------------------------------------------------------------
-void PrimVar::min (const PrimVar& p)
-{
-   temperature = std::min(temperature, p.temperature);
-   velocity.x  = std::min(velocity.x,  p.velocity.x);
-   velocity.y  = std::min(velocity.y,  p.velocity.y);
-   velocity.z  = std::min(velocity.z,  p.velocity.z);
-   pressure    = std::min(pressure,    p.pressure);
-}
-
-//------------------------------------------------------------------------------
-// Update PrimVar = max(PrimVar, p)
-//------------------------------------------------------------------------------
-void PrimVar::max (const PrimVar& p)
-{
-   temperature = std::max(temperature, p.temperature);
-   velocity.x  = std::max(velocity.x,  p.velocity.x);
-   velocity.y  = std::max(velocity.y,  p.velocity.y);
-   velocity.z  = std::max(velocity.z,  p.velocity.z);
-   pressure    = std::max(pressure,    p.pressure);
-}
-
-//------------------------------------------------------------------------------
 // Do some initializations
 //------------------------------------------------------------------------------
 void Material::initialize ()

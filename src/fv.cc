@@ -765,17 +765,8 @@ void FiniteVolume::compute_bounds (const unsigned int iter)
 
    for(unsigned int i=0; i<grid.n_vertex; ++i)
    {
-      prim_min.temperature= min(prim_min.temperature, primitive[i].temperature);
-      prim_min.velocity.x = min(prim_min.velocity.x , primitive[i].velocity.x);
-      prim_min.velocity.y = min(prim_min.velocity.y , primitive[i].velocity.y);
-      prim_min.velocity.z = min(prim_min.velocity.z , primitive[i].velocity.z);
-      prim_min.pressure   = min(prim_min.pressure   , primitive[i].pressure  );
-
-      prim_max.temperature= max(prim_max.temperature, primitive[i].temperature);
-      prim_max.velocity.x = max(prim_max.velocity.x , primitive[i].velocity.x);
-      prim_max.velocity.y = max(prim_max.velocity.y , primitive[i].velocity.y);
-      prim_max.velocity.z = max(prim_max.velocity.z , primitive[i].velocity.z);
-      prim_max.pressure   = max(prim_max.pressure   , primitive[i].pressure  );
+      prim_min.min(primitive[i]);
+      prim_max.max(primitive[i]);
    }
 
    cout << "\t\t Temperature :" 
