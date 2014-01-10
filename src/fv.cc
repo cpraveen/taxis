@@ -50,6 +50,8 @@ void FiniteVolume::initialize ()
    dW_cell.resize (grid.n_cell);
    dP_cell.resize (grid.n_cell);
 
+   ducros.resize (grid.n_vertex);
+
    // If restart option specified, read previous solution from file
    if(restart)
    {
@@ -234,6 +236,7 @@ void FiniteVolume::compute_gradients ()
       limit_gradients_bj ();
    else if(param.reconstruct_scheme == Parameter::minmax)
       limit_gradients_mm ();
+
 }
 
 //------------------------------------------------------------------------------
@@ -250,8 +253,14 @@ void FiniteVolume::compute_inviscid_residual ()
       unsigned int cl = grid.face[i].vertex[0];
       unsigned int cr = grid.face[i].vertex[1];
 
+      FluxData data;
+      data.ssw = ssw[cl]+ssw[cr];
+      data.ducros = max(ducros[cl], ducros[cr]);
+
       Flux flux;
-      param.material.num_flux ( state[0], state[1], grid.face[i].normal, ssw[cl]+ssw[cr], flux );
+      param.material.num_flux ( primitive[cl], primitive[cr], 
+                                state[0], state[1], 
+                                grid.face[i].normal, data, flux );
 
       residual[cl] += flux * grid.face[i].radius;
       residual[cr] -= flux * grid.face[i].radius;
@@ -269,16 +278,24 @@ void FiniteVolume::compute_inviscid_residual ()
       unsigned int cl = grid.bface[i].vertex[0];
       unsigned int cr = grid.bface[i].vertex[1];
 
+      FluxData data;
+      data.ssw = 0;
+      data.ducros = max(ducros[cl], ducros[cr]);
+
       state[0] = primitive[cl];
       state[1] = primitive[cl];
       bc.apply (grid.vertex[cl].coord, grid.bface[i], state);
-      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, 0, flux );
+      param.material.num_flux ( state[0], state[1], 
+                                state[0], state[1], 
+                                grid.bface[i].normal, data, flux );
       residual[cl] += flux * (0.5 * grid.vertex[cl].radius);
 
       state[0] = primitive[cr];
       state[1] = primitive[cr];
       bc.apply (grid.vertex[cr].coord, grid.bface[i], state);
-      param.material.num_flux ( state[0], state[1], grid.bface[i].normal, 0, flux );
+      param.material.num_flux ( state[0], state[1], 
+                                state[0], state[1], 
+                                grid.bface[i].normal, data, flux );
       residual[cr] += flux * (0.5 * grid.vertex[cr].radius);
    }
 }
@@ -728,6 +745,8 @@ void FiniteVolume::output (const unsigned int iter, bool write_variables)
    writer.attach_gradient (dU, dV, dW);
    if(param.write_variables.size() > 0 && write_variables == true)
       writer.attach_variables (param.write_variables);
+   if(param.ducros)
+      writer.attach_data (ducros, "ducros");
 
    writer.output (counter, elapsed_time);
    if(param.time_mode == "unsteady") ++counter;
@@ -846,6 +865,7 @@ void FiniteVolume::solve ()
       store_conserved_old ();
       compute_dt ();
       compute_ssw ();
+      compute_ducros ();
       for(unsigned int r=0; r<param.n_rks; ++r)
       {
          compute_residual ();

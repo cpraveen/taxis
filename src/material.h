@@ -35,6 +35,13 @@ double logavg(double a, double b)
 }
 
 //------------------------------------------------------------------------------
+struct FluxData
+{
+   double ssw;
+   double ducros;
+};
+
+//------------------------------------------------------------------------------
 // Material class
 //------------------------------------------------------------------------------
 class Material
@@ -52,7 +59,7 @@ class Material
       double omega; // exponent in power law viscosity
       enum FlowModel {euler, ns};
       FlowModel model;
-      enum FluxScheme { kep, lxf, roe, kfvs, kepes, kepes_roe, kepes_rus,
+      enum FluxScheme { kep, lxf, roe, kfvs, kepes, kepes_roe, kepes_roe2, kepes_rus,
                         kepes_hyb };
       FluxScheme flux_scheme;
 
@@ -62,10 +69,12 @@ class Material
       void initialize ();
       ConVar  prim2con (const PrimVar& prim_var);
       PrimVar con2prim (const ConVar&  con_var);
-      void num_flux(const PrimVar& left, 
+      void num_flux(const PrimVar& left0, 
+                    const PrimVar& right0, 
+                    const PrimVar& left, 
                     const PrimVar& right, 
                     const Vector& normal, 
-                    const double ssw,
+                    const FluxData& data,
                     Flux& flux) const;
       void    kep_flux (const PrimVar& left, 
                         const PrimVar& right, 
@@ -92,6 +101,13 @@ class Material
                              const Vector& normal, 
                              const double ssw,
                              Flux& flux) const;
+      void   kepes_roe2_flux (const PrimVar& left, 
+                              const PrimVar& right, 
+                              const PrimVar& left1, 
+                              const PrimVar& right1, 
+                              const Vector& normal, 
+                              const FluxData& data,
+                              Flux& flux) const;
       void   kepes_hyb_flux (const PrimVar& left, 
                              const PrimVar& right, 
                              const Vector& normal, 

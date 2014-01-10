@@ -24,6 +24,15 @@ void Writer::attach_data (vector<PrimVar>& data)
 }
 
 //------------------------------------------------------------------------------
+// Add data defined at vertices
+//------------------------------------------------------------------------------
+void Writer::attach_data (vector<double>& data, std::string name)
+{
+   vertex_data.push_back (&data);
+   vertex_data_name.push_back (name);
+}
+
+//------------------------------------------------------------------------------
 // Specify which variables to write
 //------------------------------------------------------------------------------
 void Writer::attach_variables (const vector<string>& variables)
@@ -136,7 +145,7 @@ void Writer::output_vtk (string filename)
       vtk << 5 << endl;
 
    // Write vertex data
-   if(has_primitive) 
+   if(vertex_data.size() > 0 || has_primitive) 
       vtk << "POINT_DATA  " << grid->n_vertex << endl;
 
    // If vertex primitive data is available, write to file
@@ -208,6 +217,15 @@ void Writer::output_vtk (string filename)
       }
    }
 
+   // Write vertex data to file
+   for(unsigned int d=0; d<vertex_data.size(); ++d)
+   {
+      vtk << "SCALARS  " << vertex_data_name[d] << "  float 1" << endl;
+      vtk << "LOOKUP_TABLE default" << endl;
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         vtk << (*vertex_data[d])[i] << endl;
+   }
+
    vtk.close ();
 }
 
@@ -259,6 +277,8 @@ void Writer::output_tec (double time, string filename)
       tec << " \"Vorticity\"";
    if(dim == axi)
       tec << " \"Vtheta\"";
+   for(unsigned int d=0; d<vertex_data.size(); ++d)
+      tec << " \"" << vertex_data_name[d] << "\"" << endl;
    tec << endl;
    
    tec << "ZONE STRANDID=1, SOLUTIONTIME=" << time 
@@ -321,6 +341,13 @@ void Writer::output_tec (double time, string filename)
    {
       for(unsigned int i=0; i<grid->n_vertex; ++i)
          tec << (*vertex_primitive)[i].velocity.z << endl;
+   }
+
+   // Write vertex data to file
+   for(unsigned int d=0; d<vertex_data.size(); ++d)
+   {
+      for(unsigned int i=0; i<grid->n_vertex; ++i)
+         tec << (*vertex_data[d])[i] << endl;
    }
    
    tec.close ();

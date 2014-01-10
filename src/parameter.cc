@@ -168,6 +168,18 @@ void Parameter::read_numeric (Reader &fin)
       exit (0);
    }
 
+   fin.entry ("ducros");
+   fin >> input;
+   if(input == "yes")
+      ducros = true;
+   else if(input == "no")
+      ducros = false;
+   else
+   {
+      cout << "read_numeric: unknown option for ducros " << input << endl;
+      exit (0);
+   }
+
    fin.end_section ();
 
    // Some parameter checks
@@ -298,6 +310,8 @@ void Parameter::read_material (Reader &fin)
       material.flux_scheme = Material::kepes;
    else if(input == "kepes_roe")
       material.flux_scheme = Material::kepes_roe;
+   else if(input == "kepes_roe2")
+      material.flux_scheme = Material::kepes_roe2;
    else if(input == "kepes_rus")
       material.flux_scheme = Material::kepes_rus;
    else if(input == "kepes_hyb")

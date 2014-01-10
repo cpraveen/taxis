@@ -34,6 +34,7 @@ class Writer
          write_vorticity (false)
          {};
       void attach_data (std::vector<PrimVar>& data);
+      void attach_data (std::vector<double>& data, std::string name);
       void attach_gradient (std::vector<Vector>& dU,
                             std::vector<Vector>& dV,
                             std::vector<Vector>& dW);
@@ -50,6 +51,9 @@ class Writer
       const Material*  material;
       std::string      format;
       std::vector<int> surfaces;
+
+      std::vector< std::vector<double>* > vertex_data;
+      std::vector<std::string> vertex_data_name;
 
       std::vector<PrimVar>* vertex_primitive;
       std::vector<Vector>* dU;

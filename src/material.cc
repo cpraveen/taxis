@@ -23,10 +23,12 @@ void Material::initialize ()
 //------------------------------------------------------------------------------
 // Numerical flux function
 //------------------------------------------------------------------------------
-void Material::num_flux (const PrimVar& left,
+void Material::num_flux (const PrimVar& left0,
+                         const PrimVar& right0,
+                         const PrimVar& left,
                          const PrimVar& right,
                          const Vector& normal,
-                         const double ssw,
+                         const FluxData& data,
                          Flux& flux) const
 {
    switch (flux_scheme)
@@ -54,7 +56,11 @@ void Material::num_flux (const PrimVar& left,
          break;
 
       case kepes_roe:
-         kepes_roe_flux (left, right, normal, ssw, flux);
+         kepes_roe_flux (left, right, normal, data.ssw, flux);
+         break;
+
+      case kepes_roe2:
+         kepes_roe2_flux (left0, right0, left, right, normal, data, flux);
          break;
 
       case kepes_rus:

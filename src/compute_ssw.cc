@@ -8,7 +8,8 @@ void FiniteVolume::compute_ssw()
 {
    // compute only if flux = kepes_roe since others do not use ssw
    // This is used to implement carbuncle fix.
-   if(param.material.flux_scheme != Material::kepes_roe) return;
+   if(param.material.flux_scheme != Material::kepes_roe &&
+      param.material.flux_scheme != Material::kepes_roe2) return;
 
    for(unsigned int i=0; i<grid.n_vertex; ++i)
       ssw[i] = 0;
