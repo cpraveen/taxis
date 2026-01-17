@@ -1,0 +1,96 @@
+grid
+{
+   type   gmsh 
+   file   cylinder.msh
+   cell   median
+}
+
+numeric
+{
+   time_mode    unsteady
+   time_scheme  rk3
+   time_step    0.0
+   cfl          0.8
+   max_iter     500000
+   final_time   1.0e20
+   min_residue  1.0e-6
+   reconstruct  second
+   bc_scheme    weak
+}
+
+material
+{
+   gamma       1.4
+   gas_const   1.0
+   viscosity   constant 1e-3
+   prandtl     0.72
+   model       ns
+   flux        roe
+}
+
+constants
+{
+   H    0.41
+   T    160.714285714286
+   p    160.714285714286
+   Um   1.5
+}
+
+initial_condition
+{
+   temperature   T
+   xvelocity     0.0
+   yvelocity     0.0
+   zvelocity     0.0
+   pressure      p
+}
+
+boundary
+{
+   1000001
+   {
+      type           farfield
+      temperature    T
+      xvelocity      4.0*Um*(y/H)*(1-(y/H))
+      yvelocity      0.0
+      zvelocity      0.0
+      pressure       p
+   }
+
+   1000002
+   1000004
+   {
+      type       noslip
+      xvelocity  0.0
+      yvelocity  0.0
+      zvelocity  0.0
+   }
+
+   1000003 // outlet
+   {
+      type       pressure
+      pressure   p
+   }
+
+}
+
+integrals
+{
+   force
+   {
+      cylinder   1000002
+   }
+}
+
+output
+{
+   format     tec
+   frequency  1000
+   variables
+   {
+      mach  
+      vorticity
+   }
+   restart    false
+   global_KE  false
+}

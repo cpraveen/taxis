@@ -1,0 +1,6 @@
+* Add viscous force computation
+* Axisymmetric terms
+* Unsteady, implicit scheme
+* Maxwell slip bc
+* Improve specification of viscosity model in input file
+* Slip bc for NS: Tangential stress should be zero

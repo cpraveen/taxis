@@ -1,0 +1,99 @@
+grid
+{
+   type   gmsh 
+   file   grid.msh
+   cell   voronoi
+}
+
+numeric
+{
+   time_mode    steady
+   time_scheme  lusgs
+   time_step    0.0
+   cfl          1e6
+   max_iter     5000000
+   final_time   20.0
+   min_residue  1.0e-6
+   reconstruct  second
+   bc_scheme    weak
+   nitsche_pen  1.0
+}
+
+material
+{
+   gamma       1.4
+   gas_const   1.0
+   viscosity
+   {
+      model    constant 
+      mu_ref   2e-3
+   }
+   prandtl     0.72
+   model       ns
+   flux        roe
+}
+
+// mach = 0.85
+constants
+{
+   T    0.988630746416214
+   p    0.988630746416214
+   uinf 1.0
+   vinf 0.0
+}
+
+initial_condition
+{
+   temperature   T
+   xvelocity     uinf
+   yvelocity     vinf
+   zvelocity     0.0
+   pressure      p
+}
+
+boundary
+{
+   100001
+   {
+      type           noslip
+      xvelocity      0.0
+      yvelocity      0.0
+      zvelocity      0.0
+   }
+
+   100002
+   {
+      type           farfield
+      temperature    T
+      xvelocity      uinf
+      yvelocity      vinf
+      zvelocity      0.0
+      pressure       p
+   }
+
+}
+
+integrals
+{
+   force
+   {
+      airfoil   100001
+   }
+}
+
+output
+{
+   format     tec
+   frequency  500
+   variables
+   {
+      mach  
+      vorticity
+   }
+   surfaces
+   {
+      100001
+   }
+   restart    true
+   global_KE  false
+}

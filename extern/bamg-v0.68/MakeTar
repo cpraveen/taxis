@@ -1,0 +1,12 @@
+version=`grep '@(#)INRIA' bamg.cpp | awk '{print $(NF-1)}'`
+if [ -z "$1" ] ; then
+  tarfile=/tmp/bamg-$version.tar
+else 
+  tarfile=$1
+fi
+find . -name '*~' -o -name core -o -name 'YG_trace*' -o -name 'trace*.emc2_trace'|xargs rm -f
+tarfile=/tmp/bamg-$version.tar
+(cd ..;tar cvf $tarfile  bamg/Mak* bamg/F*  bamg/*.f  bamg/*.cpp  bamg/*.h bamg/REA*  bamg/examples/square/*_g.* bamg/examples/square/do*  bamg/examples/NACA012/[adp]* bamg/examples/NACA012/naca.awk bamg/examples/quadloop/dotest.pl bamg/examples/test/dotest*.pl  ) 
+echo gzip -9 $tarfile
+gzip -9 $tarfile
+

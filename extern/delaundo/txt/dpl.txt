@@ -1,0 +1,75 @@
+The .dpl file format is the preferred output format for
+DELAUNDO. It is a rather compact ASCII file that can be
+read into dplot and xcfd plot softwares. Although the 
+solution is given in the nodes, vertex centered codes 
+can use corner information and a separate solution file.
+
+The .dpl file lists:
+
+unstructured grid data by Delaundo 4.0
+    (a first line with a header.)
+    8 0 1
+    (the number of cells, and two integer placeholders,
+     e.g. number of previous iterations and the variable to
+     check the convergence.)
+3      9     4     5      13     6     4       1
+3      9     1     2      10     4     5       2
+3      4     2     3      11    12     4       3
+    (for each cell, the number of corners, the
+     nodes at each corner in counterclockwise sense,
+     the neighboring cells with neighbor #1 being
+     opposite node #1, i.e neighbor #1 and this cell
+     share nodes #2,3, and a running counter.)
+3      9     2     4       3     1     2       4
+3      9     8     1       9     2     8       5
+3      9     5     7       7     8     1       6
+3      7     5     6      14    15     6       7
+3      9     7     8      16     5     6       8
+     9
+    (the number of nodes.)
+ 1. 1. 1. 1. 0. 0.
+    (four reference freestream state quantities and two
+     float placeholders, e.g. reference normalizers for
+     L2 and Linfinity norms for restart.)
+  0.3000000E+01  0.0000000E+00 1. 1. 1. 1.     1
+  0.3000000E+01  0.2000000E+01 1. 1. 1. 1.     2
+  0.3000000E+01  0.3000000E+01 1. 1. 1. 1.     3
+  0.2000000E+01  0.3000000E+01 1. 1. 1. 1.     4
+    (for each node, the x and y coordinates,
+     four state quantities, and a running counter.)
+  0.1000000E+01  0.3000000E+01 1. 1. 1. 1.     5
+  0.0000000E+00  0.3000000E+01 1. 1. 1. 1.     6
+  0.0000000E+00  0.2000000E+01 1. 1. 1. 1.     7
+  0.0000000E+00  0.0000000E+00 1. 1. 1. 1.     8
+  0.1267948E+01  0.1000000E+01 1. 1. 1. 1.     9
+  4  4   1   3   6   8   2   4   3   1
+    (the number of boundary segments, the number of corners
+     between boundary segments, the node numbers at each
+     corner and the left oriented boundary name for each
+     corner, i.e. the name of the boundary oriented with
+     the domain to the left, having this nodes as first
+     node.)
+   1   2
+    (For each segment the number of nodes along the segment
+     and the name of the segment.)
+   1   8     5       9
+   (for each boundary face, the two forming nodes, the
+    interior neighbor and a counter.
+    Note that the orientation of any face is changed
+    when viewing it from the other cell that shares the face.
+    For boundary cells this means that traversing from the
+    first listed node of a cell to the second, the domain is
+    to the right.)
+   2   4
+   2   1     2      10
+   3   2     3      11
+   3   3
+   4   3     3      12
+   5   4     1      13
+   6   5     7      14
+   2   1
+   7   6     7      15
+   8   7     8      16
+  0 -1
+    (an indicator that there are no outer boundary faces (see
+     dplot for definition) and a bogus boundary name.)

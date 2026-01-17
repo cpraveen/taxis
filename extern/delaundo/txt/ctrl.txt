@@ -1,0 +1,249 @@
+A .ctr file specifies how DELAUNDO will treat the nodes read 
+from a .pts file. It is not necessary to use a .ctr file, all
+input can also be entered at a prompt. However, as FroD is
+a rather fast grid generation method, playing around with 
+parameters is recommended to get a feel on how FroD behaves.
+Using a .ctr file makes this very easy.
+
+DELAUNDO looks first for a file 'delaundo.ctr' in your local
+directory. Depending on the parameters set in that file, it
+will or will not prompt you for any other input. If such a
+file does not exist, you are prompted for a filename. If you
+enter at this prompt:
+- a '?', you will be prompted for all required parameters,
+  e.g. input file name, output file name ....
+- the string 'ALLPAR' (in captials!), you will be prompted
+  for all parameters that apply to your current selections.
+  E.g. you will be not prompted for an aspect ratio if you
+  don't want stretched grids. If you enter a non-applicable
+  answer, e.g. an integer rather than character, the default
+  value is taken, if applicable.
+- the string 'HELPME'(in captials!), you will enter the
+  help menu with the different sub-options (as you apparently
+  did).
+- the string 'XAMPLE'(in captials!), you will be able to run
+  a few demos.
+- the string 'RELEAS' (you guessed it), you will obtain infor-
+  mation pertaining to the current release, like the version
+  number you're running or changes from the last version.
+- a filename, DELAUNDO will try to read this file to extract
+  the necessary information.
+
+In a .ctr file, information is adressed by six-letter
+capitalized keywords. The option selected or the value given
+or whatever, follows the line after the keyword.
+The keywords and the options are:
+
+IGNORE
+ The rest of this line will be ignored. A '%' will work in
+ the same way.
+
+HELPME
+ The help menu will be called up and allows you to choose
+ one of the help pages.
+
+XAMPLE	
+ The example menu will be called up and allows you to choose
+ one of the examples.
+
+RELEAS
+ Information about the current release.
+
+VERBOS
+ This sets the verbosity. 0 gives you no output at all, except
+ for warnings and fatal error messages, 5 will give you all
+ there is to say. Default value is 3 (I think).
+
+ALLPAR
+  Set to 't' or 'y', you will be prompted
+  for all parameters that apply to your current selections.
+  E.g. you will be not prompted for an aspect ratio if you
+  don't want stretched grids. If you enter a non-applicable
+  answer, e.g. an integer rather than character, the default
+  value is taken, if applicable. Default is 'n','f'.
+
+INFILE
+  The file name of the .pts file with the nodes. The default
+  is 'delaundo.pts'.
+
+INFORM
+  The input file can be formatted 'y','t', or unformatted 'n',
+  'f'. Input file formats, .pts, are explained in a separate
+  help page. The default is 't'.
+
+NODEUS
+  Set to 't' or 'y', this will make DELAUNDO use a given set
+  of internal nodes. Note that only either of NODEUS or NODECO
+  may be specified due to coding constraints. Default is 'f','n'
+
+NODECO
+  Set to 't' or 'y', this will make DELAUNDO construct a set of
+  internal nodes with the FroD method. Default is 't','y'.
+
+ASKROW
+  Set to 't' or 'y', this will make DELAUNDO prompt the user
+  for more rows to be constructed, once the current counts have
+  been exceeded. Otherwise the process will output the grid at
+  the current stage. Default is 'f','n'.
+
+ANTICO
+  Set to 't' or 'y', this will make DELAUNDO use the "anti-con-
+  nectivity-information" specified in the .pts file. Default is
+  'f','n'.
+
+ALLDIS
+  Set to 't' or 'y', this will make DELAUNDO remove all edges in
+  the background grid that connect between non-consecutive
+  boundary nodes, even if they reside on the same boundary seg-
+  ment. Use it with discretion as this might lead to many many
+  extra nodes needed for the disconnection of close surfaces.
+
+SPCRAT
+  This floating point value specifies the ratio between the
+  spacing gradients at the points of highest and lowest spacing
+  Values higher than one will cause DELAUNDO to interpolate
+  with a power law to extend the regions of fine spacing further
+  into the domain. Default is 1.
+
+DTOLER
+  This floating point value specifies the fraction of the
+  background mesh size that is being used as a minimum distance
+  between nodes. Default value is .65
+
+QTOLER
+  This floating point value specifies the minimum fraction of the
+  the maximum sidelength that the smaller sides must have in
+  order to make the triangle acceptable. Default value is .65
+  
+STRETC
+  Set to 't' or 'y', this will make DELAUNDO construct a layer
+  of wedge type stretched triangles in form of rectangular boxes
+  around frontal surfaces. Default is 'f','n'.
+
+BTOLER
+  This floating point value specifies the minimum fraction of the
+  background mesh size that is being used as a minimum distance
+  between nodes in the background grid. Default value is 2.
+
+DELTAS
+  This floating point value specifies the thickness of the
+  stretched layer in the scale of the other points. IF STRETC
+  is specified as 't' or 'y', this parameter is required.
+
+MAXASP
+  This floating point value specifies the maximum aspect ratio
+  in the stretched layer. IF STRETC is specified as 't' or 'y',
+  this parameter is required.
+
+MVISRO
+  This integer value specifies how many stretched, viscous rows
+  are to be built. If ASKROW is set to 't' or 'y', the user will
+  be prompted for more rows. (Limiting the number of rows is to
+  be considered a debugging tool.) Default is 30000.
+
+ISMOOT
+  This integer value specifies how many stretched rows of cells
+  will be opened for isotropic retriangulation once the 
+  stretched process has terminated. 0 does not allow any retri-
+  angulation, 1 allows retriangulation of the outermost cells,
+  2 allows retriangulation of the neighbors of the outermost
+  cells as well. (Note that whenever stretched layers from
+  different geometry segments impinge on each other, the "sew-
+  up" becomes more gentle with ISMOOT:2). Default is 2.
+
+MISORO
+  This integer value specifies how many isotropic rows
+  are to be built. If ASKROW is set to 't' or 'y', the user will
+  be prompted for more rows. (Limiting the number of rows is to
+  be considered a debugging tool.) Default is 30000.
+
+LAPLAC
+  If set to 't' or 'y', a Laplacian filter is applied to smoothen
+  the mesh. Default is 'f'. Note that the applying the Laplacian
+  to a stretched mesh will most likely fail due to mesh overlap.
+  The ensuing process back toward Delaunay will not be able to
+  recover.
+
+RSWEEP
+  This integer value specifies the number of relaxation sweeps for
+  the Laplacian. Default is 10.
+
+LPBETA
+  This floating point value specifies how much the weight of the
+  points increases with increasing vertex degree. 0. means fixed
+  weights, 1. is maximum variance. Default is .5.
+
+RELFAC
+  This floating point value specifies the relaxation factor for
+  the Laplacian. The stability limits are [0.,1.], default is .75
+
+MLEVEL
+  This integer value specifies the number of multigrid levels that
+  are to be produced. The maximum permissible depth is 10, default
+  is 1.
+
+FLATSW
+  Set to 't' or 'y', this will make DELAUNDO swap diagonals in
+  the final mesh in order to minimize the maximum angles. (Note
+  that although the implementation is rather efficient to prevent
+  any N**2 worst case, it is supposed to be used only to correct
+  cases where the stretched process has stopped before reaching
+  isotropy and the isotropic process created flat cells.) Default
+  is 'f','n'.
+
+ANGMAX
+  This floating point value specifies the maximum tolerable cell
+  angle before FLATSW kicks in. (Note that this doesn't guarantee
+  that all angles are below that value. A diagonal switch is not
+  carried out if the maximum angle in the quadrilateral were to
+  increase.) Default is 120.
+
+MCYCSW
+  This integer value specifies how many swapping cycles are to
+  be executed. Default is 10.
+
+OUTFIL
+  This string is the output file name. The default is 'delaundo.dpl'.
+
+OUTTYP
+  This character determines the output type. Possible types are:
+  t: the triangulation with the cells outside the domain removed.
+  q: the triangulation of t, but with 6 nodes per triangle for
+     quadratic elements.
+  h: the convex hull with all the triangles. This is useful for
+     creating a grid of scattered nodes for interpolation purposes
+     or for debugging in case a boundary enforcement check fails.
+  b: the background grid with the automatically added background
+     nodes. Nodal values given are the node spacing as rho (1.
+     state quantity) and the stretching magnitude multiplied by
+     the spacing as rho*u (2. state quantity).
+  i: the initial triangulation of the set of given nodes for 
+     debugging purposes.
+  The default is 't'.
+
+OUTFOR
+  This character determines the output format. Possible formats are:
+  g: a VKB .gri file with grid. Only for t,q,h types.
+  o: a VKB .out file with grid and solution. Only for t,q,h types.
+  d: a dplot file. All types. USE THIS ONE! This fileformat is
+     explained in a separate help page.
+  u: a AvS ucd file. NOT really supported, so don't use it. Only
+     t,b,h types.
+  The default is 'd'.
+
+TITLE1,...,TITLE4
+  Titles for the g and o output formats. Titles 2-4 apply only
+  to o. Defaults are ' '.
+
+DOLOGF
+  Set to 't' or 'y', this will make DELAUNDO to write a logfile.
+  Default is 'f','n'.
+
+LOGFIL
+  This string is the name of the logfile. Default is 'delaundo.log'.
+
+ENDDAT
+  Any information after this keyword will be ignored.
+
+
+

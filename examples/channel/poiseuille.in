@@ -1,0 +1,98 @@
+grid
+{
+   type   gmsh 
+   file   channel.msh
+   cell   median
+}
+
+numeric
+{
+   time_mode    steady
+   time_scheme  lusgs
+   time_step    0.0
+   cfl          1e6
+   max_iter     5000
+   final_time   1e20
+   min_residue  1.0e-12
+   reconstruct  second
+   bc_scheme    weak
+   nitsche_pen  10.0
+}
+
+material
+{
+   gamma       1.4
+   gas_const   1.0
+   viscosity
+   {
+      model    constant
+      mu_ref   1.0e-2
+   }
+   prandtl     0.72
+   model       ns
+   flux        roe
+}
+
+constants
+{
+   L     5.0
+   T     7.142857142857143e+01
+   pin   7.142857142857143e+01
+   pout  7.102857142857142e+01
+   Uc    1.0
+}
+
+initial_condition
+{
+   temperature  T
+   xvelocity    0.0
+   yvelocity    0.0
+   zvelocity    0.0
+   pressure     pin + (x/L)*(pout - pin)
+}
+
+boundary
+{
+   100001 // inlet boundary
+   {
+      type         farfield
+      temperature  T
+      xvelocity    4*Uc*y*(1 - y)
+      yvelocity    0.0
+      zvelocity    0.0
+      pressure     pin
+   }
+
+   100002 // outlet boundary
+   {
+      type       pressure
+      pressure   pout
+   }
+
+   100003
+   100004
+   {
+      type        noslip
+      xvelocity   0.0
+      yvelocity   0.0
+      zvelocity   0.0
+      temperature T
+   }
+}
+
+integrals
+{
+}
+
+output
+{
+   format      vtk
+   frequency   500
+   variables
+   {
+      mach 
+      density
+   }
+   restart     true
+   global_KE   false
+}

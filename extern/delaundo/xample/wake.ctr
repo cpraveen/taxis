@@ -1,0 +1,53 @@
+ VERBOSe:
+       3, User.
+ ALLPARameters:
+       f, User.
+ INFILE:
+       wake.4pts
+ INFORMatted:
+       T
+ NODEUSe:
+       F, User.
+ NODECOnstr.:
+       T, User.
+ ANTICOnnect.:
+       f, User.
+ SPCRATio:
+         1.00, User.
+ DTOLERance:
+       0.6000, User.
+ QTOLERance:
+       0.6500, User.
+ STRETChing:
+       t, User.
+ BTOLERance:
+       1.5000, User.
+ DELTAStar:
+       0.10, User.
+ MAXASPect ratio:
+        100., User.
+ MVISROw:
+        1000, User.
+ ASKROW:
+        f
+ ISMOOTh:
+         2 User
+ MISOROw:
+         1000, User.
+ FLATSWap:
+       t, User.
+ ANGMAX:
+       133.
+ MCYCSWap:
+       20 User
+ OUTFILe:
+       ./wake.1000.dpl
+ OUTTYPe:
+      t 
+ OUTFORmat:
+       dpl (dplot)
+ DOLOGFile:
+       T, User.
+ LOGFILe:
+       delaundo.log
+

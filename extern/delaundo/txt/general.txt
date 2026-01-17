@@ -1,0 +1,106 @@
+DELAUNDO creates triangular grids based on the Frontal Delaunay
+Method (Frod). 
+
+The triangulation algorithm employed is Bowyer's/Watson's using
+the circumcircle criterion. The ambiguity due to round-off error
+is handled by using double precision coordinates and radii and by
+defining a thickness of the circumcircle with all nodes found to
+be on the circle not breaking the triangle. This leads to a 
+certain minimum node distance that must be exceeded in order to
+guarantee that the thickness of the circle remains small in
+comparison to the radius. This minimum distance is calculated
+as 10E-10 times the maximum distance in x or y. For CFD purposes
+ten orders of magnitude ought to be sufficient.
+
+Delaundo generates an initial Delaunay triangulation from a set
+of input boundary points. This initial grid is used as the basis of a
+background grid to interpolate a local length scale between the
+nodes of the triangles in the grid. As the
+connectivity in this background grid is uniquely determined
+by the distribution of the boundary nodes, unwanted interpolation
+between finely discretized concave geometries may occur. To
+prevent FroD from using a too fine scale, the user can require
+no connectivity between specific geometry segments using the
+ANTICO statements in .ctr and .pts files. Extra nodes
+are then inserted that are only present in the background grid
+and remove the illicit connections. The spacing at these inserted
+nodes is extrapolated from the surfaces with an average gradient.
+It is recommende to view the stretching and spacing distribution
+of the background mesh before generating the mesh by using the
+OUTTYP b option in the .ctr file.
+
+In the case of triangulations with stretched regions, extra
+nodes are inserted at a user defined distance DELTAS around
+each frontal surface. This defines a rim of triangles around
+the frontal surfaces where the stretching magnitude decays
+from the user specified maximum aspect ratio MAXASP at the
+boundary to the isotropic value of 1. at the outer edge of
+the rim. In this stretched region rectangular boxes along
+the surface are built with a height of the maximum facelength
+of the boundary node distribution divided by the locally
+interpolated stretching magnitude. The boxes are being built
+as long as the corners of the box remain in the rim of the
+frontal surface they are associated with and as long as the
+height of the box is smaller than its width.
+
+In order to achieve a smooth transition from the stretched
+node generation process to the isotropic one, the boxes ought
+to exhibit isotropy where the process ceases. This occurs
+automatically at the outer edge of the stretched layer where
+the local aspect ratio tends to unity. At trailing edges or
+corners the boundary node distribution has to be chosen fine
+enough to revert to isotropy here as well. Isotropy cannot
+be achieved where stretching rims of different surfaces inter-
+fere with each other and the stretching magnitude does not
+decay to isotropy. To handle these cases, up to two of the
+outermost layers of stretched wedges can be opened for retri-
+angulation of the isotropic process using ISMOOT in the .ctr
+file. Further grid quality improvement can be achieved by
+swapping grid diagonals to minimize the maximum angle speci-
+fying FLATSW in the .ctr file.
+
+The isotropic node generation process generates nodes from
+frontal faces that are detected as faces shared between 
+acceptable nearly equilateral triangles and non-acceptable
+skewed triangles. The ensuing node distribution is smoothed
+by requiring a spacing disk around each node that may not
+be violated by any other node before new nodes are inserted.
+The process stops when no more grid improvement by node
+insertion can be achieved. The resulting triangulation is
+extremely regular except where fronts merge or collapse. 
+Hence, it is recommended to keep outer boundaries non frontal
+using the ITYPBN statement in the .pts file in order to
+have the 'sew-up' as far away from the physical boundaries
+as possible. 
+
+Boundary conformality is enforced by angular swapping at 
+various stages of the generation process. However, the
+currently employed algorithm is rather crude and not fool-
+proof. It can fail on very crude boundary discretizations
+where non-conformality across several consecutive nodes
+occurs. In that case, refine your boundaries in highly
+curved regions, or wait for the next update.
+
+In case of problems, mail to muller@engin.umich.edu. If you
+want to know more about the method, read the references:
+
+[1]   J.-D. M\"uller, H. Deconinck, P.L. Roe, ``A Frontal 
+      Approach for Node Generation in Delaunay Triangulations'',
+      AGARD R 787.
+
+[2]   J.-D. M\"uller, H. Deconinck, P.L. Roe, ``A Frontal Approach
+      for internal node generation in Delaunay Triangulations.'',
+      Submitted to Int. J. Num. Meth. Fluids.
+
+[3]   J.-D. M\"uller, ``Proven Angular Bounds and 
+      Stretched Triangulations with the Frontal Delaunay Method'',
+      to be presented at the 11th AIAA CFD Conference, Orlando, 1993.
+
+Enjoy, Jens.
+------------------------------------------------------------------------
+|  Yabbadynamics: n., progressive force which enables Fred Flintstone  |
+|                 to power a stone automobile with just his feet.      |
+|                                                                      |
+|        Jens-Dominik Mueller, University of Michigan, Ann Arbor       |
+|                       muller@engin.umich.edu                         |
+------------------------------------------------------------------------

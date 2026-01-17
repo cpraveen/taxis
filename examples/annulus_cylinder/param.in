@@ -1,0 +1,87 @@
+grid
+{
+   type   gmsh 
+   file   annulus.msh
+   cell   median
+}
+
+numeric
+{
+   time_mode    unsteady
+   time_scheme  rk3
+   time_step    0.0
+   cfl          0.8
+   max_iter     500000
+   final_time   1.0e20
+   min_residue  1.0e-6
+   reconstruct  second
+   bc_scheme    weak
+}
+
+material
+{
+   gamma       1.4
+   gas_const   287.0
+   viscosity   constant  1.0e-3
+   prandtl     0.7
+   model       ns
+   flux        roe
+}
+
+constants
+{
+   r1   0.05
+   T    300.0
+   p1   7.55095706225425e+04
+   omg  1.73594354746921e+03
+   A    4.37500000000000e-02
+}
+
+initial_condition
+{
+   temperature T
+   xvelocity   omg*y
+   yvelocity   -omg*x
+   zvelocity   0.0
+   pressure    p1*exp(A*((x^2+y^2)/r1^2 - 1))
+}
+
+boundary
+{
+   100001
+   100002
+   {
+      type         noslip
+      xvelocity    omg*y
+      yvelocity   -omg*x
+      zvelocity    0.0
+      temperature  T
+   }
+
+   100003
+   {
+      type         noslip
+      xvelocity    0.0
+      yvelocity    0.0
+      zvelocity    0.0
+      temperature  T
+   }
+}
+
+integrals
+{
+}
+
+output
+{
+   format     tec
+   frequency  1000
+   variables
+   {
+      mach 
+      density 
+      vorticity
+   }
+   restart    true
+   global_KE  false
+}
