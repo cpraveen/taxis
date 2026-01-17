@@ -1,1 +1,0 @@
-int maketriau(triangulation& t, int argc, char **argv);
