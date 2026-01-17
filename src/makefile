@@ -16,7 +16,7 @@ $(TARGET): $(OBJ)
 
 $(OBJ): $(HDR)
 
-.cc.o: $(HDR)
+%.o: %.cc $(HDR)
 	$(CXX) $(CFLAGS) $(INC) -c $*.cc -o $*.o
 
 clean:
